@@ -1,0 +1,400 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5822BB32-8BBA-4BC6-8DC5-4A3D06552CD5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>levelset</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>$(ProjectName)d</TargetName>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.dll</TargetExt>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <UseFullPaths>true</UseFullPaths>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);libmatiod.lib;$(OPENCV_DEBUG_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /S "$(OutDir)*.dll" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+xcopy /Y /S "$(OutDir)*.lib" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\lib\"
+pushd "$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\bin\"
+xcopy /Y /S "$(OPENCV_DEBUG_BINS)" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+popd</Command>
+    </PostBuildEvent>
+    <CudaCompile>
+      <AdditionalCompilerOptions>
+      </AdditionalCompilerOptions>
+      <Defines>_MAKE_VC_DLL</Defines>
+      <PtxAsOptionV>true</PtxAsOptionV>
+      <CodeGeneration>compute_50,sm_50</CodeGeneration>
+      <MaxRegCount>64</MaxRegCount>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <CompileAsManaged>false</CompileAsManaged>
+      <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <UseFullPaths>true</UseFullPaths>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);libmatiod.lib;$(OPENCV_DEBUG_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /S "$(OutDir)*.dll" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+xcopy /Y /S "$(OutDir)*.lib" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\lib\"
+pushd "$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\bin\"
+xcopy /Y /S "$(OPENCV_DEBUG_BINS)" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+popd</Command>
+    </PostBuildEvent>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <AdditionalCompilerOptions>
+      </AdditionalCompilerOptions>
+      <Defines>_MAKE_VC_DLL</Defines>
+      <PtxAsOptionV>true</PtxAsOptionV>
+      <CodeGeneration>compute_50,sm_50</CodeGeneration>
+      <MaxRegCount>64</MaxRegCount>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <CompileAsManaged>false</CompileAsManaged>
+      <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <UseFullPaths>true</UseFullPaths>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <Profile>true</Profile>
+      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);libmatio.lib;$(OPENCV_RELEASE_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /S "$(OutDir)*.dll" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+xcopy /Y /S "$(OutDir)*.lib" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\lib\"
+pushd "$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\bin\"
+xcopy /Y /S "$(OPENCV_RELEASE_BINS)" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+popd</Command>
+    </PostBuildEvent>
+    <CudaCompile>
+      <AdditionalCompilerOptions>
+      </AdditionalCompilerOptions>
+      <Defines>_MAKE_VC_DLL</Defines>
+      <PtxAsOptionV>true</PtxAsOptionV>
+      <CodeGeneration>compute_50,sm_50</CodeGeneration>
+      <MaxRegCount>64</MaxRegCount>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <CompileAsManaged>false</CompileAsManaged>
+      <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <BrowseInformation>true</BrowseInformation>
+      <UseFullPaths>true</UseFullPaths>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <Profile>true</Profile>
+      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);libmatio.lib;$(OPENCV_RELEASE_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>@echo on
+xcopy /Y /S "$(OutDir)*.dll" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+xcopy /Y /S "$(OutDir)*.lib" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\lib\"
+pushd "$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\bin\"
+xcopy /Y /S "$(OPENCV_RELEASE_BINS)" "$(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\"
+popd</Command>
+    </PostBuildEvent>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <AdditionalCompilerOptions>
+      </AdditionalCompilerOptions>
+      <Defines>_MAKE_VC_DLL</Defines>
+      <PtxAsOptionV>true</PtxAsOptionV>
+      <CodeGeneration>compute_50,sm_50</CodeGeneration>
+      <MaxRegCount>64</MaxRegCount>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BoundaryCondition\AddGhostExtrapolate.cpp" />
+    <ClCompile Include="BoundaryCondition\AddGhostPeriodic.cpp" />
+    <ClCompile Include="Core\CacheTag.cpp" />
+    <ClCompile Include="Core\interpn.cpp" />
+    <ClCompile Include="Core\UVec.cpp" />
+    <ClCompile Include="Core\UVec_cuda_dummy.cpp" />
+    <ClCompile Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF.cpp" />
+    <ClCompile Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_cuda_dummy.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\OdeCFL1.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\OdeCFL2.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\OdeCFL3.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\OdeCFL_CommandQueue.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\OdeCFL_OneSlice.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\odeCFL_SubStep.cpp" />
+    <ClCompile Include="ExplicitIntegration\Integrators\OdeCFL_Worker.cpp" />
+    <ClCompile Include="ExplicitIntegration\SchemeData.cpp" />
+    <ClCompile Include="ExplicitIntegration\Terms\TermLaxFriedrichs.cpp" />
+    <ClCompile Include="ExplicitIntegration\Terms\TermLaxFriedrichs_cuda_dummy.cpp" />
+    <ClCompile Include="ExplicitIntegration\Terms\TermRestrictUpdate.cpp" />
+    <ClCompile Include="Grids\HJI_Grid.cpp" />
+    <ClCompile Include="InitialConditions\BasicShapes\ShapeCylinder.cpp" />
+    <ClCompile Include="InitialConditions\BasicShapes\ShapeHyperplaneByPoint.cpp" />
+    <ClCompile Include="InitialConditions\BasicShapes\ShapeRectangleByCenter.cpp" />
+    <ClCompile Include="InitialConditions\BasicShapes\ShapeRectangleByCorner.cpp" />
+    <ClCompile Include="InitialConditions\BasicShapes\ShapeSphere.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirst.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO2.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3a.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper_cuda_dummy.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3b.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3bHelper.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstFirst.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a_cuda_dummy.cpp" />
+    <ClCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5b.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\PartialFunction.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\levelset.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\BoundaryCondition\AddGhostExtrapolate.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\BoundaryCondition\AddGhostPeriodic.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\BoundaryCondition\BoundaryCondition.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\Core\CacheTag.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\Core\CudaStream.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\Core\interpn.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\Core\UVec.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\cuda_macro.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Dissipations\ArtificialDissipationGLF.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Dissipations\Dissipation.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\ExplicitIntegration.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Integrators\Integrator.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Integrators\OdeCFL1.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Integrators\OdeCFL2.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Integrators\OdeCFL3.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\SchemeData.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Terms\Term.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Terms\TermLaxFriedrichs.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\Terms\TermRestrictUpdate.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\Grids\HJI_Grid.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\BasicShapes\BasicShape.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\BasicShapes\ShapeCylinder.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\BasicShapes\ShapeHyperplaneByPoint.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\BasicShapes\ShapeRectangleByCenter.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\BasicShapes\ShapeRectangleByCorner.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\BasicShapes\ShapeSphere.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\InitialConditions\InitialCondition.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\macro.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\SpatialDerivative.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirst.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstENO2.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstENO3.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstENO3a.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstENO3b.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstENO3bHelper.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstFirst.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstWENO5.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstWENO5a.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\levelset\SpatialDerivative\UpwindFirst\UpwindFirstWENO5b.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\typedef.hpp" />
+    <ClInclude Include="BoundaryCondition\AddGhostExtrapolate_impl.hpp" />
+    <ClInclude Include="BoundaryCondition\AddGhostPeriodic_impl.hpp" />
+    <ClInclude Include="Core\CacheTag_impl.hpp" />
+    <ClInclude Include="Core\UVec_impl.hpp" />
+    <ClInclude Include="Core\UVec_impl_cuda.hpp" />
+    <ClInclude Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_cuda.hpp" />
+    <ClInclude Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL1_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL2_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL3_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL_CommandQueue.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL_CommandQueue_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL_OneSlice.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL_OneSlice_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\odeCFL_SubStep.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL_Worker.hpp" />
+    <ClInclude Include="ExplicitIntegration\Integrators\OdeCFL_Worker_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\SchemeData_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Terms\TermLaxFriedrichs_cuda.hpp" />
+    <ClInclude Include="ExplicitIntegration\Terms\TermLaxFriedrichs_impl.hpp" />
+    <ClInclude Include="ExplicitIntegration\Terms\TermRestrictUpdate_impl.hpp" />
+    <ClInclude Include="Grids\HJI_Grid_impl.hpp" />
+    <ClInclude Include="InitialConditions\BasicShapes\ShapeCylinder_impl.hpp" />
+    <ClInclude Include="InitialConditions\BasicShapes\ShapeHyperplaneByPoint_impl.hpp" />
+    <ClInclude Include="InitialConditions\BasicShapes\ShapeRectangleByCenter_impl.hpp" />
+    <ClInclude Include="InitialConditions\BasicShapes\ShapeRectangleByCorner_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO2_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper_cuda.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3a_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3bHelper_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3b_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstFirst_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a_cuda.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5b_impl.hpp" />
+    <ClInclude Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5_impl.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="Core\UVec_cuda.cu" />
+    <CudaCompile Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_cuda.cu" />
+    <CudaCompile Include="ExplicitIntegration\Terms\TermLaxFriedrichs_cuda.cu" />
+    <CudaCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper_cuda.cu" />
+    <CudaCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a_cuda.cu" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

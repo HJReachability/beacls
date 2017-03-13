@@ -1,0 +1,50 @@
+#ifndef __ComputeGradients_Worker_impl_hpp__
+#define __ComputeGradients_Worker_impl_hpp__
+
+#include <mutex>
+#include <cstddef>
+#include <thread>
+#include <Core/UVec.hpp>
+
+class ComputeGradients_CommandQueue;
+class SpatialDerivative;
+namespace helperOC {
+	class ComputeGradients_Worker_impl {
+	private:
+		ComputeGradients_CommandQueue* commandQueue;
+		std::mutex mtx;
+		std::thread th;
+		int gpu_id;
+		bool exitFlag;
+		SpatialDerivative* spatialDerivative;
+		beacls::UVec original_data_line_uvec;
+		std::vector<beacls::UVec> deriv_c_line_uvecs;
+		std::vector<beacls::UVec> deriv_l_line_uvecs;
+		std::vector<beacls::UVec> deriv_r_line_uvecs;
+	public:
+		void ComputeGradients_Worker_proc();
+		void run();
+		void terminate();
+		const SpatialDerivative* get_spatialDerivative() const {
+			return spatialDerivative;
+		}
+		int get_gpu_id() const {
+			return gpu_id;
+		}
+		ComputeGradients_Worker_impl(
+			ComputeGradients_CommandQueue* commandQueue,
+			const SpatialDerivative* spatialDerivative,
+			const int gpu_id
+		);
+		~ComputeGradients_Worker_impl();
+		ComputeGradients_Worker_impl* clone() const {
+			return new ComputeGradients_Worker_impl(*this);
+		}
+	private:
+		ComputeGradients_Worker_impl();
+		ComputeGradients_Worker_impl(const ComputeGradients_Worker_impl& rhs);
+		ComputeGradients_Worker_impl& operator=(const ComputeGradients_Worker_impl& rhs);
+	};
+};
+#endif	/* __ComputeGradients_Worker_impl_hpp__ */
+
