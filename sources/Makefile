@@ -48,7 +48,6 @@ test: modules unittest sampletest
 
 clean:
 	cd modules && make clean
-	cd && make clean
 	cd samples && make clean
 	cd unittests && make clean
 
