@@ -21,10 +21,6 @@ int main(int argc, char *argv[])
 		dump_file = (atoi(argv[1]) == 0) ? false : true;
 	}
 
-	bool enable_user_defined_dynamics_on_gpu = true;
-	if (argc >= 9) {
-		enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
-	}
 	//!< Plane parameters
 	const beacls::FloatVec initState{ (FLOAT_TYPE)100, (FLOAT_TYPE)75, (FLOAT_TYPE)(220 * M_PI / 180) };
 	const FLOAT_TYPE wMax = (FLOAT_TYPE)1.2;
