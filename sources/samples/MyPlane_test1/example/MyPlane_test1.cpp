@@ -20,49 +20,7 @@ int main(int argc, char *argv[])
 	if (argc >= 2) {
 		dump_file = (atoi(argv[1]) == 0) ? false : true;
 	}
-	bool useTempFile = false;
-	if (argc >= 3) {
-		useTempFile = (atoi(argv[2]) == 0) ? false : true;
-	}
-	const bool keepLast = false;
-	const bool calculateTTRduringSolving = false;
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
-	if (argc >= 4) {
-		switch (atoi(argv[3])) {
-		default:
-		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
-			break;
-		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
-			break;
-		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
-			break;
-		}
-	}
 
-	bool useCuda = false;
-	if (argc >= 5) {
-		useCuda = (atoi(argv[4]) == 0) ? false : true;
-	}
-	int num_of_threads = 0;
-	if (argc >= 6) {
-		num_of_threads = atoi(argv[5]);
-	}
-	int num_of_gpus = 0;
-	if (argc >= 7) {
-		num_of_gpus = atoi(argv[6]);
-	}
-	size_t line_length_of_chunk = 1;
-	if (argc >= 8) {
-		line_length_of_chunk = atoi(argv[7]);
-	}
-
-	bool enable_user_defined_dynamics_on_gpu = true;
-	if (argc >= 9) {
-		enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
-	}
 	//!< Plane parameters
 	const beacls::FloatVec initState{ (FLOAT_TYPE)100, (FLOAT_TYPE)75, (FLOAT_TYPE)(220 * M_PI / 180) };
 	const FLOAT_TYPE wMax = (FLOAT_TYPE)1.2;
@@ -86,7 +44,8 @@ int main(int argc, char *argv[])
 	shapeObs2->execute(g, obs2);
 	std::transform(obs2.cbegin(), obs2.cend(), obs2.begin(), std::negate<FLOAT_TYPE>());
 	beacls::FloatVec obstacle(obs1.size());
-	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacle.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
+	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacle.begin(), 
+		std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 	std::vector<const beacls::FloatVec* > obstacles(1);
 	obstacles[0] = &obstacle;
 
@@ -112,20 +71,11 @@ int main(int argc, char *argv[])
 	extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0 };
 	extraArgs.plotData.projpt = beacls::FloatVec{ pl->get_x()[2] };
 	extraArgs.deleteLastPlot = true;
-	extraArgs.fig_filename = "MyPlane_test_BRS";
+	if (dump_file) {
+		extraArgs.fig_filename = "MyPlane_test1_BRS";
+	}
 
-	extraArgs.execParameters.line_length_of_chunk = line_length_of_chunk;
-	extraArgs.execParameters.calcTTR = calculateTTRduringSolving;
-	extraArgs.keepLast = keepLast;
-	extraArgs.execParameters.useCuda = useCuda;
-	extraArgs.execParameters.num_of_gpus = num_of_gpus;
-	extraArgs.execParameters.num_of_threads = num_of_threads;
-	extraArgs.execParameters.delayedDerivMinMax = delayedDerivMinMax;
-	extraArgs.execParameters.enable_user_defined_dynamics_on_gpu = enable_user_defined_dynamics_on_gpu;
-
-	HJIPDE* hjipde;
-	if (useTempFile) hjipde = new HJIPDE(std::string("tmp.mat"));
-	else hjipde = new HJIPDE();
+	HJIPDE* hjipde = new HJIPDE();
 
 	beacls::FloatVec tau2;
 	hjipde->solve(tau2, extraOuts, targets, tau, schemeData, HJIPDE::MinWithType_None, extraArgs);
@@ -135,8 +85,8 @@ int main(int argc, char *argv[])
 		hjipde->get_datas(datas, tau, schemeData);
 	}
 
-	std::string MyPlane_test_filename("MyPlane_test.mat");
-	beacls::MatFStream* fs = beacls::openMatFStream(MyPlane_test_filename, beacls::MatOpenMode_Write);
+	std::string MyPlane_test1_filename("MyPlane_test1.mat");
+	beacls::MatFStream* fs = beacls::openMatFStream(MyPlane_test1_filename, beacls::MatOpenMode_Write);
 	if (dump_file) {
 		beacls::IntegerVec Ns = g->get_Ns();
 
@@ -146,7 +96,9 @@ int main(int argc, char *argv[])
 	}
 	//!< Compute optimal trajectory
 	extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
-	extraArgs.fig_filename = "MyPlane_test_Traj";
+	if (dump_file) {
+		extraArgs.fig_filename = "MyPlane_test1_Traj";
+	}
 	std::vector<beacls::FloatVec > traj;
 	beacls::FloatVec traj_tau;
 	std::vector<beacls::FloatVec > fliped_data(datas.size());
