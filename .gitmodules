@@ -1,4 +1,0 @@
-[submodule "sources/doc"]
-	path = sources/doc
-	url = https://github.com/HJReachability/beacls
-	branch = gh-pages
