@@ -1,10 +1,4 @@
 var searchData=
 [
-  ['weightweno',['weightWENO',['../da/d0e/UpwindFirstWENO5a__cuda_8hpp.html#a3001a2cc5b4577543af9fc3c7777e721',1,'UpwindFirstWENO5a_cuda.hpp']]],
-  ['wmax',['wMax',['../d3/d3a/classDubinsCar.html#a97a3e68b07d4fc702e6f70c5573b5097',1,'DubinsCar::wMax()'],['../dc/d90/classPlane.html#a8f1303c11d76ef9adfd420586eba68d7',1,'Plane::wMax()'],['../d1/dd6/classPlane4D.html#aad05457dd66b95fc2d37d3760b06baec',1,'Plane4D::wMax()']]],
-  ['wmaxa',['wMaxA',['../dd/dd6/classPlaneCAvoid.html#adce7c8e8167bf40b609e70a74af9992c',1,'PlaneCAvoid']]],
-  ['wmaxb',['wMaxB',['../dd/dd6/classPlaneCAvoid.html#a97e87f425e53acf5fd0fd99090c1c4b4',1,'PlaneCAvoid']]],
-  ['write_5fmat_5fvarstructfield',['write_Mat_VarStructField',['../d1/df8/HJI__Grid_8cpp.html#a931fb0933fe394796e12336cff9a2809',1,'write_Mat_VarStructField(matvar_t *struct_var, const std::string &amp;field_name, const T &amp;src):&#160;HJI_Grid.cpp'],['../d1/df8/HJI__Grid_8cpp.html#a52122486dca8998b8d6854f608c3267a',1,'write_Mat_VarStructField(matvar_t *struct_var, const std::string &amp;field_name, const std::vector&lt; size_t &gt; &amp;src):&#160;HJI_Grid.cpp'],['../d1/df8/HJI__Grid_8cpp.html#a2ac536b1a59d17ee570c78003e61309b',1,'write_Mat_VarStructField(matvar_t *struct_var, const std::string &amp;field_name, const size_t &amp;src):&#160;HJI_Grid.cpp'],['../d1/df8/HJI__Grid_8cpp.html#a055485411659211a50ccc47b08016b78',1,'write_Mat_VarStructField(matvar_t *struct_var, const std::string &amp;field_name, const std::vector&lt; FLOAT_TYPE &gt; &amp;src):&#160;HJI_Grid.cpp'],['../d1/df8/HJI__Grid_8cpp.html#a70bb44636513c65c37ba98c6a27fd211',1,'write_Mat_VarStructField(matvar_t *struct_var, const std::string &amp;field_name, const std::vector&lt; std::vector&lt; FLOAT_TYPE &gt; &gt; &amp;src):&#160;HJI_Grid.cpp']]],
-  ['writematvariable',['writeMatVariable',['../de/dad/namespacebeacls.html#a7ea8989e22149ed907928c2ad0182ee0',1,'beacls']]],
-  ['ws',['ws',['../db/d74/classDynSysSchemeData.html#a4c11a2bca3e618cef647d9e2254537c7',1,'DynSysSchemeData']]]
+  ['xdata',['XData',['../dc/d21/classHPxPy.html#a4bd8c54f26c400a9cddec2a8d38cff29',1,'HPxPy']]]
 ];
