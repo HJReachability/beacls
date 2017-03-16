@@ -1,7 +1,7 @@
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = OpenCV
-PROJECT_NUMBER         = @OPENCV_VERSION@
-PROJECT_BRIEF          = "Open Source Computer Vision"
+PROJECT_NAME           = BEARS
+PROJECT_NUMBER         = 0.0.1
+PROJECT_BRIEF          = "Berkeley Efficient API in C++ for Level Set methods"
 PROJECT_LOGO           = 
 OUTPUT_DIRECTORY       = .
 CREATE_SUBDIRS         = YES
