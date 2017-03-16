@@ -1,5 +1,5 @@
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = BEARS
+PROJECT_NAME           = BEACLS
 PROJECT_NUMBER         = 0.0.1
 PROJECT_BRIEF          = "Berkeley Efficient API in C++ for Level Set methods"
 PROJECT_LOGO           = 
