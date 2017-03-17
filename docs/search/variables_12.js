@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['udata',['UData',['../dc/d21/classHPxPy.html#aee83cdad2be2526f76212879d834cd5b',1,'HPxPy']]],
-  ['uins',['uIns',['../db/d74/classDynSysSchemeData.html#a7838fb2cc179ea06d046ec188b52cde5',1,'DynSysSchemeData']]],
-  ['umax',['uMax',['../d9/d25/classAir3D.html#a9d3489fbdf08b84fcf05626e4ad1526a',1,'Air3D::uMax()'],['../d2/d2f/classQuad4D.html#ae19a647948ab9528d8ea570d1603b22d',1,'Quad4D::uMax()']]],
-  ['umin',['uMin',['../d2/d2f/classQuad4D.html#ae32730b72b1201a20b63cbf038b319b9',1,'Quad4D']]],
-  ['umode',['uMode',['../db/d74/classDynSysSchemeData.html#a1d5cf60f35a55c66afd776e151032693',1,'DynSysSchemeData']]],
-  ['upper',['upper',['../d5/db3/classDynSysSchemeDataSide.html#a34b2311bf7074f1d9f092f601ba46188',1,'DynSysSchemeDataSide']]],
+  ['udata',['UData',['../da/d8f/classhelperOC_1_1HPxPy.html#a13d35d7847589cc91fae4c3e4d67821c',1,'helperOC::HPxPy']]],
+  ['uins',['uIns',['../d1/d0a/classhelperOC_1_1DynSysSchemeData.html#a038deb0b307ca65cf086050bbde6dc96',1,'helperOC::DynSysSchemeData']]],
+  ['umax',['uMax',['../d2/d14/classhelperOC_1_1Air3D.html#a81476fa16e48510e307dd0b456498d3c',1,'helperOC::Air3D::uMax()'],['../de/d17/classhelperOC_1_1Quad4D.html#a0fe91cb6d6141246cb679cbcf311ecd0',1,'helperOC::Quad4D::uMax()']]],
+  ['umin',['uMin',['../de/d17/classhelperOC_1_1Quad4D.html#a0cfcfac3f58f2971e7145e2328fbc8a3',1,'helperOC::Quad4D']]],
+  ['umode',['uMode',['../d1/d0a/classhelperOC_1_1DynSysSchemeData.html#a4f40bd0c623c5e31c53037b210d9c0bf',1,'helperOC::DynSysSchemeData']]],
+  ['upper',['upper',['../d5/de2/classhelperOC_1_1DynSysSchemeDataSide.html#ab126fe73e8d1136b1630ffb4378d29cc',1,'helperOC::DynSysSchemeDataSide']]],
   ['usecuda',['useCuda',['../de/db7/classhelperOC_1_1ExecParameters.html#a6f350d4db5c0f04127208293425b9b3b',1,'helperOC::ExecParameters']]]
 ];

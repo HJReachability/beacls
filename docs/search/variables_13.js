@@ -1,11 +1,11 @@
 var searchData=
 [
-  ['va',['va',['../d9/d25/classAir3D.html#a390c01091a651ce38a82bf44fbf4200f',1,'Air3D']]],
-  ['vb',['vb',['../d9/d25/classAir3D.html#aca6f58d68b609b87e959dfb50a39cde1',1,'Air3D']]],
-  ['vdata',['VData',['../dc/d21/classHPxPy.html#a758083e5ad73c86d6aa5833564f46bf1',1,'HPxPy']]],
+  ['va',['va',['../d2/d14/classhelperOC_1_1Air3D.html#a27039a6c17df0135664f50a5dbdd33e3',1,'helperOC::Air3D']]],
+  ['vb',['vb',['../d2/d14/classhelperOC_1_1Air3D.html#af951d0af7c37ee457fdbf41e7eed2c52',1,'helperOC::Air3D']]],
+  ['vdata',['VData',['../da/d8f/classhelperOC_1_1HPxPy.html#a399e53a0c1a22d924e3757a743ad2dfa',1,'helperOC::HPxPy']]],
   ['visualize',['visualize',['../dd/dfa/classhelperOC_1_1HJIPDE__extraArgs.html#a97613940b8a18d7219d8fc320f549b3b',1,'helperOC::HJIPDE_extraArgs']]],
-  ['vmax',['vMax',['../d0/d66/classKinVehicleND.html#a5c8fa9f8811c8ec8275a7f86ce909e03',1,'KinVehicleND']]],
-  ['vrange',['vrange',['../dc/d90/classPlane.html#aa15d22d96974cb69313cd20ce3b067fe',1,'Plane']]],
-  ['vrangea',['vRangeA',['../dd/dd6/classPlaneCAvoid.html#aa569fc411bb842612cc396df028535c3',1,'PlaneCAvoid']]],
-  ['vrangeb',['vRangeB',['../dd/dd6/classPlaneCAvoid.html#ad78e3c64c68a3f52f19d9398dd4bd2db',1,'PlaneCAvoid']]]
+  ['vmax',['vMax',['../dd/d68/classhelperOC_1_1KinVehicleND.html#aac58f184e740d732078d4f72973bba83',1,'helperOC::KinVehicleND']]],
+  ['vrange',['vrange',['../df/d3d/classhelperOC_1_1Plane.html#acd25f17322acec776b3843fa6ed7d967',1,'helperOC::Plane']]],
+  ['vrangea',['vRangeA',['../d7/dc4/classhelperOC_1_1PlaneCAvoid.html#a1ff79bfa6cbbb6e156b3d0ef92bc7d3c',1,'helperOC::PlaneCAvoid']]],
+  ['vrangeb',['vRangeB',['../d7/dc4/classhelperOC_1_1PlaneCAvoid.html#aeb8ba61ebb8e7b4117fcd776f522d695',1,'helperOC::PlaneCAvoid']]]
 ];
