@@ -144,7 +144,6 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 
 			const auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(xs0.cbegin(), xs0.cend());
 			const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(xs1.cbegin(), xs1.cend());
-			const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
 			const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
 			const int height = (int)std::ceil(x1_range);
 			const FLOAT_TYPE left_offset = x0MinMax.first;
