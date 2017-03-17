@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['float_5ftype_5f64f',['FLOAT_TYPE_64F',['../d6/d48/typedef_8hpp.html#a0106e1d33d8d3f7899fd1f41f492a742',1,'typedef.hpp']]]
+  ['hjimax',['HjiMax',['../d4/dc3/macro_8hpp.html#a45f0e9f57df51c3f67b94f068d76a388',1,'macro.hpp']]],
+  ['hjimin',['HjiMin',['../d4/dc3/macro_8hpp.html#a245797150e47101f0175882237591bc7',1,'macro.hpp']]]
 ];

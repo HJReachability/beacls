@@ -7,6 +7,6 @@ var searchData=
   ['resize_5ft',['resize_T',['../de/dad/namespacebeacls.html#a406e3a64d390f93f8ed67c27461c497f',1,'beacls']]],
   ['resize_5ftemplate',['resize_template',['../de/d95/classbeacls_1_1UVec__impl.html#a4ab0f5cc04315d6e2d2d1ac1de4070ca',1,'beacls::UVec_impl']]],
   ['rotate2d',['rotate2D',['../dc/dbe/namespacehelperOC.html#ab816acc132edd08b079d5d069a0740da',1,'helperOC']]],
-  ['rotatedata',['rotateData',['../dc/dbe/namespacehelperOC.html#af077476e981ce4c422a36717f12b4060',1,'helperOC']]],
+  ['rotatedata',['rotateData',['../dc/dbe/namespacehelperOC.html#acbd61709a4c86bd0d977cd0ad030016e',1,'helperOC']]],
   ['run',['run',['../d8/d35/classhelperOC_1_1ComputeGradients__Worker.html#a00cdb1bfda0b81d7101b4b226dd6a94f',1,'helperOC::ComputeGradients_Worker::run()'],['../d4/d2a/classhelperOC_1_1ComputeGradients__Worker__impl.html#a44120ebf2a285a7331e4746741d19bd0',1,'helperOC::ComputeGradients_Worker_impl::run()'],['../d2/d98/classbeacls_1_1OdeCFL__Worker.html#adf28c4ec5bc55e5c1a8584bf693fe6c0',1,'beacls::OdeCFL_Worker::run()'],['../db/dc7/classbeacls_1_1OdeCFL__Worker__impl.html#a668ba7d8050e76b785c68fa17d7fda75',1,'beacls::OdeCFL_Worker_impl::run()']]]
 ];
