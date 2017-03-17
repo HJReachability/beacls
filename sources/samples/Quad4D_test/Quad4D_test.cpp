@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 #if defined(VISUALIZE_BY_OPENCV)
 
 	//!< Visualize
-	HJI_Grid* g2Dp;
+	levelset::HJI_Grid* g2Dp;
 	beacls::FloatVec data2Dp;
 	g2Dp = helperOC::proj(data2Dp, sD->get_grid(), datas[0], beacls::IntegerVec{ 0,1,0,1 });
 
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 	std::for_each(vx.cbegin(), vx.cend(), [&image_mat, &datas, &sD, &vy](const auto& x) {
 		std::for_each(vy.cbegin(), vy.cend(), [&image_mat, &datas, &sD, x](const auto& y) {
 			beacls::FloatVec vslice{ x, y };
-			HJI_Grid* g2Dp;
+			levelset::HJI_Grid* g2Dp;
 			beacls::FloatVec data2Dp;
 			std::vector<helperOC::Projection_Type> proj_types(vslice.size());
 			std::fill(proj_types.begin(), proj_types.end(), helperOC::Projection_Vector);

@@ -91,7 +91,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VISUALIZE_BY_OPENCV;USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
@@ -122,7 +122,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VISUALIZE_BY_OPENCV;USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
@@ -154,7 +154,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VISUALIZE_BY_OPENCV;USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
@@ -189,7 +189,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VISUALIZE_BY_OPENCV;USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
