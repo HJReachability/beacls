@@ -15,13 +15,19 @@ MAKE_TABLE_ON = N
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 NVCC = /usr/bin/nvcc
-HOSTCC = g++
 INSTALL_DIR = $(PWD)/../../../builds
 MATIO_DIR = $(INSTALL_DIR)
 MATIO_LIB_DIR = $(MATIO_DIR)/$(ARCH)/lib
 MATIO_INC_DIR = $(MATIO_DIR)/include
 
 UNAME = $(shell uname)
+ifeq ($(UNAME),Darwin)
+	HOSTCC_DIR = /usr/local/opt/llvm
+	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
+else
+	HOSTCC  = g++
+endif
+
 
 BEARS_LIB_DIR = $(INSTALL_DIR)
 
@@ -116,9 +122,11 @@ endif
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)
-	CFLAGS += -Xclang -fopenmp
-	CFLAGS += -I/usr/local/include/libiomp
+	CFLAGS += -fopenmp
+	CFLAGS	+= -I$(HOSTCC_DIR)/include
+	LDFLAGS += -L$(HOSTCC_DIR)/lib
 	LDFLAGS += -liomp5
+	LLVM_LIBRARY_PATH	= $(HOSTCC_DIR)/lib
 else
 	CFLAGS += -fopenmp
 	LDFLAGS += -lgomp

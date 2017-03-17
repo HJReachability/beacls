@@ -12,7 +12,6 @@ WARNING_ON = Y
 SINGLE_PRECISION_ON = Y
 FILE_DUMP = 1
 NVCC = /usr/bin/nvcc
-HOSTCC = g++
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 INSTALL_DIR = $(PWD)/../../../builds
@@ -23,6 +22,13 @@ MATIO_LIB_DIR = $(MATIO_DIR)/$(ARCH)/lib
 MATIO_INC_DIR = $(MATIO_DIR)/include
 
 UNAME = $(shell uname)
+ifeq ($(UNAME),Darwin)
+	HOSTCC_DIR = /usr/local/opt/llvm
+	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
+else
+	HOSTCC  = g++
+endif
+
 
 BEACLS_DIR = $(INSTALL_DIR)
 BEACLS_INC_DIR = $(BEACLS_DIR)/includes
@@ -140,9 +146,11 @@ endif
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)
-	CFLAGS += -Xclang -fopenmp
-	CFLAGS += -I/usr/local/include/libiomp
+	CFLAGS += -fopenmp
+	CFLAGS	+= -I$(HOSTCC_DIR)/include
+	LDFLAGS += -L$(HOSTCC_DIR)/lib
 	LDFLAGS += -liomp5
+	LLVM_LIBRARY_PATH	= $(HOSTCC_DIR)/lib
 else
 	CFLAGS += -fopenmp
 	LDFLAGS += -lgomp
@@ -208,12 +216,12 @@ $(TARGET): $(OBJECTS) $(LIBS)
 all: $(TARGET)
 
 test: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
 
 google-prof: $(GOOGLE-PROFILE-LOG)
 
 $(GOOGLE-PROFILE-LOG): $(TARGET)
-	env LD_PRELOAD=$(GOOGLE_PERF_LIB):$(LD_PRELOAD) CPUPROFILE=./$(GOOGLE-PROFILE-LOG) CPUPROFILE_FREQUENCY=$(CPUPROFILE_FREQUENCY) $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
+	env LD_PRELOAD=$(GOOGLE_PERF_LIB):$(LD_PRELOAD) CPUPROFILE=./$(GOOGLE-PROFILE-LOG) CPUPROFILE_FREQUENCY=$(CPUPROFILE_FREQUENCY) $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
 
 show-google-prof: $(TARGET) $(GOOGLE-PROFILE-LOG)
 	google-pprof $(TARGET) $(GOOGLE-PROFILE-LOG) --text
@@ -223,7 +231,7 @@ kcachegrind-google-prof: $(GOOGLE-PROFILE-LOG)	$(TARGET)
 	kcachegrind $(GOOGLE-PROFILE-LOG).cg &
 
 time: $(TARGET)
-	$(TIME) env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
+	$(TIME) env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
 
 iprofiler: $(TARGET)
 	cp -rp $(OPENCV_LIB_DIR):$(MODULE_DIR)/liblevelset.so .
@@ -234,14 +242,14 @@ iprofiler: $(TARGET)
 
 
 valgrind: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --leak-check=full --show-reachable=yes --track-origins=yes --error-limit=no ./$(TARGET) $(FILE_DUMP)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --leak-check=full --show-reachable=yes --track-origins=yes --error-limit=no ./$(TARGET) $(FILE_DUMP)
 
 
 massif: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=massif ./$(TARGET) $(FILE_DUMP)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=massif ./$(TARGET) $(FILE_DUMP)
 
 helgrind: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=helgrind --histroy-level=approx ./$(TARGET) $(FILE_DUMP)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=helgrind --histroy-level=approx ./$(TARGET) $(FILE_DUMP)
 
 
 check:
