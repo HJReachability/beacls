@@ -13,7 +13,7 @@ namespace helperOC {
 	class Quadrotor;
 
 	class DynSys;
-	class helperOC::DynSys_impl {
+	class DynSys_impl {
 	public:
 
 	private:
