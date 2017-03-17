@@ -12,7 +12,7 @@ namespace KinVehicleND_CUDA {
 		std::vector<beacls::UVec>& u_uvecs,
 		const std::vector<beacls::UVec>& deriv_uvecs,
 		const FLOAT_TYPE vMax,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	);
 };
 #endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) */

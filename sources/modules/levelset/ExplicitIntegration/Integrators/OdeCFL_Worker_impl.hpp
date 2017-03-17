@@ -5,10 +5,10 @@
 #include <cstddef>
 #include <thread>
 #include <Core/UVec.hpp>
-class OdeCFL_CommandQueue;
-class Term;
-class SchemeData;
-namespace beacls {
+namespace levelset {
+	class OdeCFL_CommandQueue;
+	class Term;
+	class SchemeData;
 	class OdeCFL_Worker_impl {
 	private:
 		OdeCFL_CommandQueue* commandQueue;

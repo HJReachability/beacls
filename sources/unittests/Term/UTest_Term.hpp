@@ -39,7 +39,7 @@ bool run_UTest_Term(
 	const std::string& expects_filename,
 	const beacls::FloatVec &maxs,
 	const beacls::FloatVec &mins,
-	SchemeData *schemeData,
+	levelset::SchemeData *schemeData,
 	const SpatialDerivative_Class spatialDerivative_Class,
 	const std::vector<BoundaryCondition_Class> &boundaryCondition_Classes,
 	const Dissipation_Class& dissipation_class, 

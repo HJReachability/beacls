@@ -15,49 +15,50 @@
 #include <limits>
 #include <typedef.hpp>
 #include <levelset/ExplicitIntegration/Integrators/Integrator.hpp>
-class Term;
-class SchemeData;
+namespace levelset {
+	class Term;
+	class SchemeData;
 
-class OdeCFL3_impl;
+	class OdeCFL3_impl;
 
-class OdeCFL3 : public Integrator {
-public:
-	PREFIX_VC_DLL
-		OdeCFL3(
-			const Term *schemeFunc,
-			const FLOAT_TYPE factor_cfl = 0.5,
-			const FLOAT_TYPE max_step = std::numeric_limits<FLOAT_TYPE>::max(),
-			const std::vector<beacls::PostTimestep_Exec_Type*> &post_time_steps = std::vector<beacls::PostTimestep_Exec_Type*>(),
-			const bool single_step = false,
-			const bool stats = false,
-			const beacls::TerminalEvent_Exec_Type* terminalEvent = NULL
-		);
+	class OdeCFL3 : public Integrator {
+	public:
+		PREFIX_VC_DLL
+			OdeCFL3(
+				const Term *schemeFunc,
+				const FLOAT_TYPE factor_cfl = 0.5,
+				const FLOAT_TYPE max_step = std::numeric_limits<FLOAT_TYPE>::max(),
+				const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps = std::vector<levelset::PostTimestep_Exec_Type*>(),
+				const bool single_step = false,
+				const bool stats = false,
+				const levelset::TerminalEvent_Exec_Type* terminalEvent = NULL
+			);
 		~OdeCFL3();
-	FLOAT_TYPE execute(
-		beacls::FloatVec& y,
-		const beacls::FloatVec& tspan,
-		const beacls::FloatVec& y0,
-		const SchemeData *schemeData,
-		const size_t line_length_of_chunk,
-		const size_t num_of_threads,
-		const size_t num_of_gpus,
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
-		const bool enable_user_defined_dynamics_on_gpu
-	);
-	OdeCFL3* clone() const;
+		FLOAT_TYPE execute(
+			beacls::FloatVec& y,
+			const beacls::FloatVec& tspan,
+			const beacls::FloatVec& y0,
+			const SchemeData *schemeData,
+			const size_t line_length_of_chunk,
+			const size_t num_of_threads,
+			const size_t num_of_gpus,
+			const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
+			const bool enable_user_defined_dynamics_on_gpu
+		);
+		OdeCFL3* clone() const;
 
-private:
-	OdeCFL3_impl *pimpl;
+	private:
+		OdeCFL3_impl *pimpl;
 
-	/** @overload
-	Disable operator=
-	*/
-	OdeCFL3& operator=(const OdeCFL3& rhs);
-	/** @overload
-	Disable copy constructor
-	*/
-	OdeCFL3(const OdeCFL3& rhs);
+		/** @overload
+		Disable operator=
+		*/
+		OdeCFL3& operator=(const OdeCFL3& rhs);
+		/** @overload
+		Disable copy constructor
+		*/
+		OdeCFL3(const OdeCFL3& rhs);
+	};
 };
-
 #endif	/* __OdeCFL3_hpp__ */
 

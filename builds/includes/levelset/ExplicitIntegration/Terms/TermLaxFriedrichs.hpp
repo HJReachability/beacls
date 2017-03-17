@@ -18,64 +18,65 @@ using namespace std::rel_ops;
 
 #include <typedef.hpp>
 #include <levelset/ExplicitIntegration/Terms/Term.hpp>
-class SchemeData;
-class TermLaxFriedrichs_impl;
+namespace levelset {
+	class SchemeData;
+	class TermLaxFriedrichs_impl;
 
-class TermLaxFriedrichs : public Term {
-public:
-	PREFIX_VC_DLL
-		TermLaxFriedrichs(
-			const SchemeData* schemeData,
-			const beacls::UVecType type = beacls::UVecType_Vector
-		);
-	/**
-	@brief destructor
-	*/
-	~TermLaxFriedrichs();
-	/**
-	@brief Compute approximate H(x,p) term in an HJ PDE
-	@param	[out]		ydot_ite	Change in the data array, in vector form.
-	@param	[in]		t	Time at beginning of timestep.
-	@param	[in]		y	Data array in vector form.
-	@param	[in]		grid	The input structure
-	@param	[in]		loop_begin	loop begin index of this computation
-	@param	[in]		loop_size	loop size of this computation
-	@param	[in]		num_of_slices	number of strides to begin this itteration.
-	@param	[in]		enable_user_defined_dynamics_on_gpu	Flag for user defined dynamics function on gpu
-	@retval	true	Succeeded.
-	@retval	false	Failed. Dissipation may be required global derivMins/derivMaxs.
-	Reduce partial derivMins/derivMaxs to global derivMins/derivMax, then execute again.
-	*/
-	bool execute(
-		beacls::FloatVec::iterator ydot_ite,
-		beacls::FloatVec& step_bound_invs,
-		const FLOAT_TYPE t,
-		const beacls::FloatVec& y,
-		std::vector<beacls::FloatVec >& derivMins,
-		std::vector<beacls::FloatVec >& derivMaxs,
-		const SchemeData *schemeData,
-		const size_t loop_begin,
-		const size_t loop_length,
-		const size_t num_of_slices,
-		const bool enable_user_defined_dynamics_on_gpu,
-		const bool updateDerivMinMax
-	) const;
-	bool synchronize(const SchemeData* schemeData) const;
-	bool operator==(const TermLaxFriedrichs& rhs) const;
-	bool operator==(const Term& rhs) const;
-	TermLaxFriedrichs* clone() const;
-private:
-	TermLaxFriedrichs_impl *pimpl;
+	class TermLaxFriedrichs : public Term {
+	public:
+		PREFIX_VC_DLL
+			TermLaxFriedrichs(
+				const SchemeData* schemeData,
+				const beacls::UVecType type = beacls::UVecType_Vector
+			);
+		/**
+		@brief destructor
+		*/
+		~TermLaxFriedrichs();
+		/**
+		@brief Compute approximate H(x,p) term in an HJ PDE
+		@param	[out]		ydot_ite	Change in the data array, in vector form.
+		@param	[in]		t	Time at beginning of timestep.
+		@param	[in]		y	Data array in vector form.
+		@param	[in]		grid	The input structure
+		@param	[in]		loop_begin	loop begin index of this computation
+		@param	[in]		loop_size	loop size of this computation
+		@param	[in]		num_of_slices	number of strides to begin this itteration.
+		@param	[in]		enable_user_defined_dynamics_on_gpu	Flag for user defined dynamics function on gpu
+		@retval	true	Succeeded.
+		@retval	false	Failed. Dissipation may be required global derivMins/derivMaxs.
+		Reduce partial derivMins/derivMaxs to global derivMins/derivMax, then execute again.
+		*/
+		bool execute(
+			beacls::FloatVec::iterator ydot_ite,
+			beacls::FloatVec& step_bound_invs,
+			const FLOAT_TYPE t,
+			const beacls::FloatVec& y,
+			std::vector<beacls::FloatVec >& derivMins,
+			std::vector<beacls::FloatVec >& derivMaxs,
+			const SchemeData *schemeData,
+			const size_t loop_begin,
+			const size_t loop_length,
+			const size_t num_of_slices,
+			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax
+		) const;
+		bool synchronize(const SchemeData* schemeData) const;
+		bool operator==(const TermLaxFriedrichs& rhs) const;
+		bool operator==(const Term& rhs) const;
+		TermLaxFriedrichs* clone() const;
+	private:
+		TermLaxFriedrichs_impl *pimpl;
 
-	/** @overload
-	Disable operator=
-	*/
-	TermLaxFriedrichs& operator=(const TermLaxFriedrichs& rhs);
-	/** @overload
-	Disable copy constructor
-	*/
-	TermLaxFriedrichs(const TermLaxFriedrichs& rhs);
+		/** @overload
+		Disable operator=
+		*/
+		TermLaxFriedrichs& operator=(const TermLaxFriedrichs& rhs);
+		/** @overload
+		Disable copy constructor
+		*/
+		TermLaxFriedrichs(const TermLaxFriedrichs& rhs);
+	};
 };
-
 #endif	/* __TermLaxFriedrichs_hpp__ */
 

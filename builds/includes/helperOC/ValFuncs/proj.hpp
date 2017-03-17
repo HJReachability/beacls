@@ -13,7 +13,9 @@
 #include <helperOC/helperOC_type.hpp>
 #include <typedef.hpp>
 #include <cstddef>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 namespace helperOC {
 	/**
 	@brief	Projects data corresponding to the grid g in g.dim dimensions, removing
@@ -37,9 +39,9 @@ namespace helperOC {
 	@return							grid corresponding to projected data
 	*/
 	PREFIX_VC_DLL
-		HJI_Grid* proj(
+		levelset::HJI_Grid* proj(
 			std::vector<beacls::FloatVec >& dataOut,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const std::vector<beacls::FloatVec >& dataIn,
 			const beacls::IntegerVec& dims,
 			const std::vector<Projection_Type>& x_types = std::vector<Projection_Type>(),
@@ -69,9 +71,9 @@ namespace helperOC {
 	@return							grid corresponding to projected data
 	*/
 	PREFIX_VC_DLL
-		HJI_Grid* proj(
+		levelset::HJI_Grid* proj(
 			std::vector<beacls::FloatVec >& dataOut,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const std::vector<const beacls::FloatVec* >& dataIn,
 			const beacls::IntegerVec& dims,
 			const std::vector<Projection_Type>& x_types = std::vector<Projection_Type>(),
@@ -101,9 +103,9 @@ namespace helperOC {
 	@return							grid corresponding to projected data
 	*/
 	PREFIX_VC_DLL
-		HJI_Grid* proj(
+		levelset::HJI_Grid* proj(
 			beacls::FloatVec& dataOut,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& dataIn,
 			const beacls::IntegerVec& dims,
 			const std::vector<Projection_Type>& x_types = std::vector<Projection_Type>(),

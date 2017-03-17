@@ -43,18 +43,18 @@ int main(int argc, char *argv[])
 	if (argc >= 6) {
 		num_of_gpus = atoi(argv[5]);
 	}
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	if (argc >= 7) {
 		switch (atoi(argv[6])) {
 		default:
 		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 			break;
 		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 			break;
 		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Adaptive;
 			break;
 		}
 	}
@@ -101,17 +101,17 @@ int main(int argc, char *argv[])
 	FLOAT_TYPE wMax = 1;
 	beacls::FloatVec aranges{ (FLOAT_TYPE)0.5, 1 };
 
-	ShapeRectangleByCenter *shape = new ShapeRectangleByCenter(center, widths);
+	levelset::ShapeRectangleByCenter *shape = new levelset::ShapeRectangleByCenter(center, widths);
 
-	AddGhostExtrapolate *addGhostExtrapolate = new AddGhostExtrapolate();
-	AddGhostPeriodic *addGhostPeriodic = new AddGhostPeriodic();
-	std::vector<BoundaryCondition*> boundaryConditions(num_of_dimensions);
+	levelset::AddGhostExtrapolate *addGhostExtrapolate = new levelset::AddGhostExtrapolate();
+	levelset::AddGhostPeriodic *addGhostPeriodic = new levelset::AddGhostPeriodic();
+	std::vector<levelset::BoundaryCondition*> boundaryConditions(num_of_dimensions);
 	boundaryConditions[0] = addGhostExtrapolate;
 	boundaryConditions[1] = addGhostExtrapolate;
 	boundaryConditions[2] = addGhostPeriodic;
 	boundaryConditions[3] = addGhostExtrapolate;
 
-	HJI_Grid *hJI_Grid = new HJI_Grid(
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(
 		num_of_dimensions);
 	hJI_Grid->set_mins(mins);
 	hJI_Grid->set_maxs(maxs);
@@ -128,19 +128,19 @@ int main(int argc, char *argv[])
 	const beacls::UVecType type = useCuda ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
 
 	// Choose spatial derivative approimation at appropriate level of accuracy.
-	SpatialDerivative *spatialDerivative = NULL;
+	levelset::SpatialDerivative *spatialDerivative = NULL;
 	switch (accuracy) {
 	case ApproximationAccuracy_low:
-		spatialDerivative = new UpwindFirstFirst(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstFirst(hJI_Grid, type);
 		break;
 	case ApproximationAccuracy_medium:
-		spatialDerivative = new UpwindFirstENO2(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO2(hJI_Grid, type);
 		break;
 	case ApproximationAccuracy_high:
-		spatialDerivative = new UpwindFirstENO3(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO3(hJI_Grid, type);
 		break;
 	case ApproximationAccuracy_veryHigh:
-		spatialDerivative = new UpwindFirstWENO5(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstWENO5(hJI_Grid, type);
 		break;
 	default:
 		printf("Unkown accuracy level %d\n", accuracy);
@@ -148,15 +148,15 @@ int main(int argc, char *argv[])
 	}
 
 
-	ArtificialDissipationGLF *dissipation = new ArtificialDissipationGLF();
+	levelset::ArtificialDissipationGLF *dissipation = new levelset::ArtificialDissipationGLF();
 
-	std::vector<beacls::PostTimestep_Exec_Type*> postTimestep_Execs;
-	Integrator *integrator;
+	std::vector<levelset::PostTimestep_Exec_Type*> postTimestep_Execs;
+	levelset::Integrator *integrator;
 	FLOAT_TYPE factor_cfl = (FLOAT_TYPE)0.8;
 	FLOAT_TYPE max_step = (FLOAT_TYPE)8.0e16;
 	bool single_step = true;
 	bool stats = false;
-	beacls::TerminalEvent_Exec_Type *terminalEvent_Exec_Type = NULL;
+	levelset::TerminalEvent_Exec_Type *terminalEvent_Exec_Type = NULL;
 
 	Plane4DSchemeData *schemeData = new Plane4DSchemeData();
 	schemeData->set_spatialDerivative(spatialDerivative);
@@ -168,22 +168,22 @@ int main(int argc, char *argv[])
 	schemeData->wMax = wMax;
 	schemeData->aranges = aranges;
 
-	TermLaxFriedrichs *schemeFunc = new TermLaxFriedrichs(schemeData, type);
+	levelset::TermLaxFriedrichs *schemeFunc = new levelset::TermLaxFriedrichs(schemeData, type);
 
 
 	// Choose integration approimation at appropriate level of accuracy.
 	switch (accuracy) {
 	case ApproximationAccuracy_low:
-		integrator = new OdeCFL1(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL1(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	case ApproximationAccuracy_medium:
-		integrator = new OdeCFL2(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL2(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	case ApproximationAccuracy_high:
-		integrator = new OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	case ApproximationAccuracy_veryHigh:
-		integrator = new OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	default:
 		printf("Unkown accuracy level %d\n", accuracy);

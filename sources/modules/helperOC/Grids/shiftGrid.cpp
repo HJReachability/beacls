@@ -11,8 +11,8 @@
 #include <macro.hpp>
 
 
-HJI_Grid* helperOC::shiftGrid(
-	const HJI_Grid* gIn,
+levelset::HJI_Grid* helperOC::shiftGrid(
+	const levelset::HJI_Grid* gIn,
 	const beacls::FloatVec& shiftAmount
 ) {
 	//!< Input checks
@@ -24,7 +24,7 @@ HJI_Grid* helperOC::shiftGrid(
 	//!< Make sure shiftAmount is a column vector
 
 	//!<  Dimensionality of grid
-	HJI_Grid* gShift = gIn->clone(false);
+	levelset::HJI_Grid* gShift = gIn->clone(false);
 
 	//!< Shift the grid
 	std::vector<beacls::FloatVec> shifted_xss(shiftAmount.size());

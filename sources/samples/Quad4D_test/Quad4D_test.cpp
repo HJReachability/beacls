@@ -32,18 +32,18 @@ int main(int argc, char *argv[])
 	}
 	const bool keepLast = false;
 	const bool calculateTTRduringSolving = false;
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	if (argc >= 4) {
 		switch (atoi(argv[3])) {
 		default:
 		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 			break;
 		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 			break;
 		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Adaptive;
 			break;
 		}
 	}
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	beacls::FloatVec gMin{ (FLOAT_TYPE)-4, (FLOAT_TYPE)-3, (FLOAT_TYPE)-4, (FLOAT_TYPE)-3 };
 	beacls::FloatVec gMax{ (FLOAT_TYPE)4,  (FLOAT_TYPE)3,  (FLOAT_TYPE)4, (FLOAT_TYPE)3 };
 	
-	DynSys_UMode_Type uMode = DynSys_UMode_Max;
+	helperOC::DynSys_UMode_Type uMode = helperOC::DynSys_UMode_Max;
 
 	beacls::IntegerVec gN{ 65, 61, 65, 61 };
 
@@ -93,14 +93,14 @@ int main(int argc, char *argv[])
 	const FLOAT_TYPE uMax = 1;
 
 	//!< Grids and initial conditions
-	HJI_Grid* g = createGrid(gMin, gMax, gN);
+	levelset::HJI_Grid* g = helperOC::createGrid(gMin, gMax, gN);
 	beacls::FloatVec data0;
-	ShapeRectangleByCorner(targetLower, targetUpper).execute(g, data0);
+	levelset::ShapeRectangleByCorner(targetLower, targetUpper).execute(g, data0);
 
 	//!< Additional solver parameters
-	DynSysSchemeData* sD = new DynSysSchemeData();
+	helperOC::DynSysSchemeData* sD = new helperOC::DynSysSchemeData();
 	sD->set_grid(g);
-	sD->dynSys = new Quad4D(beacls::FloatVec{ (FLOAT_TYPE)0, (FLOAT_TYPE)0,(FLOAT_TYPE)0,(FLOAT_TYPE)0 }, uMin, uMax);
+	sD->dynSys = new helperOC::Quad4D(beacls::FloatVec{ (FLOAT_TYPE)0, (FLOAT_TYPE)0,(FLOAT_TYPE)0,(FLOAT_TYPE)0 }, uMin, uMax);
 	sD->uMode = uMode;
 
 	beacls::FloatVec vslice{ (FLOAT_TYPE)2.5, (FLOAT_TYPE)2.5 };
@@ -122,12 +122,12 @@ int main(int argc, char *argv[])
 	extraArgs.execParameters.delayedDerivMinMax = delayedDerivMinMax;
 	extraArgs.execParameters.enable_user_defined_dynamics_on_gpu = enable_user_defined_dynamics_on_gpu;
 
-	HJIPDE* hjipde;
-	if (useTempFile) hjipde = new HJIPDE(std::string("tmp.mat"));
-	else hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde;
+	if (useTempFile) hjipde = new helperOC::HJIPDE(std::string("tmp.mat"));
+	else hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec tau2;
-	hjipde->solve(tau2, extraOuts, data0, tau, sD, HJIPDE::MinWithType_Zero, extraArgs);
+	hjipde->solve(tau2, extraOuts, data0, tau, sD, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 
 	std::vector<beacls::FloatVec > datas;
 	if (!keepLast) {

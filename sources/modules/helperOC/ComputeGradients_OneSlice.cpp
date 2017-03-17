@@ -26,7 +26,7 @@ bool copyBackInfNan(
 
 
 void helperOC::ComputeGradients_OneSlice_impl::execute(
-	SpatialDerivative* spatialDerivative,
+	levelset::SpatialDerivative* spatialDerivative,
 	beacls::UVec& original_data_line_uvec,
 	std::vector<beacls::UVec>& deriv_c_line_uvecs,
 	std::vector<beacls::UVec>& deriv_l_line_uvecs,
@@ -110,7 +110,7 @@ void helperOC::ComputeGradients_OneSlice_impl::execute(
 	}
 }
 void helperOC::ComputeGradients_OneSlice::execute(
-	SpatialDerivative* spatialDerivative,
+	levelset::SpatialDerivative* spatialDerivative,
 	beacls::UVec& original_data_line_uvec,
 	std::vector<beacls::UVec>& deriv_c_line_uvecs,
 	std::vector<beacls::UVec>& deriv_l_line_uvecs,
@@ -137,7 +137,7 @@ helperOC::ComputeGradients_OneSlice::ComputeGradients_OneSlice(
 	std::vector<beacls::FloatVec>& derivR,
 	const beacls::FloatVec& modified_data,
 	const beacls::FloatVec& original_data,
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	const beacls::UVecType type,
 	const beacls::UVecDepth depth,
 	const size_t num_of_dimensions,

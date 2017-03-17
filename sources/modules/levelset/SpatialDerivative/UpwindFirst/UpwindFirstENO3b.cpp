@@ -7,6 +7,7 @@
 #include <levelset/BoundaryCondition/BoundaryCondition.hpp>
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3b.hpp>
 #include "UpwindFirstENO3b_impl.hpp"
+using namespace levelset;
 
 UpwindFirstENO3b_impl::UpwindFirstENO3b_impl(
 	const HJI_Grid *hji_grid,

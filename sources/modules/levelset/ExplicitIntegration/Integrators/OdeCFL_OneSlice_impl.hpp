@@ -4,10 +4,10 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
+namespace levelset {
 
-class Term;
-class SchemeData;
-namespace beacls {
+	class Term;
+	class SchemeData;
 	class OdeCFL_OneSlice_impl {
 		FLOAT_TYPE t;
 		beacls::FloatVec& sb_inv_out;

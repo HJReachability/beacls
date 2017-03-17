@@ -106,7 +106,7 @@ void UpwindFirstWENO5a_execute_dim0_cuda (
 	const size_t src_target_dimension_loop_size,
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 ) {
 	size_t num_of_threads_z;
@@ -129,11 +129,11 @@ void UpwindFirstWENO5a_execute_dim0_cuda (
 
 	cudaStream_t stream = cudaStream->get_stream();
 	switch (epsilonCalculationMethod_Type) {
-	case beacls::EpsilonCalculationMethod_Invalid:
+	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
 //		printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_Constant:
+	case levelset::EpsilonCalculationMethod_Constant:
 		kernel_dim0_EpsilonCalculationMethod_Constant<<<num_of_blocks,num_of_threads, 0, stream>>>(
 			dst_deriv_l_ptr, dst_deriv_r_ptr,
 			DD0_ptr,
@@ -143,10 +143,10 @@ void UpwindFirstWENO5a_execute_dim0_cuda (
 			thread_length_z, thread_length_y, thread_length_x
 			);
 		break;
-	case beacls::EpsilonCalculationMethod_maxOverGrid:
+	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor<<<num_of_blocks,num_of_threads, 0, stream>>>(
 			dst_deriv_l_ptr, dst_deriv_r_ptr,
 			DD0_ptr,
@@ -259,7 +259,7 @@ void UpwindFirstWENO5a_execute_dim1_cuda (
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t DD0_slice_size,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 ) {
 	size_t num_of_threads_z;
@@ -282,11 +282,11 @@ void UpwindFirstWENO5a_execute_dim1_cuda (
 	cudaStream_t stream = cudaStream->get_stream();
 
 	switch (epsilonCalculationMethod_Type) {
-	case beacls::EpsilonCalculationMethod_Invalid:
+	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
 //		printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_Constant:
+	case levelset::EpsilonCalculationMethod_Constant:
 		kernel_dim1_EpsilonCalculationMethod_Constant<<<num_of_blocks,num_of_threads, 0, stream>>>(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		DD0_ptr,
@@ -297,10 +297,10 @@ void UpwindFirstWENO5a_execute_dim1_cuda (
 		thread_length_z, thread_length_y, thread_length_x
 		);
 		break;
-	case beacls::EpsilonCalculationMethod_maxOverGrid:
+	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		kernel_dim1_EpsilonCalculationMethod_maxOverNeighbor<<<num_of_blocks,num_of_threads, 0, stream>>>(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		DD0_ptr,
@@ -424,7 +424,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda (
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 ) {
 	size_t num_of_threads_z;
@@ -447,11 +447,11 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda (
 
 	cudaStream_t stream = cudaStream->get_stream();
 	switch (epsilonCalculationMethod_Type) {
-	case beacls::EpsilonCalculationMethod_Invalid:
+	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
 //		printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_Constant:
+	case levelset::EpsilonCalculationMethod_Constant:
 		kernel_dimLET2_EpsilonCalculationMethod_Constant<<<num_of_blocks,num_of_threads, 0, stream>>>(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		DD0_0_ptr,DD1_0_ptr,DD2_0_ptr, DD3_0_ptr, DD4_0_ptr, DD5_0_ptr,
@@ -461,10 +461,10 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda (
 		thread_length_z, thread_length_y, thread_length_x
 		);
 		break;
-	case beacls::EpsilonCalculationMethod_maxOverGrid:
+	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor<<<num_of_blocks,num_of_threads, 0, stream>>>(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		DD0_0_ptr,DD1_0_ptr,DD2_0_ptr, DD3_0_ptr, DD4_0_ptr, DD5_0_ptr,

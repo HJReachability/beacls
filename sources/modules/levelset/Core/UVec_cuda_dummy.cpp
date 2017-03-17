@@ -228,6 +228,6 @@ int get_num_of_gpus_impl() {
 void set_gpu_id_impl(const int) {
 }
 
-}	// bears
+}	// beacls
 #endif /* !defined(WITH_GPU) */
 

@@ -7,9 +7,12 @@
 #include <levelset/levelset.hpp>
 #include <helperOC/helperOC_type.hpp>
 
-class HJI_Grid;
-class DynSysSchemeData;
+namespace levelset {
+	class HJI_Grid;
+};
+
 namespace helperOC{
+	class DynSysSchemeData;
 	class HDJPDE;
 	class AddCRadius_impl {
 	public:
@@ -26,7 +29,7 @@ namespace helperOC{
 
 		bool operator()(
 			beacls::FloatVec& dataOut,
-			const HJI_Grid* gIn,
+			const levelset::HJI_Grid* gIn,
 			const beacls::FloatVec& dataIn,
 			const FLOAT_TYPE radius
 			);

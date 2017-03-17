@@ -23,7 +23,7 @@ bool Plane4DSchemeData::hamFunc(
 	const size_t begin_index,
 	const size_t length
 	) const {
-	const HJI_Grid *hji_grid = get_grid();
+	const levelset::HJI_Grid *hji_grid = get_grid();
 
 	const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
 	const beacls::FloatVec &xs3 = hji_grid->get_xs(3);
@@ -62,7 +62,7 @@ bool Plane4DSchemeData::partialFunc(
 	if (alphas_uvec.type() != beacls::UVecType_Vector) alphas_uvec = beacls::UVec(beacls::type_to_depth<FLOAT_TYPE>(), beacls::UVecType_Vector, length);
 	else alphas_uvec.resize(length);
 	FLOAT_TYPE* alphas = beacls::UVec_<FLOAT_TYPE>(alphas_uvec).ptr();
-	const HJI_Grid *hji_grid = get_grid();
+	const levelset::HJI_Grid *hji_grid = get_grid();
 	switch (dim) {
 	case 0:
 	{

@@ -48,7 +48,7 @@ bool run_UTest_HJIPDE_solve(
 	const size_t chunk_size,
 	const int num_of_threads,
 	const int num_of_gpus,
-	const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
+	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu
 	);
 

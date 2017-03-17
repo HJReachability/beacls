@@ -6,7 +6,7 @@
 
 helperOC::ComputeGradients_Worker_impl::ComputeGradients_Worker_impl(
 	ComputeGradients_CommandQueue* commandQueue,
-	const SpatialDerivative* spatialDerivative,
+	const levelset::SpatialDerivative* spatialDerivative,
 	const int gpu_id
 ) : commandQueue(commandQueue),
 	gpu_id(gpu_id),
@@ -20,7 +20,7 @@ void helperOC::ComputeGradients_Worker_impl::ComputeGradients_Worker_proc() {
 	nextExitFlag = exitFlag;
 	mtx.unlock();
 	beacls::set_gpu_id(gpu_id);
-	SpatialDerivative* thread_local_spatialDerivative = spatialDerivative->clone();
+	levelset::SpatialDerivative* thread_local_spatialDerivative = spatialDerivative->clone();
 	while (!nextExitFlag) {
 		if (commandQueue) {
 			ComputeGradients_OneSlice* command = commandQueue->pop();
@@ -84,7 +84,7 @@ void helperOC::ComputeGradients_Worker::run() {
 void helperOC::ComputeGradients_Worker::terminate() {
 	if (pimpl) pimpl->terminate();
 }
-const SpatialDerivative* helperOC::ComputeGradients_Worker::get_spatialDerivative() const {
+const levelset::SpatialDerivative* helperOC::ComputeGradients_Worker::get_spatialDerivative() const {
 	if (pimpl) return pimpl->get_spatialDerivative();
 	else return NULL;
 }
@@ -97,7 +97,7 @@ helperOC::ComputeGradients_Worker* helperOC::ComputeGradients_Worker::clone() co
 }
 helperOC::ComputeGradients_Worker::ComputeGradients_Worker(
 	ComputeGradients_CommandQueue* commandQueue, 
-	const SpatialDerivative* derivFunc,
+	const levelset::SpatialDerivative* derivFunc,
 	const int gpu_id) {
 	pimpl = new ComputeGradients_Worker_impl(commandQueue, derivFunc, gpu_id);
 }

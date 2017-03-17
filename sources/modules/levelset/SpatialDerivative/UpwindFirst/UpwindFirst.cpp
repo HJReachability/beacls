@@ -5,7 +5,7 @@
 #include <numeric>
 #include <macro.hpp>
 
-bool checkEquivalentApprox(
+bool levelset::checkEquivalentApprox(
 	beacls::FloatVec& relErrors,
 	beacls::FloatVec& absErrors,
 	const beacls::FloatVec& approx1s,
@@ -53,7 +53,7 @@ bool checkEquivalentApprox(
 
 	return true;
 }
-bool checkEquivalentApprox(
+bool levelset::checkEquivalentApprox(
 	beacls::FloatVec& relErrors,
 	beacls::FloatVec& absErrors,
 	const beacls::UVec& approx1s,

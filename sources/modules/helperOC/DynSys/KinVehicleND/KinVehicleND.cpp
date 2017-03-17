@@ -8,6 +8,7 @@
 #include <levelset/Grids/HJI_Grid.hpp>
 
 #include "KinVehicleND_cuda.hpp"
+using namespace helperOC;
 
 
 KinVehicleND::KinVehicleND(
@@ -55,10 +56,10 @@ bool KinVehicleND::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
 
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Min : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Min : uMode;
 	const size_t length = deriv_sizes[0];
 	if (length == 0) return false;
 	const size_t nu = get_nu();
@@ -70,8 +71,8 @@ bool KinVehicleND::optCtrl(
 		std::transform(deriv_ptrs[dim], deriv_ptrs[dim] + length, uOpts[nu - 1].cbegin(), uOpts[nu - 1].begin(), [](const auto& lhs, const auto& rhs) { return rhs + lhs * lhs; });
 	}
 	std::transform(uOpts[nu - 1].cbegin(), uOpts[nu - 1].cend(), uOpts[nu - 1].begin(),[](const auto& rhs) { return std::sqrt(rhs); });
-	if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-		const FLOAT_TYPE moded_vMax = (uMode == DynSys_UMode_Max) ? vMax : -vMax;
+	if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+		const FLOAT_TYPE moded_vMax = (uMode == helperOC::DynSys_UMode_Max) ? vMax : -vMax;
 		for (size_t dim = 0; dim < nu; ++dim) {
 			beacls::FloatVec& uOpt = uOpts[dim];
 			const FLOAT_TYPE* deriv = deriv_ptrs[dim];
@@ -110,9 +111,9 @@ bool KinVehicleND::optCtrl_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	if (deriv_uvecs.empty() || deriv_uvecs[0].empty()) return false;
 	return KinVehicleND_CUDA::optCtrl_execute_cuda(u_uvecs, deriv_uvecs, vMax, modified_uMode);
 }

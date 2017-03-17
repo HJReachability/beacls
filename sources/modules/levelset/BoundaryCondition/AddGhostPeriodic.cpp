@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include "AddGhostPeriodic_impl.hpp"
 //#define PARALLEL_Y
+using namespace levelset;
 
 
 AddGhostPeriodic_impl::AddGhostPeriodic_impl(

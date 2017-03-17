@@ -50,7 +50,7 @@ bool run_UTest_SpatialDerivative(
 	}
 	beacls::closeMatFStream(src_data_filename_fs);
 
-	HJI_Grid *hJI_Grid = new HJI_Grid(Ns.size());
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(Ns.size());
 	if (!hJI_Grid) {
 		std::stringstream ss;
 		ss << "Cannot create grid" << std::endl;
@@ -146,15 +146,15 @@ bool run_UTest_SpatialDerivative(
 	}
 
 
-	std::vector<BoundaryCondition*> boundaryConditions(num_of_dimensions);
+	std::vector<levelset::BoundaryCondition*> boundaryConditions(num_of_dimensions);
 	std::transform(boundaryCondition_Classes.cbegin(), boundaryCondition_Classes.cend(), boundaryConditions.begin(), ([&message](auto& rhs) {
-		BoundaryCondition* boundaryCondition = NULL;
+		levelset::BoundaryCondition* boundaryCondition = NULL;
 		switch (rhs) {
 		case BoundaryCondition_Class_AddGhostExtrapolate:
-			boundaryCondition = new AddGhostExtrapolate();
+			boundaryCondition = new levelset::AddGhostExtrapolate();
 			break;
 		case BoundaryCondition_Class_AddGhostPeriodic:
-			boundaryCondition = new AddGhostPeriodic();
+			boundaryCondition = new levelset::AddGhostPeriodic();
 			break;
 		default:
 			std::stringstream ss;
@@ -186,19 +186,19 @@ bool run_UTest_SpatialDerivative(
 	}
 
 
-	SpatialDerivative *spatialDerivative = NULL;
+	levelset::SpatialDerivative *spatialDerivative = NULL;
 	switch (spatialDerivative_Class) {
 	case SpatialDerivative_Class_UpwindFirstFirst:
-		spatialDerivative = new UpwindFirstFirst(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstFirst(hJI_Grid, type);
 		break;
 	case SpatialDerivative_Class_UpwindFirstENO2:
-		spatialDerivative = new UpwindFirstENO2(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO2(hJI_Grid, type);
 		break;
 	case SpatialDerivative_Class_UpwindFirstENO3:
-		spatialDerivative = new UpwindFirstENO3(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO3(hJI_Grid, type);
 		break;
 	case SpatialDerivative_Class_UpwindFirstWENO5:
-		spatialDerivative = new UpwindFirstWENO5(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstWENO5(hJI_Grid, type);
 		break;
 	default:
 		std::stringstream ss;
@@ -259,7 +259,7 @@ bool run_UTest_SpatialDerivative(
 		if (num_of_activated_gpus > 1) {
 			beacls::set_gpu_id(parallel_line_index%num_of_activated_gpus);
 		}
-		SpatialDerivative* loop_local_spatialDerivative = spatialDerivative->clone();
+		levelset::SpatialDerivative* loop_local_spatialDerivative = spatialDerivative->clone();
 		std::string local_message;
 		beacls::UVec deriv_l_line_uvec(depth, type, first_dimension_loop_size*num_of_chunk_lines*num_of_slices);
 		beacls::UVec deriv_r_line_uvec(depth, type, first_dimension_loop_size*num_of_chunk_lines*num_of_slices);

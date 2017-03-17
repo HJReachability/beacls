@@ -16,7 +16,7 @@ helperOC::AddCRadius_impl::AddCRadius_impl(
 	extraOuts(HJIPDE_extraOuts()) {
 	extraArgs.execParameters = execParameters;
 	extraArgs.execParameters.useCuda = false;
-	extraArgs.execParameters.delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	extraArgs.execParameters.delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	extraArgs.execParameters.enable_user_defined_dynamics_on_gpu = false;
 	extraArgs.execParameters.calcTTR = false;
 	hjipde = new HJIPDE();
@@ -38,7 +38,7 @@ helperOC::AddCRadius::~AddCRadius() {
 }
 bool helperOC::AddCRadius_impl::operator()(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* gIn,
+	const levelset::HJI_Grid* gIn,
 	const beacls::FloatVec& dataIn,
 	const FLOAT_TYPE radius
 ) {
@@ -61,7 +61,7 @@ bool helperOC::AddCRadius_impl::operator()(
 	
 bool helperOC::AddCRadius::operator()(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* gIn,
+	const levelset::HJI_Grid* gIn,
 	const beacls::FloatVec& dataIn,
 	const FLOAT_TYPE radius
 	) {

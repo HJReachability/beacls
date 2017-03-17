@@ -26,7 +26,7 @@ bool run_UTest_Dissipation(
 	const std::string& expects_filename,
 	const beacls::FloatVec &maxs,
 	const beacls::FloatVec &mins,
-	SchemeData *schemeData,
+	levelset::SchemeData *schemeData,
 	const Dissipation_Class& dissipation_class,
 	const beacls::UVecType type,
 	const FLOAT_TYPE small_diff,
@@ -63,7 +63,7 @@ bool run_UTest_Dissipation(
 	}
 	beacls::closeMatFStream(src_data_filename_fs);
 
-	HJI_Grid *hJI_Grid = new HJI_Grid(Ns.size());
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(Ns.size());
 	if (!hJI_Grid) {
 		std::stringstream ss;
 		ss << "Cannot create grid" << std::endl;
@@ -181,10 +181,10 @@ bool run_UTest_Dissipation(
 		return false;
 	}
 
-	Dissipation* dissipation;
+	levelset::Dissipation* dissipation;
 	switch (dissipation_class) {
 	case Dissipation_Class_ArtificialDissipationGLF:
-		dissipation = new ArtificialDissipationGLF();
+		dissipation = new levelset::ArtificialDissipationGLF();
 		break;
 	case Dissipation_Class_ArtificialDissipationLLF:
 		//		dissipation = new ArtificialDissipationLLF();
@@ -243,7 +243,7 @@ bool run_UTest_Dissipation(
 		if (rhs.size() != num_of_dimensions) rhs.resize(num_of_dimensions);
 	}));
 	beacls::UVec results(depth, beacls::UVecType_Vector, expected_data.size());
-	std::vector<SchemeData*> thread_local_schemeDatas(num_of_parallel_loop_lines);
+	std::vector<levelset::SchemeData*> thread_local_schemeDatas(num_of_parallel_loop_lines);
 	std::for_each(thread_local_schemeDatas.begin(), thread_local_schemeDatas.end(), [schemeData](auto& rhs) {
 		rhs = schemeData->clone();
 	});
@@ -259,9 +259,9 @@ bool run_UTest_Dissipation(
 			if (num_of_activated_gpus > 1) {
 				beacls::set_gpu_id(parallel_line_index%num_of_activated_gpus);
 			}
-			SchemeData* thread_local_schemeData = thread_local_schemeDatas[parallel_line_index];
+			levelset::SchemeData* thread_local_schemeData = thread_local_schemeDatas[parallel_line_index];
 			size_t loop_local_index = 0;
-			Dissipation* loop_local_dissipation = thread_local_schemeData->get_dissipation();
+			levelset::Dissipation* loop_local_dissipation = thread_local_schemeData->get_dissipation();
 			beacls::FloatVec& local_derivMins = local_derivMinss[parallel_line_index];
 			beacls::FloatVec& local_derivMaxs = local_derivMaxss[parallel_line_index];
 			beacls::UVec diss_line_uvec(depth, type, first_dimension_loop_size*num_of_chunk_lines*num_of_slices);

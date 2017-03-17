@@ -5,7 +5,7 @@
 #include <limits>
 #include <Core/CacheTag.hpp>
 
-namespace beacls
+namespace levelset
 {
 
 class CacheTag_impl {
@@ -42,6 +42,6 @@ private:
 };
 
 
-}	// bears
+}	// beacls
 #endif	/* __CacheTag_impl_hpp__ */
 

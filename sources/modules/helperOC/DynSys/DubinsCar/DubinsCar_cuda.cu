@@ -35,7 +35,7 @@ bool optCtrl_execute_cuda(
 	beacls::UVec& u_uvec,
 	const beacls::UVec& deriv_uvec,
 	const FLOAT_TYPE wMax,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 	)
 {
 	bool result = true;
@@ -50,17 +50,17 @@ bool optCtrl_execute_cuda(
 		thrust::device_ptr<FLOAT_TYPE> uOpt_dev_ptr = thrust::device_pointer_cast(uOpt_ptr);
 		thrust::device_ptr<const FLOAT_TYPE> deriv_dev_ptr = thrust::device_pointer_cast(deriv_ptr);
 		switch (uMode) {
-		case DynSys_UMode_Max:
+		case helperOC::DynSys_UMode_Max:
 			thrust::transform(thrust::cuda::par.on(u_stream), 
 				deriv_dev_ptr, deriv_dev_ptr + length, uOpt_dev_ptr, 
 				Get_opt<FLOAT_TYPE>(wMax));
 			break;
-		case DynSys_UMode_Min:
+		case helperOC::DynSys_UMode_Min:
 			thrust::transform(thrust::cuda::par.on(u_stream), 
 				deriv_dev_ptr, deriv_dev_ptr + length, uOpt_dev_ptr, 
 				Get_opt<FLOAT_TYPE>(-wMax));
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			printf("Unknown uMode!: %d\n", uMode);
 			result = false;
@@ -69,13 +69,13 @@ bool optCtrl_execute_cuda(
 	} else {
 		const FLOAT_TYPE d = deriv_ptr[0];
 		switch (uMode) {
-		case DynSys_UMode_Max:
+		case helperOC::DynSys_UMode_Max:
 			uOpt_ptr[0] = Get_opt<FLOAT_TYPE>(wMax)(d);
 			break;
-		case DynSys_UMode_Min:
+		case helperOC::DynSys_UMode_Min:
 			uOpt_ptr[0] = Get_opt<FLOAT_TYPE>(-wMax)(d);
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			printf("Unknown uMode!: %d\n", uMode);
 			result = false;
@@ -89,7 +89,7 @@ bool optDstb_execute_cuda(
 	std::vector<beacls::UVec>& d_uvecs,
 	const beacls::UVec& deriv_uvec,
 	const std::vector<FLOAT_TYPE>& dMax,
-	const DynSys_DMode_Type dMode,
+	const helperOC::DynSys_DMode_Type dMode,
 	const std::vector<size_t>& dims
 )
 {
@@ -105,17 +105,17 @@ bool optDstb_execute_cuda(
 				FLOAT_TYPE* dOpt_ptr = beacls::UVec_<FLOAT_TYPE>(d_uvecs[dim]).ptr();
 				thrust::device_ptr<FLOAT_TYPE> dOpt_dev_ptr = thrust::device_pointer_cast(dOpt_ptr);
 				switch (dMode) {
-				case DynSys_DMode_Max:
+				case helperOC::DynSys_DMode_Max:
 					thrust::transform(thrust::cuda::par.on(d_stream),
 						deriv_dev_ptr, deriv_dev_ptr + deriv_uvec.size(), dOpt_dev_ptr,
 						Get_opt<FLOAT_TYPE>(dMax_d));
 					break;
-				case DynSys_DMode_Min:
+				case helperOC::DynSys_DMode_Min:
 					thrust::transform(thrust::cuda::par.on(d_stream),
 						deriv_dev_ptr, deriv_dev_ptr + deriv_uvec.size(), dOpt_dev_ptr,
 						Get_opt<FLOAT_TYPE>(-dMax_d));
 					break;
-				case DynSys_UMode_Invalid:
+				case helperOC::DynSys_UMode_Invalid:
 				default:
 					printf("Unknown dMode!: %d\n", dMode);
 					result = false;
@@ -130,13 +130,13 @@ bool optDstb_execute_cuda(
 				const FLOAT_TYPE dMax_d = dMax[dim];
 				FLOAT_TYPE* dOpt_ptr = beacls::UVec_<FLOAT_TYPE>(d_uvecs[dim]).ptr();
 				switch (dMode) {
-				case DynSys_DMode_Max:
+				case helperOC::DynSys_DMode_Max:
 					dOpt_ptr[0] =  Get_opt<FLOAT_TYPE>(dMax_d)(d);
 					break;
-				case DynSys_DMode_Min:
+				case helperOC::DynSys_DMode_Min:
 					dOpt_ptr[0] =  Get_opt<FLOAT_TYPE>(-dMax_d)(d);
 					break;
-				case DynSys_UMode_Invalid:
+				case helperOC::DynSys_UMode_Invalid:
 				default:
 					printf("Unknown dMode!: %d\n", dMode);
 					result = false;

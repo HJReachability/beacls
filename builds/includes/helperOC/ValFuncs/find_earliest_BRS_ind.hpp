@@ -14,7 +14,9 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 namespace helperOC {
 	/**
 	@brief	Determine the earliest time that the current state is in the reachable set
@@ -27,7 +29,7 @@ namespace helperOC {
 	*/
 	PREFIX_VC_DLL
 		size_t find_earliest_BRS_ind(
-		const HJI_Grid* g,
+		const levelset::HJI_Grid* g,
 		const std::vector<beacls::FloatVec >& data,
 		const std::vector<beacls::FloatVec >& x,
 		const size_t upper =-1,

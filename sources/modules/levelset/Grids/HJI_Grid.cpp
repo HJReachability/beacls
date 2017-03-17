@@ -16,6 +16,7 @@
 #include <levelset/BoundaryCondition/BoundaryCondition.hpp>
 #include <levelset/BoundaryCondition/AddGhostExtrapolate.hpp>
 #include <levelset/BoundaryCondition/AddGhostPeriodic.hpp>
+using namespace levelset;
 
 template<typename T>
 inline

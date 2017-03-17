@@ -2,7 +2,9 @@
 #define __ComputeGradients_Worker_hpp__
 
 #include <cstddef>
-class SpatialDerivative;
+namespace levelset {
+	class SpatialDerivative;
+};
 namespace helperOC {
 	class ComputeGradients_Worker_impl;
 	class ComputeGradients_CommandQueue;
@@ -15,11 +17,11 @@ namespace helperOC {
 		void terminate();
 		ComputeGradients_Worker(
 			ComputeGradients_CommandQueue* commandQueue,
-			const SpatialDerivative* spatialDerivative,
+			const levelset::SpatialDerivative* spatialDerivative,
 			const int gpu_id
 		);
 		int get_gpu_id() const;
-		const SpatialDerivative* get_spatialDerivative() const;
+		const levelset::SpatialDerivative* get_spatialDerivative() const;
 		~ComputeGradients_Worker();
 		ComputeGradients_Worker* clone() const;
 	private:

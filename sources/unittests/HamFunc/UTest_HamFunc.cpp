@@ -23,7 +23,7 @@ bool run_UTest_HamFunc(
 	const std::string& expects_filename,
 	const beacls::FloatVec &maxs,
 	const beacls::FloatVec &mins,
-	SchemeData *schemeData,
+	levelset::SchemeData *schemeData,
 	const beacls::UVecType type,
 	const FLOAT_TYPE small_diff,
 	const size_t line_length_of_chunk,
@@ -59,7 +59,7 @@ bool run_UTest_HamFunc(
 	}
 	beacls::closeMatFStream(src_data_filename_fs);
 
-	HJI_Grid *hJI_Grid = new HJI_Grid(Ns.size());
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(Ns.size());
 	if (!hJI_Grid) {
 		std::stringstream ss;
 		ss << "Cannot create grid" << std::endl;
@@ -180,7 +180,7 @@ bool run_UTest_HamFunc(
 	std::vector<beacls::FloatVec > derivMaxs;
 
 	beacls::UVec results(depth, beacls::UVecType_Vector, expected_data.size());
-	std::vector<SchemeData*> thread_local_schemeDatas(num_of_parallel_loop_lines);
+	std::vector<levelset::SchemeData*> thread_local_schemeDatas(num_of_parallel_loop_lines);
 	std::for_each(thread_local_schemeDatas.begin(), thread_local_schemeDatas.end(), [schemeData](auto& rhs) {
 		rhs = schemeData->clone();
 	});
@@ -192,7 +192,7 @@ bool run_UTest_HamFunc(
 		if (num_of_activated_gpus > 1) {
 			beacls::set_gpu_id(parallel_line_index%num_of_activated_gpus);
 		}
-		SchemeData* thread_local_schemeData = thread_local_schemeDatas[parallel_line_index];
+		levelset::SchemeData* thread_local_schemeData = thread_local_schemeDatas[parallel_line_index];
 		std::string local_message;
 		beacls::UVec ham_line_uvec(depth, type, first_dimension_loop_size*num_of_chunk_lines*num_of_slices);
 		std::vector<beacls::UVec> x_uvecs;

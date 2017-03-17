@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <typeinfo>
 #include <levelset/Grids/HJI_Grid.hpp>
+using namespace helperOC;
 
 
 Air3D::Air3D(
@@ -82,12 +83,12 @@ bool Air3D::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec& y_sizes,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
 	for (size_t dimension = 0; dimension < deriv_ptrs.size(); ++dimension) {
 		if (deriv_sizes[dimension] == 0 || deriv_ptrs[dimension] == NULL) return false;
 	}
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	uOpts.resize(get_nu());
 	beacls::FloatVec& uOpt = uOpts[0];
 	const size_t y0_size = y_sizes[0];
@@ -104,19 +105,19 @@ bool Air3D::optCtrl(
 		const FLOAT_TYPE deriv1 = derivs1[0];
 		const FLOAT_TYPE deriv2 = derivs2[0];
 		switch (modified_uMode) {
-		case DynSys_UMode_Max:
+		case helperOC::DynSys_UMode_Max:
 			std::transform(y_ites1, y_ites1 + y0_size, y_ites0, uOpt.begin(), ([deriv0, deriv1, deriv2, this](const auto& lhs, const auto& rhs) {
 				const FLOAT_TYPE det = deriv0 * lhs - deriv1 * rhs - deriv2;
 				return (det >= 0) ? uMax : -uMax;
 			}));
 			break;
-		case DynSys_UMode_Min:
+		case helperOC::DynSys_UMode_Min:
 			std::transform(y_ites1, y_ites1 + y0_size, y_ites0, uOpt.begin(), ([deriv0, deriv1, deriv2, this](const auto& lhs, const auto& rhs) {
 				FLOAT_TYPE det = deriv0 * lhs - deriv1 * rhs - deriv2;
 				return (det >= 0) ? -uMax : uMax;
 			}));
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			std::cerr << "Unknown uMode!: " << modified_uMode << std::endl;
 			return false;
@@ -124,19 +125,19 @@ bool Air3D::optCtrl(
 	}
 	else {
 		switch (modified_uMode) {
-		case DynSys_UMode_Max:
+		case helperOC::DynSys_UMode_Max:
 			for (size_t index = 0; index < deriv0_size; ++index) {
 				const FLOAT_TYPE det = derivs0[index] * y_ites1[index] - derivs1[index] * y_ites0[index] - derivs2[index];
 				uOpt[index] = (det >= 0) ? uMax : -uMax;
 			}
 			break;
-		case DynSys_UMode_Min:
+		case helperOC::DynSys_UMode_Min:
 			for (size_t index = 0; index < deriv0_size; ++index) {
 				const FLOAT_TYPE det = derivs0[index] * y_ites1[index] - derivs1[index] * y_ites0[index] - derivs2[index];
 				uOpt[index] = (det >= 0) ? -uMax : uMax;
 			}
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			std::cerr << "Unknown uMode!: " << modified_uMode << std::endl;
 			return false;
@@ -151,9 +152,9 @@ bool Air3D::optDstb(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	const FLOAT_TYPE* derivs2 = deriv_ptrs[2];
 	size_t deriv2_size = deriv_sizes[2];
 	if (deriv2_size==0|| derivs2 == NULL) return false;
@@ -161,17 +162,17 @@ bool Air3D::optDstb(
 	beacls::FloatVec& dOpt = dOpts[0];
 	dOpt.resize(deriv2_size);
 	switch (modified_dMode) {
-	case DynSys_UMode_Max:
+	case helperOC::DynSys_UMode_Max:
 		for (size_t i = 0; i < deriv2_size; ++i) {
 			dOpt[i] = (derivs2[i] >= 0) ? dMax : -dMax;
 		}
 		break;
-	case DynSys_DMode_Min:
+	case helperOC::DynSys_DMode_Min:
 		for (size_t i = 0; i < deriv2_size; ++i) {
 			dOpt[i] = (derivs2[i] >= 0) ? -dMax : dMax;
 		}
 		break;
-	case DynSys_UMode_Invalid:
+	case helperOC::DynSys_UMode_Invalid:
 	default:
 		std::cerr << "Unknown dMode!: " << modified_dMode << std::endl;
 		return false;

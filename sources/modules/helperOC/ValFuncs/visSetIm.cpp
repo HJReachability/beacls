@@ -1,6 +1,6 @@
 #include <helperOC/helperOC_type.hpp>
 #include <helperOC/ValFuncs/visSetIm.hpp>
-#include <helperOC/ValFuncs/augmentPeriodicData.hpp>
+//#include <helperOC/ValFuncs/augmentPeriodicData.hpp>
 #include <levelset/BoundaryCondition/AddGhostPeriodic.hpp>
 #include <Core/interpn.hpp>
 #include <levelset/Grids/HJI_Grid.hpp>
@@ -20,7 +20,7 @@ namespace helperOC {
 		bool visSetIm_single(
 			cv::Mat& dst_img,
 			const cv::Mat& src_img,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& data,
 			const std::vector<float>& color,
 			const beacls::FloatVec& level,
@@ -152,7 +152,7 @@ static
 bool helperOC::visSetIm_single(
 	cv::Mat& dst_img,
 	const cv::Mat& src_img,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& data,
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,
@@ -194,7 +194,7 @@ bool helperOC::visSetIm_single(
 bool  helperOC::visSetIm(
 	std::vector<cv::Mat>& dst_imgs,
 	const cv::Mat& src_img,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& data,
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,
@@ -255,7 +255,7 @@ bool  helperOC::visSetIm(
 bool  helperOC::visSetIm(
 	cv::Mat& dst_img,
 	const cv::Mat& src_img,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& data,
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,

@@ -46,7 +46,7 @@ namespace helperOC {
 		bool visSetIm(
 			std::vector<cv::Mat>& dst_imgs,
 			const cv::Mat& src_img,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& data,
 			const std::vector<float>& color = std::vector<float>{ 0,0,255 },
 			const beacls::FloatVec& level = beacls::FloatVec(),
@@ -68,7 +68,7 @@ namespace helperOC {
 		bool visSetIm(
 			cv::Mat& dst_imgs,
 			const cv::Mat& src_img,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& data,
 			const std::vector<float>& color = std::vector<float>{ 0,0,1 },
 			const beacls::FloatVec& level = beacls::FloatVec(),

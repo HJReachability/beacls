@@ -27,7 +27,7 @@ void UpwindFirstWENO5a_execute_dim0_cuda(
 	const size_t src_target_dimension_loop_size,
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 ) {
 	beacls::synchronizeCuda(cudaStream);
@@ -48,11 +48,11 @@ void UpwindFirstWENO5a_execute_dim0_cuda(
 		);
 
 	switch (epsilonCalculationMethod_Type) {
-	case beacls::EpsilonCalculationMethod_Invalid:
+	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
 		//		printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_Constant:
+	case levelset::EpsilonCalculationMethod_Constant:
 		for (size_t blockIdx_y = 0; blockIdx_y < num_of_blocks_y; ++blockIdx_y) {
 			for (size_t blockIdx_x = 0; blockIdx_x < num_of_blocks_x; ++blockIdx_x) {
 				for (size_t threadIdx_z = 0; threadIdx_z < num_of_threads_z; ++threadIdx_z) {
@@ -74,10 +74,10 @@ void UpwindFirstWENO5a_execute_dim0_cuda(
 			}
 		}
 		break;
-	case beacls::EpsilonCalculationMethod_maxOverGrid:
+	case levelset::EpsilonCalculationMethod_maxOverGrid:
 		//		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		for (size_t blockIdx_y = 0; blockIdx_y < num_of_blocks_y; ++blockIdx_y) {
 			for (size_t blockIdx_x = 0; blockIdx_x < num_of_blocks_x; ++blockIdx_x) {
 				for (size_t threadIdx_z = 0; threadIdx_z < num_of_threads_z; ++threadIdx_z) {
@@ -123,7 +123,7 @@ void UpwindFirstWENO5a_execute_dim1_cuda(
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t DD0_slice_size,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 ) {
 	beacls::synchronizeCuda(cudaStream);
@@ -144,11 +144,11 @@ void UpwindFirstWENO5a_execute_dim1_cuda(
 		);
 
 	switch (epsilonCalculationMethod_Type) {
-	case beacls::EpsilonCalculationMethod_Invalid:
+	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
 		//		printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_Constant:
+	case levelset::EpsilonCalculationMethod_Constant:
 		for (size_t blockIdx_y = 0; blockIdx_y < num_of_blocks_y; ++blockIdx_y) {
 			for (size_t blockIdx_x = 0; blockIdx_x < num_of_blocks_x; ++blockIdx_x) {
 				for (size_t threadIdx_z = 0; threadIdx_z < num_of_threads_z; ++threadIdx_z) {
@@ -171,10 +171,10 @@ void UpwindFirstWENO5a_execute_dim1_cuda(
 			}
 		}
 		break;
-	case beacls::EpsilonCalculationMethod_maxOverGrid:
+	case levelset::EpsilonCalculationMethod_maxOverGrid:
 		//		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		for (size_t blockIdx_y = 0; blockIdx_y < num_of_blocks_y; ++blockIdx_y) {
 			for (size_t blockIdx_x = 0; blockIdx_x < num_of_blocks_x; ++blockIdx_x) {
 				for (size_t threadIdx_z = 0; threadIdx_z < num_of_threads_z; ++threadIdx_z) {
@@ -225,7 +225,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda (
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 ) {
 	beacls::synchronizeCuda(cudaStream);
@@ -246,11 +246,11 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda (
 		);
 
 	switch (epsilonCalculationMethod_Type) {
-	case beacls::EpsilonCalculationMethod_Invalid:
+	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
 //		printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_Constant:
+	case levelset::EpsilonCalculationMethod_Constant:
 		for (size_t blockIdx_y = 0; blockIdx_y < num_of_blocks_y; ++blockIdx_y) {
 			for (size_t blockIdx_x = 0; blockIdx_x < num_of_blocks_x; ++blockIdx_x) {
 				for (size_t threadIdx_z = 0; threadIdx_z < num_of_threads_z; ++threadIdx_z) {
@@ -272,10 +272,10 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda (
 			}
 		}
 		break;
-	case beacls::EpsilonCalculationMethod_maxOverGrid:
+	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 		return;
-	case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		for (size_t blockIdx_y = 0; blockIdx_y < num_of_blocks_y; ++blockIdx_y) {
 			for (size_t blockIdx_x = 0; blockIdx_x < num_of_blocks_x; ++blockIdx_x) {
 				for (size_t threadIdx_z = 0; threadIdx_z < num_of_threads_z; ++threadIdx_z) {

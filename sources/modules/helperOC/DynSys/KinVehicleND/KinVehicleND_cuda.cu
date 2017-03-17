@@ -55,7 +55,7 @@ bool optCtrl_execute_cuda(
 	std::vector<beacls::UVec>& u_uvecs,
 	const std::vector<beacls::UVec>& deriv_uvecs,
 	const FLOAT_TYPE vMax,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 )
 {
 	bool result = true;
@@ -72,8 +72,8 @@ bool optCtrl_execute_cuda(
 		});
 		FLOAT_TYPE* last_uOpt_ptr = beacls::UVec_<FLOAT_TYPE>(u_uvecs[nu - 1]).ptr();
 		thrust::device_ptr<FLOAT_TYPE> last_uOpt_dev_ptr = thrust::device_pointer_cast(last_uOpt_ptr);
-		if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-			const FLOAT_TYPE moded_vMax = (uMode == DynSys_UMode_Max) ? vMax : -vMax;
+		if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+			const FLOAT_TYPE moded_vMax = (uMode == helperOC::DynSys_UMode_Max) ? vMax : -vMax;
 			//!< store denom to uOpts[nu-1]
 			const FLOAT_TYPE* deriv0 = beacls::UVec_<FLOAT_TYPE>(deriv_uvecs[0]).ptr();
 			thrust::device_ptr<const FLOAT_TYPE> deriv0_dev_ptr = thrust::device_pointer_cast(deriv0);
@@ -100,8 +100,8 @@ bool optCtrl_execute_cuda(
 		}
 	} 
 	else {
-		if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-			const FLOAT_TYPE moded_vMax = (uMode == DynSys_UMode_Max) ? vMax : -vMax;
+		if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+			const FLOAT_TYPE moded_vMax = (uMode == helperOC::DynSys_UMode_Max) ? vMax : -vMax;
 			//!< store denom to uOpts[nu-1]
 			const FLOAT_TYPE* deriv0 = beacls::UVec_<FLOAT_TYPE>(deriv_uvecs[0]).ptr();
 			const FLOAT_TYPE d0 = deriv0[0];

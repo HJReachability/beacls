@@ -4,9 +4,9 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
-class Term;
-class SchemeData;
-namespace beacls {
+namespace levelset {
+	class Term;
+	class SchemeData;
 	class OdeCFL_OneSlice_impl;
 	class OdeCFL_OneSlice {
 	public:

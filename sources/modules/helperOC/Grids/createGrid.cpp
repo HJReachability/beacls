@@ -1,7 +1,7 @@
 #include <levelset/levelset.hpp>
 #include <helperOC/Grids/createGrid.hpp>
 #include <iostream>
-HJI_Grid* createGrid(
+levelset::HJI_Grid* helperOC::createGrid(
 	const beacls::FloatVec& grid_mins,
 	const beacls::FloatVec& grid_maxs,
 	const beacls::IntegerVec& Ns,
@@ -18,17 +18,17 @@ HJI_Grid* createGrid(
 	size_t num_of_dimensions = grid_mins.size();
 
 	//! Create the grid
-	HJI_Grid* g = new HJI_Grid();
+	levelset::HJI_Grid* g = new levelset::HJI_Grid();
 	if (g) {
-		std::vector<BoundaryCondition*> boundaryConditions(num_of_dimensions);
+		std::vector<levelset::BoundaryCondition*> boundaryConditions(num_of_dimensions);
 		beacls::FloatVec modified_maxs(grid_maxs);
 		for (size_t i = 0; i < boundaryConditions.size(); ++i) {
 			if (std::find(pdDims.cbegin(), pdDims.cend(), i) != pdDims.cend()) {
-				boundaryConditions[i] = new AddGhostPeriodic();
+				boundaryConditions[i] = new levelset::AddGhostPeriodic();
 				modified_maxs[i] = (FLOAT_TYPE)(grid_mins[i] + (grid_maxs[i]- grid_mins[i])  * (1. - 1. / Ns[i]));
 			}
 			else {
-				boundaryConditions[i] = new AddGhostExtrapolate();
+				boundaryConditions[i] = new levelset::AddGhostExtrapolate();
 			}
 		}
 		g->set_boundaryConditions(boundaryConditions);

@@ -23,7 +23,7 @@ bool run_UTest_Term(
 	const std::string& expects_filename,
 	const beacls::FloatVec &maxs,
 	const beacls::FloatVec &mins,
-	SchemeData *schemeData,
+	levelset::SchemeData *schemeData,
 	const SpatialDerivative_Class spatialDerivative_Class,
 	const std::vector<BoundaryCondition_Class> &boundaryCondition_Classes,
 	const Dissipation_Class& dissipation_class,
@@ -63,7 +63,7 @@ bool run_UTest_Term(
 	}
 	beacls::closeMatFStream(src_data_filename_fs);
 
-	HJI_Grid *hJI_Grid = new HJI_Grid(Ns.size());
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(Ns.size());
 	if (!hJI_Grid) {
 		std::stringstream ss;
 		ss << "Cannot create grid" << std::endl;
@@ -117,10 +117,10 @@ bool run_UTest_Term(
 	}
 	beacls::closeMatFStream(expects_filename_fs);
 
-	Dissipation* dissipation;
+	levelset::Dissipation* dissipation;
 	switch (dissipation_class) {
 	case Dissipation_Class_ArtificialDissipationGLF:
-		dissipation = new ArtificialDissipationGLF();
+		dissipation = new levelset::ArtificialDissipationGLF();
 		break;
 	case Dissipation_Class_ArtificialDissipationLLF:
 		//		dissipation = new ArtificialDissipationLLF();
@@ -139,15 +139,15 @@ bool run_UTest_Term(
 	}
 	schemeData->set_dissipation(dissipation);
 
-	std::vector<BoundaryCondition*> boundaryConditions(num_of_dimensions);
+	std::vector<levelset::BoundaryCondition*> boundaryConditions(num_of_dimensions);
 	std::transform(boundaryCondition_Classes.cbegin(), boundaryCondition_Classes.cend(), boundaryConditions.begin(), ([&message](auto& rhs) {
-		BoundaryCondition* boundaryCondition = NULL;
+		levelset::BoundaryCondition* boundaryCondition = NULL;
 		switch (rhs) {
 		case BoundaryCondition_Class_AddGhostExtrapolate:
-			boundaryCondition = new AddGhostExtrapolate();
+			boundaryCondition = new levelset::AddGhostExtrapolate();
 			break;
 		case BoundaryCondition_Class_AddGhostPeriodic:
-			boundaryCondition = new AddGhostPeriodic();
+			boundaryCondition = new levelset::AddGhostPeriodic();
 			break;
 		default:
 			std::stringstream ss;
@@ -181,19 +181,19 @@ bool run_UTest_Term(
 	}
 
 
-	SpatialDerivative *spatialDerivative = NULL;
+	levelset::SpatialDerivative *spatialDerivative = NULL;
 	switch (spatialDerivative_Class) {
 	case SpatialDerivative_Class_UpwindFirstFirst:
-		spatialDerivative = new UpwindFirstFirst(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstFirst(hJI_Grid, type);
 		break;
 	case SpatialDerivative_Class_UpwindFirstENO2:
-		spatialDerivative = new UpwindFirstENO2(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO2(hJI_Grid, type);
 		break;
 	case SpatialDerivative_Class_UpwindFirstENO3:
-		spatialDerivative = new UpwindFirstENO3(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO3(hJI_Grid, type);
 		break;
 	case SpatialDerivative_Class_UpwindFirstWENO5:
-		spatialDerivative = new UpwindFirstWENO5(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstWENO5(hJI_Grid, type);
 		break;
 	default:
 		std::stringstream ss;
@@ -209,18 +209,18 @@ bool run_UTest_Term(
 	}
 	schemeData->set_spatialDerivative(spatialDerivative);
 
-	Term *schemeFunc = NULL;
+	levelset::Term *schemeFunc = NULL;
 	switch (term_Class) {
 	case Term_Class_TermLaxFriedrichs:
-		schemeFunc = new TermLaxFriedrichs(schemeData,type);
+		schemeFunc = new levelset::TermLaxFriedrichs(schemeData,type);
 		break;
 	case Term_Class_TermRestrictUpdate:
 		{
-		SchemeData* innerData = schemeData->clone();
+		levelset::SchemeData* innerData = schemeData->clone();
 		schemeData->set_innerData(innerData);
-		Term *innerTerm = new TermLaxFriedrichs(innerData, type);
+		levelset::Term *innerTerm = new levelset::TermLaxFriedrichs(innerData, type);
 		schemeData->set_innerFunc(innerTerm);
-		schemeFunc = new TermRestrictUpdate(type);
+		schemeFunc = new levelset::TermRestrictUpdate(type);
 		schemeData->set_innerFunc(schemeFunc);
 	}
 		break;
@@ -276,8 +276,8 @@ bool run_UTest_Term(
 	for_each(local_derivMaxss.begin(), local_derivMaxss.end(), ([num_of_dimensions](auto& rhs) {
 		if (rhs.size() != num_of_dimensions) rhs.resize(num_of_dimensions);
 	}));
-	std::vector<Term*> thread_local_terms(num_of_parallel_loop_lines);
-	std::vector<SchemeData*> thread_local_schemeDatas(num_of_parallel_loop_lines);
+	std::vector<levelset::Term*> thread_local_terms(num_of_parallel_loop_lines);
+	std::vector<levelset::SchemeData*> thread_local_schemeDatas(num_of_parallel_loop_lines);
 	std::for_each(thread_local_terms.begin(), thread_local_terms.end(), [schemeFunc](auto& rhs) {
 		if (!rhs) rhs = schemeFunc->clone();
 	});
@@ -306,9 +306,9 @@ bool run_UTest_Term(
 			if (num_of_activated_gpus > 1) {
 				beacls::set_gpu_id(parallel_line_index%num_of_activated_gpus);
 			}
-			Term* thread_local_term = thread_local_terms[parallel_line_index];
+			levelset::Term* thread_local_term = thread_local_terms[parallel_line_index];
 			std::string local_message;
-			SchemeData* thread_local_schemeData = thread_local_schemeDatas[parallel_line_index];
+			levelset::SchemeData* thread_local_schemeData = thread_local_schemeDatas[parallel_line_index];
 			beacls::FloatVec& sb_inv_out = step_bound_invss[parallel_line_index];
 			size_t loop_local_index = 0;
 			beacls::FloatVec& local_derivMins = local_derivMinss[parallel_line_index];

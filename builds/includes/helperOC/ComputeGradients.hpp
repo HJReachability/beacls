@@ -19,8 +19,10 @@ using namespace std::rel_ops;
 
 #include <helperOC/helperOC_type.hpp>
 
-class HJI_Grid;
-class SpatialDerivative;
+namespace levelset {
+	class HJI_Grid;
+	class SpatialDerivative;
+};
 
 namespace helperOC {
 	class ComputeGradients_CommandQueue;
@@ -41,7 +43,7 @@ namespace helperOC {
 		*/
 		PREFIX_VC_DLL
 		ComputeGradients(
-			const HJI_Grid* grid,
+			const levelset::HJI_Grid* grid,
 			helperOC::ApproximationAccuracy_Type accuracy = helperOC::ApproximationAccuracy_veryHigh,
 			const beacls::UVecType type = beacls::UVecType_Vector
 		);
@@ -74,7 +76,7 @@ namespace helperOC {
 			std::vector<beacls::FloatVec >& derivC,
 			std::vector<beacls::FloatVec >& derivL,
 			std::vector<beacls::FloatVec >& derivR,
-			const HJI_Grid* grid,
+			const levelset::HJI_Grid* grid,
 			const beacls::FloatVec& data,
 			const size_t data_length,
 			const bool upWind = false,

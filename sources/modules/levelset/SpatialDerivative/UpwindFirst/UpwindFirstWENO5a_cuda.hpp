@@ -327,7 +327,7 @@ void UpwindFirstWENO5a_execute_dim0_cuda
 	const size_t src_target_dimension_loop_size,
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 );
 
@@ -577,7 +577,7 @@ void UpwindFirstWENO5a_execute_dim1_cuda
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t DD0_slice_size,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 
 );
@@ -766,7 +766,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
-	const beacls::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
+	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 																		      
      );

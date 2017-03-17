@@ -12,6 +12,8 @@
 #include "Plane_cuda.hpp"
 #include <random>
 #include <macro.hpp>
+using namespace helperOC;
+
 Plane::Plane(
 	const beacls::FloatVec &x,
 	const FLOAT_TYPE wMax,
@@ -131,9 +133,9 @@ bool Plane::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec& y_sizes,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
 	const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
 	const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
@@ -150,10 +152,10 @@ bool Plane::optCtrl(
 	const FLOAT_TYPE vrange_min = vrange_minmax.first;
 	const FLOAT_TYPE vrange_max = vrange_minmax.second;
 
-	if ((modified_uMode == DynSys_UMode_Max) || (modified_uMode == DynSys_UMode_Min)) {
-		const FLOAT_TYPE moded_vrange_max = (modified_uMode == DynSys_UMode_Max) ? vrange_max : vrange_min;
-		const FLOAT_TYPE moded_vrange_min = (modified_uMode == DynSys_UMode_Max) ? vrange_min : vrange_max;
-		const FLOAT_TYPE moded_wMax = (modified_uMode == DynSys_UMode_Max) ? wMax : -wMax;
+	if ((modified_uMode == helperOC::DynSys_UMode_Max) || (modified_uMode == helperOC::DynSys_UMode_Min)) {
+		const FLOAT_TYPE moded_vrange_max = (modified_uMode == helperOC::DynSys_UMode_Max) ? vrange_max : vrange_min;
+		const FLOAT_TYPE moded_vrange_min = (modified_uMode == helperOC::DynSys_UMode_Max) ? vrange_min : vrange_max;
+		const FLOAT_TYPE moded_wMax = (modified_uMode == helperOC::DynSys_UMode_Max) ? wMax : -wMax;
 		if (deriv0_size != y2_size) {
 			const FLOAT_TYPE deriv0 = deriv0_ptr[0];
 			const FLOAT_TYPE deriv1 = deriv1_ptr[0];
@@ -187,9 +189,9 @@ bool Plane::optDstb(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
 	const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
 	const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
@@ -204,9 +206,9 @@ bool Plane::optDstb(
 	const FLOAT_TYPE dMax_0 = dMax[0];
 	const FLOAT_TYPE dMax_1 = dMax[1];
 
-	if ((modified_dMode == DynSys_DMode_Max) || (modified_dMode == DynSys_DMode_Min)) {
-		const FLOAT_TYPE moded_dMax_0 = (modified_dMode == DynSys_DMode_Max) ? dMax_0 : -dMax_0;
-		const FLOAT_TYPE moded_dMax_1 = (modified_dMode == DynSys_DMode_Max) ? dMax_1 : -dMax_1;
+	if ((modified_dMode == helperOC::DynSys_DMode_Max) || (modified_dMode == helperOC::DynSys_DMode_Min)) {
+		const FLOAT_TYPE moded_dMax_0 = (modified_dMode == helperOC::DynSys_DMode_Max) ? dMax_0 : -dMax_0;
+		const FLOAT_TYPE moded_dMax_1 = (modified_dMode == helperOC::DynSys_DMode_Max) ? dMax_1 : -dMax_1;
 		for (size_t index = 0; index < deriv0_size; ++index) {
 			const FLOAT_TYPE deriv0 = deriv0_ptr[index];
 			const FLOAT_TYPE deriv1 = deriv1_ptr[index];
@@ -337,10 +339,10 @@ bool Plane::optCtrl_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
 	if (x_uvecs.size() < 3 || x_uvecs[2].empty() || deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const auto vrange_minmax = beacls::minmax_value<FLOAT_TYPE>(vrange.cbegin(), vrange.cend());
 	const FLOAT_TYPE vrange_min = vrange_minmax.first;
 	const FLOAT_TYPE vrange_max = vrange_minmax.second;
@@ -351,10 +353,10 @@ bool Plane::optDstb_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
 	if (deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	return Plane_CUDA::optDstb_execute_cuda(d_uvecs, x_uvecs, deriv_uvecs, dMax, modified_dMode);
 }
 bool Plane::dynamics_cuda(
@@ -398,10 +400,10 @@ bool Plane::optCtrl_cuda(
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& derivMax_uvecs,
 	const std::vector<beacls::UVec>& derivMin_uvecs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
 	if (x_uvecs.size() < 3 || x_uvecs[2].empty() || derivMax_uvecs.size() < 3 || derivMax_uvecs[0].empty() || derivMax_uvecs[1].empty() || derivMax_uvecs[2].empty()) return false;
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const auto vrange_minmax = beacls::minmax_value<FLOAT_TYPE>(vrange.cbegin(), vrange.cend());
 	const FLOAT_TYPE vrange_min = vrange_minmax.first;
 	const FLOAT_TYPE vrange_max = vrange_minmax.second;
@@ -414,10 +416,10 @@ bool Plane::optDstb_cuda(
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& derivMax_uvecs,
 	const std::vector<beacls::UVec>& derivMin_uvecs,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
 	if (derivMax_uvecs.size() < 3 || derivMax_uvecs[0].empty() || derivMax_uvecs[1].empty() || derivMax_uvecs[2].empty()) return false;
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	return Plane_CUDA::optDstb_execute_cuda(dU_uvecs, dL_uvecs, x_uvecs, derivMax_uvecs, derivMin_uvecs, dMax, modified_dMode);
 }
 bool Plane::dynamics_cuda(
@@ -466,8 +468,8 @@ bool Plane::HamFunction_cuda(
 	const auto vrange_minmax = beacls::minmax_value<FLOAT_TYPE>(vrange.cbegin(), vrange.cend());
 	const FLOAT_TYPE vrange_min = vrange_minmax.first;
 	const FLOAT_TYPE vrange_max = vrange_minmax.second;
-	const DynSys_UMode_Type modified_uMode = (schemeData->uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : schemeData->uMode;
-	const DynSys_DMode_Type modified_dMode = (schemeData->dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : schemeData->dMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (schemeData->uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : schemeData->uMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (schemeData->dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : schemeData->dMode;
 	return Plane_CUDA::HamFunction_cuda(hamValue_uvec, x_uvecs, deriv_uvecs, wMax, vrange_min, vrange_max, dMax, modified_uMode, modified_dMode, negate);
 }
 
@@ -489,8 +491,8 @@ bool Plane::PartialFunction_cuda(
 	const auto vrange_minmax = beacls::minmax_value<FLOAT_TYPE>(vrange.cbegin(), vrange.cend());
 	const FLOAT_TYPE vrange_min = vrange_minmax.first;
 	const FLOAT_TYPE vrange_max = vrange_minmax.second;
-	const DynSys_UMode_Type modified_uMode = (schemeData->uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : schemeData->uMode;
-	const DynSys_DMode_Type modified_dMode = (schemeData->dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : schemeData->dMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (schemeData->uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : schemeData->uMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (schemeData->dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : schemeData->dMode;
 	return Plane_CUDA::PartialFunction_cuda(alpha_uvec, x_uvecs, derivMin_uvecs, derivMax_uvecs, dim, wMax, vrange_min, vrange_max, dMax, modified_uMode, modified_dMode);
 }
 #endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) */

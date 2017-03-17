@@ -4,6 +4,7 @@
 #include "ShapeCylinder_impl.hpp"
 #include <numeric>
 #include <cmath>
+using namespace levelset;
 
 ShapeCylinder_impl::ShapeCylinder_impl(
 	const beacls::IntegerVec& ignoreDims,

@@ -2,6 +2,7 @@
 #include <levelset/Grids/HJI_Grid.hpp>
 #include "ShapeRectangleByCorner_impl.hpp"
 #include <macro.hpp>
+using namespace levelset;
 
 ShapeRectangleByCorner_impl::ShapeRectangleByCorner_impl(
 	const beacls::FloatVec& lower,

@@ -23,7 +23,7 @@ public:
 		const std::vector<FLOAT_TYPE>& data,
 		const std::vector<FLOAT_TYPE>& derivMins,
 		const std::vector<FLOAT_TYPE>& derivMaxs,
-		const SchemeData * schemeData,
+		const levelset::SchemeData * schemeData,
 		const size_t dim,
 		const size_t begin_index,
 		const size_t length

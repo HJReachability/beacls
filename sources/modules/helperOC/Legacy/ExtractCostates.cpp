@@ -7,6 +7,7 @@
 #include <helperOC/ComputeGradients.hpp>
 #include "ExtractCostates_impl.hpp"
 #include <helperOC/helperOC_type.hpp>
+using namespace helperOC;
 
 ExtractCostates_impl::ExtractCostates_impl(
 	helperOC::ApproximationAccuracy_Type accuracy
@@ -20,7 +21,7 @@ bool ExtractCostates_impl::operator()(
 	std::vector<beacls::FloatVec >& derivC,
 	std::vector<beacls::FloatVec >& derivL,
 	std::vector<beacls::FloatVec >& derivR,
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	const beacls::FloatVec& data,
 	const size_t data_length,
 	const bool upWind,
@@ -44,7 +45,7 @@ bool ExtractCostates::operator()(
 	std::vector<beacls::FloatVec >& derivC,
 	std::vector<beacls::FloatVec >& derivL,
 	std::vector<beacls::FloatVec >& derivR,
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	const beacls::FloatVec& data,
 	const size_t data_length,
 	const bool upWind,

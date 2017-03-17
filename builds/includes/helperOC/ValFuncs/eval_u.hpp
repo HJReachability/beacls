@@ -11,7 +11,9 @@
 #endif
 
 #include <typedef.hpp>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 namespace helperOC {
 	/**
 	@brief	Computes the interpolated value of the value functions datas at the states xs
@@ -27,7 +29,7 @@ namespace helperOC {
 	PREFIX_VC_DLL
 		bool eval_u(
 			beacls::FloatVec& dataOut,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& data,
 			const std::vector<beacls::FloatVec >& xs,
 			const beacls::Interpolate_Type interp_method = beacls::Interpolate_linear
@@ -46,7 +48,7 @@ namespace helperOC {
 	PREFIX_VC_DLL
 		bool eval_u(
 			std::vector<beacls::FloatVec>& dataOuts,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const std::vector<beacls::FloatVec >& datas,
 			const beacls::FloatVec& x,
 			const beacls::Interpolate_Type interp_method = beacls::Interpolate_linear
@@ -65,7 +67,7 @@ namespace helperOC {
 	PREFIX_VC_DLL
 		bool eval_u(
 			std::vector<beacls::FloatVec>& dataOuts,
-			const std::vector<HJI_Grid*>& gs,
+			const std::vector<levelset::HJI_Grid*>& gs,
 			const std::vector<beacls::FloatVec >& datas,
 			const std::vector<beacls::FloatVec >& xs,
 			const beacls::Interpolate_Type interp_method = beacls::Interpolate_linear

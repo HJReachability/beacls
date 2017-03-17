@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <levelset/Grids/HJI_Grid.hpp>
 #include "PlaneCAvoid_cuda.hpp"
+using namespace helperOC;
 
 
 PlaneCAvoid::PlaneCAvoid(
@@ -83,9 +84,9 @@ bool PlaneCAvoid::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec& y_sizes,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const FLOAT_TYPE* deriv0 = deriv_ptrs[0];
 	const FLOAT_TYPE* deriv1 = deriv_ptrs[1];
 	const FLOAT_TYPE* deriv2 = deriv_ptrs[2];
@@ -101,10 +102,10 @@ bool PlaneCAvoid::optCtrl(
 	beacls::FloatVec& uOpt1 = uOpts[1];
 	const FLOAT_TYPE vRangeA0 = vRangeA[0];
 	const FLOAT_TYPE vRangeA1 = vRangeA[1];
-	if ((modified_uMode == DynSys_UMode_Max) || (modified_uMode == DynSys_UMode_Min)) {
-		const FLOAT_TYPE moded_wMaxA = (modified_uMode == DynSys_UMode_Max) ? wMaxA : -wMaxA;
-		const FLOAT_TYPE moded_vRangeA0 = (modified_uMode == DynSys_UMode_Max) ? vRangeA0 : vRangeA1;
-		const FLOAT_TYPE moded_vRangeA1 = (modified_uMode == DynSys_UMode_Max) ? vRangeA1 : vRangeA0;
+	if ((modified_uMode == helperOC::DynSys_UMode_Max) || (modified_uMode == helperOC::DynSys_UMode_Min)) {
+		const FLOAT_TYPE moded_wMaxA = (modified_uMode == helperOC::DynSys_UMode_Max) ? wMaxA : -wMaxA;
+		const FLOAT_TYPE moded_vRangeA0 = (modified_uMode == helperOC::DynSys_UMode_Max) ? vRangeA0 : vRangeA1;
+		const FLOAT_TYPE moded_vRangeA1 = (modified_uMode == helperOC::DynSys_UMode_Max) ? vRangeA1 : vRangeA0;
 		if (deriv0_size != y0_size) {
 			const FLOAT_TYPE d0 = deriv0[0];
 			const FLOAT_TYPE d1 = deriv1[0];
@@ -146,9 +147,9 @@ bool PlaneCAvoid::optDstb(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec& y_sizes,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	const FLOAT_TYPE* deriv0 = deriv_ptrs[0];
 	const FLOAT_TYPE* deriv1 = deriv_ptrs[1];
 	const FLOAT_TYPE* deriv2 = deriv_ptrs[2];
@@ -172,12 +173,12 @@ bool PlaneCAvoid::optDstb(
 	const FLOAT_TYPE vRangeB1 = vRangeB[1];
 	const FLOAT_TYPE dMaxA_0_dMaxB_0 = dMaxA_0 + dMaxB_0;
 	const FLOAT_TYPE dMaxA_1_dMaxB_1 = dMaxA_1 + dMaxB_1;
-	if ((modified_dMode == DynSys_DMode_Max) || (modified_dMode == DynSys_DMode_Min)) {
-		const FLOAT_TYPE moded_wMaxB = (modified_dMode == DynSys_DMode_Max) ? wMaxB : -wMaxB;
-		const FLOAT_TYPE moded_vRangeB0 = (modified_dMode == DynSys_DMode_Max) ? vRangeB0 : vRangeB1;
-		const FLOAT_TYPE moded_vRangeB1 = (modified_dMode == DynSys_DMode_Max) ? vRangeB1 : vRangeB0;
-		const FLOAT_TYPE moded_dMaxA_0_dMaxB_0 = (modified_dMode == DynSys_DMode_Max) ? dMaxA_0_dMaxB_0 : -dMaxA_0_dMaxB_0;
-		const FLOAT_TYPE moded_dMaxA_1_dMaxB_1 = (modified_dMode == DynSys_DMode_Max) ? dMaxA_1_dMaxB_1 : -dMaxA_1_dMaxB_1;
+	if ((modified_dMode == helperOC::DynSys_DMode_Max) || (modified_dMode == helperOC::DynSys_DMode_Min)) {
+		const FLOAT_TYPE moded_wMaxB = (modified_dMode == helperOC::DynSys_DMode_Max) ? wMaxB : -wMaxB;
+		const FLOAT_TYPE moded_vRangeB0 = (modified_dMode == helperOC::DynSys_DMode_Max) ? vRangeB0 : vRangeB1;
+		const FLOAT_TYPE moded_vRangeB1 = (modified_dMode == helperOC::DynSys_DMode_Max) ? vRangeB1 : vRangeB0;
+		const FLOAT_TYPE moded_dMaxA_0_dMaxB_0 = (modified_dMode == helperOC::DynSys_DMode_Max) ? dMaxA_0_dMaxB_0 : -dMaxA_0_dMaxB_0;
+		const FLOAT_TYPE moded_dMaxA_1_dMaxB_1 = (modified_dMode == helperOC::DynSys_DMode_Max) ? dMaxA_1_dMaxB_1 : -dMaxA_1_dMaxB_1;
 
 		if (deriv0_size != y2_size) {
 			const FLOAT_TYPE d0 = deriv0[0];
@@ -347,9 +348,9 @@ bool PlaneCAvoid::optCtrl_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	if (x_uvecs.empty() || x_uvecs[0].empty() || deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
 	return PlaneCAvoid_CUDA::optCtrl_execute_cuda(
 		u_uvecs, x_uvecs, deriv_uvecs, wMaxA, vRangeA, modified_uMode);
@@ -359,9 +360,9 @@ bool PlaneCAvoid::optDstb_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	if (x_uvecs.size() < 3 || x_uvecs[2].empty() || deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
 	return PlaneCAvoid_CUDA::optDstb_execute_cuda(
 		d_uvecs, x_uvecs, deriv_uvecs, dMaxA, dMaxB, vRangeB, wMaxB, modified_dMode);

@@ -1,6 +1,6 @@
 #include <helperOC/helperOC_type.hpp>
 #include <helperOC/ValFuncs/proj.hpp>
-#include <helperOC/ValFuncs/augmentPeriodicData.hpp>
+//#include <helperOC/ValFuncs/augmentPeriodicData.hpp>
 #include <levelset/BoundaryCondition/AddGhostPeriodic.hpp>
 #include <Core/interpn.hpp>
 #include <levelset/Grids/HJI_Grid.hpp>
@@ -33,10 +33,9 @@ namespace helperOC {
 	grid points
 	@return							grid corresponding to projected data
 	*/
-	static
-		HJI_Grid* projSingle(
+	static levelset::HJI_Grid* projSingle(
 			beacls::FloatVec& dataOut,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& dataIn,
 			const beacls::IntegerVec& dims,
 			const std::vector<Projection_Type>& x_types,
@@ -80,9 +79,9 @@ static void helperOC::gen_interpn_param(
 	});
 }
 static
-HJI_Grid* helperOC::projSingle(
+levelset::HJI_Grid* helperOC::projSingle(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& dataIn,
 	const beacls::IntegerVec& dims,
 	const std::vector<Projection_Type>& x_types,
@@ -93,11 +92,11 @@ HJI_Grid* helperOC::projSingle(
 
 	//!< Create ouptut grid by keeping dimensions that we are not collapsing
 	const size_t dims_count_zero = std::count_if(dims.cbegin(), dims.cend(), [](const auto& rhs) { return (rhs == 0); });
-	HJI_Grid* gOut = new HJI_Grid(dims_count_zero);
+	levelset::HJI_Grid* gOut = new levelset::HJI_Grid(dims_count_zero);
 
 	beacls::FloatVec gOut_mins;
 	beacls::FloatVec gOut_maxs;
-	std::vector<BoundaryCondition*> gOut_boundaryConditions;
+	std::vector<levelset::BoundaryCondition*> gOut_boundaryConditions;
 	gOut_mins.reserve(dims_count_zero);
 	gOut_maxs.reserve(dims_count_zero);
 	gOut_boundaryConditions.reserve(dims_count_zero);
@@ -189,8 +188,8 @@ HJI_Grid* helperOC::projSingle(
 		const beacls::FloatVec& vs = g->get_vs(dimension);
 		if (dims[dimension] != 0) {
 			//!< If this dimension is periodic, wrap the input point to the correct period
-			const BoundaryCondition* boundaryCondition = g->get_boundaryCondition(dimension);
-			if (boundaryCondition && (typeid(*boundaryCondition) == typeid(AddGhostPeriodic))) {
+			const levelset::BoundaryCondition* boundaryCondition = g->get_boundaryCondition(dimension);
+			if (boundaryCondition && (typeid(*boundaryCondition) == typeid(levelset::AddGhostPeriodic))) {
 				extrapolate_methods[dimension] = beacls::Extrapolate_periodic;
 				if (!vs.empty()) {
 					const FLOAT_TYPE dx_d = g->get_dx(dimension);
@@ -237,9 +236,9 @@ HJI_Grid* helperOC::projSingle(
 	return gOut;
 }
 
-HJI_Grid*  helperOC::proj(
+levelset::HJI_Grid*  helperOC::proj(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& dataIn,
 	const beacls::IntegerVec& dims,
 	const std::vector<Projection_Type>& x_types,
@@ -254,7 +253,7 @@ HJI_Grid*  helperOC::proj(
 
 	const size_t dims_count_nonzero = std::count_if(dims.cbegin(), dims.cend(), [](const auto& rhs) { return (rhs != 0); });
 	if (dims_count_nonzero == g->get_num_of_dimensions()) {
-		HJI_Grid* gOut = g->clone();
+		levelset::HJI_Grid* gOut = g->clone();
 		dataOut = dataIn;
 		std::cerr << "Input and output dimensions are the same!" << std::endl;
 		return gOut;
@@ -290,9 +289,9 @@ HJI_Grid*  helperOC::proj(
 	}
 	return projSingle(dataOut, g, dataIn, dims, modified_x_types, xs, modified_NOut, process);
 }
-HJI_Grid*  helperOC::proj(
+levelset::HJI_Grid*  helperOC::proj(
 	std::vector<beacls::FloatVec>& dataOut,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const std::vector<beacls::FloatVec>& dataIn,
 	const beacls::IntegerVec& dims,
 	const std::vector<Projection_Type>& x_types,
@@ -306,7 +305,7 @@ HJI_Grid*  helperOC::proj(
 	}
 	const size_t dims_count_nonzero = std::count_if(dims.cbegin(), dims.cend(), [](const auto& rhs) { return (rhs != 0); });
 	if (dims_count_nonzero == g->get_num_of_dimensions()) {
-		HJI_Grid* gOut = g->clone();
+		levelset::HJI_Grid* gOut = g->clone();
 		dataOut = dataIn;
 		std::cerr << "Input and output dimensions are the same!" << std::endl;
 		return gOut;
@@ -344,7 +343,7 @@ HJI_Grid*  helperOC::proj(
 	}
 
 	const size_t dataOld_size = dataIn.size();
-	HJI_Grid* gOut = NULL;
+	levelset::HJI_Grid* gOut = NULL;
 	if (dataOld_size == 1) {
 		dataOut.resize(1);
 		gOut = projSingle(dataOut[0], g, dataIn[0], dims, x_types, xs, modified_NOut, process);
@@ -354,15 +353,15 @@ HJI_Grid*  helperOC::proj(
 		dataOut.resize(newTimeSteps);
 		gOut = projSingle(dataOut[0], g, beacls::FloatVec(), dims, x_types, xs, NOut, process);
 		for (size_t i = 0; i < newTimeSteps; ++i) {
-			HJI_Grid* tmpG = projSingle(dataOut[i], g, dataIn[i], dims, x_types, xs, modified_NOut, process);
+			levelset::HJI_Grid* tmpG = projSingle(dataOut[i], g, dataIn[i], dims, x_types, xs, modified_NOut, process);
 			if (tmpG) delete tmpG;
 		}
 	}
 	return gOut;
 }
-HJI_Grid*  helperOC::proj(
+levelset::HJI_Grid*  helperOC::proj(
 	std::vector<beacls::FloatVec>& dataOut,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const std::vector<const beacls::FloatVec*>& dataIn,
 	const beacls::IntegerVec& dims,
 	const std::vector<Projection_Type>& x_types,
@@ -376,7 +375,7 @@ HJI_Grid*  helperOC::proj(
 	}
 	const size_t dims_count_nonzero = std::count_if(dims.cbegin(), dims.cend(), [](const auto& rhs) { return (rhs != 0); });
 	if (dims_count_nonzero == g->get_num_of_dimensions()) {
-		HJI_Grid* gOut = g->clone();
+		levelset::HJI_Grid* gOut = g->clone();
 		dataOut.resize(dataIn.size());
 		std::transform(dataIn.cbegin(), dataIn.cend(), dataOut.begin(), [](const auto& rhs) {
 			return beacls::FloatVec(rhs->cbegin(), rhs->cend());
@@ -417,7 +416,7 @@ HJI_Grid*  helperOC::proj(
 	}
 
 	const size_t dataOld_size = dataIn.size();
-	HJI_Grid* gOut = NULL;
+	levelset::HJI_Grid* gOut = NULL;
 	if (dataOld_size == 1) {
 		dataOut.resize(1);
 		gOut = projSingle(dataOut[0], g, *dataIn[0], dims, x_types, xs, modified_NOut, process);
@@ -427,7 +426,7 @@ HJI_Grid*  helperOC::proj(
 		dataOut.resize(newTimeSteps);
 		gOut = projSingle(dataOut[0], g, beacls::FloatVec(), dims, x_types, xs, NOut, process);
 		for (size_t i = 0; i < newTimeSteps; ++i) {
-			HJI_Grid* tmpG = projSingle(dataOut[i], g, *dataIn[i], dims, x_types, xs, modified_NOut, process);
+			levelset::HJI_Grid* tmpG = projSingle(dataOut[i], g, *dataIn[i], dims, x_types, xs, modified_NOut, process);
 			if (tmpG) delete tmpG;
 		}
 	}

@@ -60,18 +60,18 @@ int main(int argc, char *argv[])
 	if (argc >= 12) {
 		num_of_gpus = atoi(argv[11]);
 	}
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	if (argc >= 13) {
 		switch (atoi(argv[12])) {
 		default:
 		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 			break;
 		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 			break;
 		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Adaptive;
 			break;
 		}
 	}
@@ -96,23 +96,23 @@ int main(int argc, char *argv[])
 		Ns = beacls::IntegerVec{ 1501, 1501, 1001 };
 		break;
 	}
-	HJI_Grid* g = createGrid(
+	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{(FLOAT_TYPE)-21, (FLOAT_TYPE)-18, (FLOAT_TYPE)-M_PI}, 
 		beacls::FloatVec{(FLOAT_TYPE)15, (FLOAT_TYPE)18, (FLOAT_TYPE)M_PI}, 
 		Ns, beacls::IntegerVec{2});
 
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
-	DubinsCar* dubinsCar = new DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 1., 1.);
+	helperOC::DubinsCar* dubinsCar = new helperOC::DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 1., 1.);
 	
 	// Dynamical system parameters
-	DynSysSchemeData* schemeData = new DynSysSchemeData;
+	helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData;
 	schemeData->set_grid(g);
 	schemeData->dynSys = dubinsCar;
 	schemeData->accuracy = helperOC::ApproximationAccuracy_veryHigh;
 
 	// Target set and visualization
 	beacls::FloatVec data0;
-	ShapeSphere* shape = new ShapeSphere(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, (FLOAT_TYPE)0.1);
+	levelset::ShapeSphere* shape = new levelset::ShapeSphere(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, (FLOAT_TYPE)0.1);
 	shape->execute(g, data0);
 
 	helperOC::HJIPDE_extraArgs extraArgs;
@@ -127,12 +127,12 @@ int main(int argc, char *argv[])
 	extraArgs.execParameters.delayedDerivMinMax = delayedDerivMinMax;
 	extraArgs.execParameters.enable_user_defined_dynamics_on_gpu = enable_user_defined_dynamics_on_gpu;
 
-	HJIPDE* hjipde;
-	if (useTempFile) hjipde = new HJIPDE(std::string("tmp.mat"));
-	else hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde;
+	if (useTempFile) hjipde = new helperOC::HJIPDE(std::string("tmp.mat"));
+	else hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, HJIPDE::MinWithType_Zero, extraArgs);
+	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 	beacls::FloatVec TTR;
 	std::vector<beacls::FloatVec > P, derivL, derivR;
 
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
 	// Compute gradient
 	if (!TTR.empty()) {
-		ExtractCostates* extractCostates = new ExtractCostates(schemeData->accuracy);
+		helperOC::ExtractCostates* extractCostates = new helperOC::ExtractCostates(schemeData->accuracy);
 		extractCostates->operator()(P, derivL, derivR, g, TTR, TTR.size(), false, extraArgs.execParameters);
 		if (extractCostates) delete extractCostates;
 	}

@@ -12,6 +12,7 @@
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3aHelper.hpp>
 #include "UpwindFirstWENO5a_impl.hpp"
 #include "UpwindFirstWENO5a_cuda.hpp"
+using namespace levelset;
 
 UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(
 	const HJI_Grid *hji_grid,
@@ -22,7 +23,7 @@ UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(
 	num_of_strides(6),
 	tmpSmooths_m1s(2),
 	tmpSmooths(2),
-	epsilonCalculationMethod_Type(beacls::EpsilonCalculationMethod_maxOverNeighbor)
+	epsilonCalculationMethod_Type(levelset::EpsilonCalculationMethod_maxOverNeighbor)
 {
 	upwindFirstENO3aHelper = new UpwindFirstENO3aHelper(hji_grid,type);
 
@@ -241,11 +242,11 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 				}
 				// Body
 				switch (epsilonCalculationMethod_Type) {
-				case beacls::EpsilonCalculationMethod_Invalid:
+				case levelset::EpsilonCalculationMethod_Invalid:
 				default:
 					printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 					return false;
-				case beacls::EpsilonCalculationMethod_Constant:
+				case levelset::EpsilonCalculationMethod_Constant:
 					for (size_t target_dimension_loop_index = 0; target_dimension_loop_index < src_target_dimension_loop_size; ++target_dimension_loop_index) {
 						size_t src_D1_index = target_dimension_loop_index + src_D1_offset;
 						size_t src_index = target_dimension_loop_index + dst_offset;
@@ -271,10 +272,10 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 						tmpSmooth_current_index = (tmpSmooth_current_index == 0) ? 1 : 0;
 					}
 					break;
-				case beacls::EpsilonCalculationMethod_maxOverGrid:
+				case levelset::EpsilonCalculationMethod_maxOverGrid:
 					printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 					return false;
-				case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+				case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 					for (size_t target_dimension_loop_index = 0; target_dimension_loop_index < src_target_dimension_loop_size; ++target_dimension_loop_index) {
 						size_t src_D1_index = target_dimension_loop_index + src_D1_offset;
 						size_t src_index = target_dimension_loop_index + dst_offset;
@@ -430,11 +431,11 @@ bool UpwindFirstWENO5a_impl::execute_dim1(
 			}
 			// Body
 			switch (epsilonCalculationMethod_Type) {
-			case beacls::EpsilonCalculationMethod_Invalid:
+			case levelset::EpsilonCalculationMethod_Invalid:
 			default:
 				printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 				return false;
-			case beacls::EpsilonCalculationMethod_Constant:
+			case levelset::EpsilonCalculationMethod_Constant:
 				for (size_t index = 0; index < loop_length; ++index) {
 					size_t loop_index = index + loop_begin + dst_slice_offset;
 					size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
@@ -474,10 +475,10 @@ bool UpwindFirstWENO5a_impl::execute_dim1(
 					}
 				}
 				break;
-			case beacls::EpsilonCalculationMethod_maxOverGrid:
+			case levelset::EpsilonCalculationMethod_maxOverGrid:
 				printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 				return false;
-			case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+			case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 				for (size_t index = 0; index < loop_length; ++index) {
 					size_t loop_index = index + loop_begin + dst_slice_offset;
 					size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
@@ -628,11 +629,11 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 		for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
 			const size_t slice_offset = slice_index * slice_length;
 			switch (epsilonCalculationMethod_Type) {
-			case beacls::EpsilonCalculationMethod_Invalid:
+			case levelset::EpsilonCalculationMethod_Invalid:
 			default:
 				printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
 				return false;
-			case beacls::EpsilonCalculationMethod_Constant:
+			case levelset::EpsilonCalculationMethod_Constant:
 				for (size_t index = 0; index < loop_length; ++index) {
 					size_t dst_offset = index * first_dimension_loop_size + slice_offset;
 					for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
@@ -656,10 +657,10 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 					}
 				}
 				break;
-			case beacls::EpsilonCalculationMethod_maxOverGrid:
+			case levelset::EpsilonCalculationMethod_maxOverGrid:
 				printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
 				return false;
-			case beacls::EpsilonCalculationMethod_maxOverNeighbor:
+			case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 				for (size_t index = 0; index < loop_length; ++index) {
 					size_t dst_offset = index * first_dimension_loop_size + slice_offset;
 					for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {

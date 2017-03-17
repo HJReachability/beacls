@@ -70,7 +70,7 @@ bool optCtrl_execute_cuda(
 	const std::vector<beacls::UVec>& deriv_uvecs,
 	const FLOAT_TYPE wMaxA,
 	const std::vector<FLOAT_TYPE>& vRangeA,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 )
 {
 	bool result = true;
@@ -87,10 +87,10 @@ bool optCtrl_execute_cuda(
 	thrust::device_ptr<const FLOAT_TYPE> y1_dev_ptr = thrust::device_pointer_cast(y1_ptr);
 	const FLOAT_TYPE vRangeA0 = vRangeA[0];
 	const FLOAT_TYPE vRangeA1 = vRangeA[1];
-	if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-		const FLOAT_TYPE moded_wMaxA = (uMode == DynSys_UMode_Max) ? wMaxA : -wMaxA;
-		const FLOAT_TYPE moded_vRangeA0 = (uMode == DynSys_UMode_Max) ? vRangeA0 : vRangeA1;
-		const FLOAT_TYPE moded_vRangeA1 = (uMode == DynSys_UMode_Max) ? vRangeA1 : vRangeA0;
+	if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+		const FLOAT_TYPE moded_wMaxA = (uMode == helperOC::DynSys_UMode_Max) ? wMaxA : -wMaxA;
+		const FLOAT_TYPE moded_vRangeA0 = (uMode == helperOC::DynSys_UMode_Max) ? vRangeA0 : vRangeA1;
+		const FLOAT_TYPE moded_vRangeA1 = (uMode == helperOC::DynSys_UMode_Max) ? vRangeA1 : vRangeA0;
 		cudaStream_t u_stream = beacls::get_stream(u_uvecs[1]);
 		thrust::device_ptr<FLOAT_TYPE> uOpt1_dev_ptr = thrust::device_pointer_cast(uOpt1_ptr);
 		if(is_cuda(deriv_uvecs[0]) && is_cuda(deriv_uvecs[1]) && is_cuda(deriv_uvecs[2])){
@@ -200,7 +200,7 @@ bool optDstb_execute_cuda(
 	const std::vector<FLOAT_TYPE>& dMaxB,
 	const std::vector<FLOAT_TYPE>& vRangeB,
 	const FLOAT_TYPE wMaxB,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 )
 {
 	bool result = true;
@@ -226,12 +226,12 @@ bool optDstb_execute_cuda(
 	const FLOAT_TYPE vRangeB1 = vRangeB[1];
 	const FLOAT_TYPE dMaxA_0_dMaxB_0 = dMaxA_0 + dMaxB_0;
 	const FLOAT_TYPE dMaxA_1_dMaxB_1 = dMaxA_1 + dMaxB_1;
-	if ((dMode == DynSys_DMode_Max) || (dMode == DynSys_DMode_Min)) {
-		const FLOAT_TYPE moded_wMaxB = (dMode == DynSys_DMode_Max) ? wMaxB : -wMaxB;
-		const FLOAT_TYPE moded_vRangeB0 = (dMode == DynSys_DMode_Max) ? vRangeB0 : vRangeB1;
-		const FLOAT_TYPE moded_vRangeB1 = (dMode == DynSys_DMode_Max) ? vRangeB1 : vRangeB0;
-		const FLOAT_TYPE moded_dMaxA_0_dMaxB_0 = (dMode == DynSys_DMode_Max) ? dMaxA_0_dMaxB_0 : -dMaxA_0_dMaxB_0;
-		const FLOAT_TYPE moded_dMaxA_1_dMaxB_1 = (dMode == DynSys_DMode_Max) ? dMaxA_1_dMaxB_1 : -dMaxA_1_dMaxB_1;
+	if ((dMode == helperOC::DynSys_DMode_Max) || (dMode == helperOC::DynSys_DMode_Min)) {
+		const FLOAT_TYPE moded_wMaxB = (dMode == helperOC::DynSys_DMode_Max) ? wMaxB : -wMaxB;
+		const FLOAT_TYPE moded_vRangeB0 = (dMode == helperOC::DynSys_DMode_Max) ? vRangeB0 : vRangeB1;
+		const FLOAT_TYPE moded_vRangeB1 = (dMode == helperOC::DynSys_DMode_Max) ? vRangeB1 : vRangeB0;
+		const FLOAT_TYPE moded_dMaxA_0_dMaxB_0 = (dMode == helperOC::DynSys_DMode_Max) ? dMaxA_0_dMaxB_0 : -dMaxA_0_dMaxB_0;
+		const FLOAT_TYPE moded_dMaxA_1_dMaxB_1 = (dMode == helperOC::DynSys_DMode_Max) ? dMaxA_1_dMaxB_1 : -dMaxA_1_dMaxB_1;
 		thrust::device_ptr<FLOAT_TYPE> dOpt0_dev_ptr = thrust::device_pointer_cast(dOpt0_ptr);
 		cudaStream_t d_stream = beacls::get_stream(d_uvecs[0]);
 		thrust::device_ptr<const FLOAT_TYPE> y2_dev_ptr = thrust::device_pointer_cast(y2_ptr);

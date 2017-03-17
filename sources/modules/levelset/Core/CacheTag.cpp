@@ -4,17 +4,17 @@
 
 #include <macro.hpp>
 
-beacls::CacheTag::CacheTag(
+levelset::CacheTag::CacheTag(
 ) {
 	pimpl = new CacheTag_impl();
 }
-beacls::CacheTag::~CacheTag() {
+levelset::CacheTag::~CacheTag() {
 	if (pimpl) delete pimpl;
 }
-void beacls::CacheTag::set_tag(const FLOAT_TYPE new_t, const size_t new_bi, const size_t new_l) {
+void levelset::CacheTag::set_tag(const FLOAT_TYPE new_t, const size_t new_bi, const size_t new_l) {
 	if (pimpl) pimpl->set_tag(new_t, new_bi, new_l);
 }
-bool beacls::CacheTag::check_tag(const FLOAT_TYPE new_t, const size_t new_bi, const size_t new_l) const {
+bool levelset::CacheTag::check_tag(const FLOAT_TYPE new_t, const size_t new_bi, const size_t new_l) const {
 	if (pimpl) return pimpl->check_tag(new_t, new_bi, new_l);
 	else return false;
 }

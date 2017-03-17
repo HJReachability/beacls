@@ -5,7 +5,7 @@
 #include <vector>
 
 size_t helperOC::find_earliest_BRS_ind(
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const std::vector<beacls::FloatVec >& data,
 	const std::vector<beacls::FloatVec >& x,
 	const size_t org_upper,

@@ -4,7 +4,7 @@
 #include <mutex>
 #include <deque>
 
-namespace beacls {
+namespace levelset {
 	class OdeCFL_OneSlice;
 	class OdeCFL_CommandQueue_impl {
 	private:

@@ -4,9 +4,9 @@
 #include <typedef.hpp>
 #include <vector>
 #include <deque>
-class Term;
-class SchemeData;
-namespace beacls {
+namespace levelset {
+	class Term;
+	class SchemeData;
 	class OdeCFL_CommandQueue;
 	void odeCFL_SubStep(
 		std::vector<OdeCFL_CommandQueue*> odeCFL_CommandQueues,
@@ -32,7 +32,7 @@ namespace beacls {
 		const size_t third_dimension_loop_size,
 		const size_t num_of_parallel_loop_lines,
 		const size_t actual_num_of_threas,
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 		const bool enable_user_defined_dynamics_on_gpu
 	);
 };

@@ -1369,4 +1369,4 @@ namespace beacls
 		else return false;
 	}
 
-}// bears
+}// beacls

@@ -8,7 +8,7 @@
 
 bool helperOC::rotateData(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& dataIn,
 	const FLOAT_TYPE theta,
 	const beacls::IntegerVec& pdims,

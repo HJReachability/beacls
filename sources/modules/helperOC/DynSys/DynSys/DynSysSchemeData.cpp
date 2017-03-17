@@ -12,37 +12,38 @@
 #include <macro.hpp>
 
 #include "DynSysSchemeData_cuda.hpp"
-
-class DynSysSchemeData_Workspace {
-public:
-	std::vector<beacls::FloatVec > us;
-	std::vector<beacls::FloatVec > ds;
-	std::vector<beacls::FloatVec > dxs;
-	std::vector<beacls::FloatVec > TIdxs;
-	std::vector<std::vector<beacls::FloatVec> > uUss;
-	std::vector<std::vector<beacls::FloatVec> > uLss;
-	std::vector<std::vector<beacls::FloatVec> > dUss;
-	std::vector<std::vector<beacls::FloatVec> > dLss;
-	std::vector<std::vector<beacls::FloatVec> > dxUUs;
-	std::vector<std::vector<beacls::FloatVec> > dxULs;
-	std::vector<std::vector<beacls::FloatVec> > dxLLs;
-	std::vector<std::vector<beacls::FloatVec> > dxLUs;
+using namespace helperOC;
+namespace helperOC {
+	class DynSysSchemeData_Workspace {
+	public:
+		std::vector<beacls::FloatVec > us;
+		std::vector<beacls::FloatVec > ds;
+		std::vector<beacls::FloatVec > dxs;
+		std::vector<beacls::FloatVec > TIdxs;
+		std::vector<std::vector<beacls::FloatVec> > uUss;
+		std::vector<std::vector<beacls::FloatVec> > uLss;
+		std::vector<std::vector<beacls::FloatVec> > dUss;
+		std::vector<std::vector<beacls::FloatVec> > dLss;
+		std::vector<std::vector<beacls::FloatVec> > dxUUs;
+		std::vector<std::vector<beacls::FloatVec> > dxULs;
+		std::vector<std::vector<beacls::FloatVec> > dxLLs;
+		std::vector<std::vector<beacls::FloatVec> > dxLUs;
 #if defined(USER_DEFINED_GPU_DYNSYS_FUNC)
-	std::vector<beacls::UVec > u_uvecs;
-	std::vector<beacls::UVec > d_uvecs;
-	std::vector<beacls::UVec > dx_uvecs;
-	std::vector<beacls::UVec > TIdx_uvecs;
-	std::vector<std::vector<beacls::UVec > > uU_uvecss;
-	std::vector<std::vector<beacls::UVec > > uL_uvecss;
-	std::vector<std::vector<beacls::UVec > > dU_uvecss;
-	std::vector<std::vector<beacls::UVec > > dL_uvecss;
-	std::vector<std::vector<beacls::UVec > > dxUU_uvecss;
-	std::vector<std::vector<beacls::UVec > > dxUL_uvecss;
-	std::vector<std::vector<beacls::UVec > > dxLL_uvecss;
-	std::vector<std::vector<beacls::UVec > > dxLU_uvecss;
+		std::vector<beacls::UVec > u_uvecs;
+		std::vector<beacls::UVec > d_uvecs;
+		std::vector<beacls::UVec > dx_uvecs;
+		std::vector<beacls::UVec > TIdx_uvecs;
+		std::vector<std::vector<beacls::UVec > > uU_uvecss;
+		std::vector<std::vector<beacls::UVec > > uL_uvecss;
+		std::vector<std::vector<beacls::UVec > > dU_uvecss;
+		std::vector<std::vector<beacls::UVec > > dL_uvecss;
+		std::vector<std::vector<beacls::UVec > > dxUU_uvecss;
+		std::vector<std::vector<beacls::UVec > > dxUL_uvecss;
+		std::vector<std::vector<beacls::UVec > > dxLL_uvecss;
+		std::vector<std::vector<beacls::UVec > > dxLU_uvecss;
 #endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) */
+	};
 };
-
 DynSysSchemeData::DynSysSchemeData(
 	) : SchemeData(),
 	ws(new DynSysSchemeData_Workspace()),
@@ -133,7 +134,7 @@ bool getOptCtrl(
 	const std::vector<beacls::FloatVec::const_iterator >& xs_ites,
 	const std::vector<beacls::UVec>& deriv_uvecs,
 	const beacls::IntegerVec& x_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) {
 	const size_t nu = dynSys->get_nu();
 	us.resize(nu);
@@ -161,7 +162,7 @@ bool getOptDstb(
 	const std::vector<beacls::FloatVec::const_iterator >& xs_ites,
 	const std::vector<beacls::UVec>& deriv_uvecs,
 	const beacls::IntegerVec& x_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) {
 	const size_t nd = dynSys->get_nd();
 	ds.resize(nd);
@@ -205,7 +206,7 @@ bool DynSysSchemeData::hamFunc(
 	const size_t begin_index,
 	const size_t length
 	) const {
-	const HJI_Grid *hji_grid = get_grid();
+	const levelset::HJI_Grid *hji_grid = get_grid();
 
 	// Custom derivative for MIE
 	const std::vector<beacls::UVec>& custom_derivs = (!MIEderivs.empty()) ? MIEderivs : derivs;
@@ -296,7 +297,7 @@ bool DynSysSchemeData::hamFunc(
 	}
 
 	//!< Negate hamValue if backward reachable set
-	if ((tMode == DynSys_TMode_Backward) != (side.valid() && side.upper)) {
+	if ((tMode == helperOC::DynSys_TMode_Backward) != (side.valid() && side.upper)) {
 		for (size_t index = 0; index < length; ++index) {
 			hamValue[index] = -hamValue[index];
 		}
@@ -325,7 +326,7 @@ bool DynSysSchemeData::partialFunc(
 //	TIdims = schemeData.TIdims;
 //		dims = MIEdims;
 //	}
-	const HJI_Grid *hji_grid = get_grid();
+	const levelset::HJI_Grid *hji_grid = get_grid();
 	const size_t num_of_dimensions = hji_grid->get_num_of_dimensions();
 	const std::vector<beacls::FloatVec >& xs = hji_grid->get_xss();
 	std::vector<beacls::FloatVec::const_iterator > xs_ites(xs.size());
@@ -390,7 +391,7 @@ bool getOptCtrl_cuda(
 	const FLOAT_TYPE t,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& derivs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) {
 	const size_t nu = dynSys->get_nu();
 	u_uvecs.resize(nu);
@@ -418,7 +419,7 @@ bool getOptDstb_cuda(
 	const FLOAT_TYPE t,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& derivs,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) {
 	const size_t nd = dynSys->get_nd();
 	d_uvecs.resize(nd);
@@ -464,7 +465,7 @@ bool getOptCtrl_cuda(
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& derivMins,
 	const std::vector<beacls::UVec>& derivMaxs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) {
 	const size_t nu = dynSys->get_nu();
 	uU_uvecs.resize(nu);
@@ -496,7 +497,7 @@ bool getOptDstb_cuda(
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& derivMins,
 	const std::vector<beacls::UVec>& derivMaxs,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) {
 	const size_t nd = dynSys->get_nd();
 	dU_uvecs.resize(nd);
@@ -552,7 +553,7 @@ bool DynSysSchemeData::hamFunc_cuda(
 	std::for_each(custom_derivs.begin(), custom_derivs.end(), ([](const auto& rhs) { beacls::synchronizeUVec(rhs); }));
 
 	//!< Using Hamilton Jacobi function from dynamical system 
-	if (dynSys->HamFunction_cuda(hamValue_uvec, this, t, data, x_uvecs, custom_derivs, begin_index, length, (tMode == DynSys_TMode_Backward) != (side.valid() && side.upper))) return true;
+	if (dynSys->HamFunction_cuda(hamValue_uvec, this, t, data, x_uvecs, custom_derivs, begin_index, length, (tMode == helperOC::DynSys_TMode_Backward) != (side.valid() && side.upper))) return true;
 
 	std::vector<beacls::UVec >& u_uvecs = ws->u_uvecs;
 	if (!getOptCtrl_cuda(u_uvecs, dynSys, uIns, t, x_uvecs, custom_derivs, uMode)) return false;
@@ -613,7 +614,7 @@ bool DynSysSchemeData::hamFunc_cuda(
 	if (!getTIDynamics_cuda(TIdx_uvecs, dynSys, t, x_uvecs, u_uvecs, d_uvecs)) return false;
 	return hamFunc_exec_cuda(
 		hamValue_uvec, modified_derivs2, dx_uvecs, TIdx_uvecs, TIderiv, 
-		!dynSys->get_TIdims().empty(), (tMode == DynSys_TMode_Backward) != (side.valid() && side.upper));
+		!dynSys->get_TIdims().empty(), (tMode == helperOC::DynSys_TMode_Backward) != (side.valid() && side.upper));
 }
 
 bool DynSysSchemeData::partialFunc_cuda(
@@ -636,7 +637,7 @@ bool DynSysSchemeData::partialFunc_cuda(
 	//	TIdims = schemeData.TIdims;
 	//		dims = MIEdims;
 	//	}
-	const HJI_Grid *hji_grid = get_grid();
+	const levelset::HJI_Grid *hji_grid = get_grid();
 	const size_t num_of_dimensions = hji_grid->get_num_of_dimensions();
 	ws->uL_uvecss.resize(num_of_dimensions);
 	ws->uU_uvecss.resize(num_of_dimensions);

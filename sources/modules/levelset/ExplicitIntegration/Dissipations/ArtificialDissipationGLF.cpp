@@ -11,6 +11,7 @@
 #include <typeinfo>
 #include <cuda_macro.hpp>
 #include <macro.hpp>
+using namespace levelset;
 ArtificialDissipationGLF_impl::ArtificialDissipationGLF_impl(
 	) {
 }

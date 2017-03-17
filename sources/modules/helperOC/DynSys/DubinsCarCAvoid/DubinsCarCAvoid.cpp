@@ -1,4 +1,5 @@
 #include <helperOC/DynSys/DubinsCarCAvoid/DubinsCarCAvoid.hpp>
+using namespace helperOC;
 DubinsCarCAvoid::DubinsCarCAvoid(
 	const beacls::FloatVec& x,
 	const FLOAT_TYPE uMax,

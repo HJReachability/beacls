@@ -11,7 +11,9 @@
 #endif
 
 #include <typedef.hpp>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 
 namespace helperOC {
 	/**
@@ -23,8 +25,8 @@ namespace helperOC {
 		@retval	gShift
 		*/
 	PREFIX_VC_DLL
-		HJI_Grid* shiftGrid(
-		const HJI_Grid* gIn,
+		levelset::HJI_Grid* shiftGrid(
+		const levelset::HJI_Grid* gIn,
 		const beacls::FloatVec& shiftAmount
 	);
 

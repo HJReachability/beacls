@@ -13,16 +13,18 @@
 #define PREFIX_VC_DLL
 #endif
 
-class HJI_Grid;
-
-
-/**
-	@brief	destroyGrid
-	@param	[in]		grid	grid structure
-*/
-PREFIX_VC_DLL
-void destroyGrid(
-	HJI_Grid* grid
-	);
+namespace levelset {
+	class HJI_Grid;
+};
+namespace helperOC {
+	/**
+		@brief	destroyGrid
+		@param	[in]		grid	grid structure
+	*/
+	PREFIX_VC_DLL
+		void destroyGrid(
+			levelset::HJI_Grid* grid
+		);
+};
 #endif	/* __DESTROYGRID_hpp__ */
 

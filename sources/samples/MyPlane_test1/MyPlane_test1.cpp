@@ -30,15 +30,15 @@ int main(int argc, char *argv[])
 
 	const FLOAT_TYPE inf = std::numeric_limits<FLOAT_TYPE>::infinity();
 	//!< Target and obstacle
-	HJI_Grid* g = createGrid(
+	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 
 		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
 		beacls::IntegerVec{41,41,11});
 	std::vector<beacls::FloatVec > targets(1);
-	BasicShape* shapeTarget = new ShapeCylinder(beacls::IntegerVec{2}, beacls::FloatVec{75., 50., 0.}, (FLOAT_TYPE)10);
+	levelset::BasicShape* shapeTarget = new levelset::ShapeCylinder(beacls::IntegerVec{2}, beacls::FloatVec{75., 50., 0.}, (FLOAT_TYPE)10);
 	shapeTarget->execute(g, targets[0]);
-	BasicShape* shapeObs1 = new ShapeRectangleByCorner(beacls::FloatVec{300, 250, -inf}, beacls::FloatVec{350, 300, inf});
-	BasicShape* shapeObs2 = new ShapeRectangleByCorner(beacls::FloatVec{5, 5, -inf}, beacls::FloatVec{145, 145, inf});
+	levelset::BasicShape* shapeObs1 = new levelset::ShapeRectangleByCorner(beacls::FloatVec{300, 250, -inf}, beacls::FloatVec{350, 300, inf});
+	levelset::BasicShape* shapeObs2 = new levelset::ShapeRectangleByCorner(beacls::FloatVec{5, 5, -inf}, beacls::FloatVec{145, 145, inf});
 	beacls::FloatVec obs1, obs2;
 	shapeObs1->execute(g, obs1);
 	shapeObs2->execute(g, obs2);
@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
 	// Dynamical system parameters
-	DynSysSchemeData* schemeData = new DynSysSchemeData;
+	helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData;
 	schemeData->set_grid(g);
 	schemeData->dynSys = pl;
-	schemeData->uMode = DynSys_UMode_Min;
-	schemeData->dMode = DynSys_DMode_Max;
+	schemeData->uMode = helperOC::DynSys_UMode_Min;
+	schemeData->dMode = helperOC::DynSys_DMode_Max;
 
 	// Target set and visualization
 	helperOC::HJIPDE_extraArgs extraArgs;
@@ -75,15 +75,13 @@ int main(int argc, char *argv[])
 		extraArgs.fig_filename = "MyPlane_test1_BRS";
 	}
 
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec tau2;
-	hjipde->solve(tau2, extraOuts, targets, tau, schemeData, HJIPDE::MinWithType_None, extraArgs);
+	hjipde->solve(tau2, extraOuts, targets, tau, schemeData, helperOC::HJIPDE::MinWithType_None, extraArgs);
 
 	std::vector<beacls::FloatVec > datas;
-	if (!keepLast) {
-		hjipde->get_datas(datas, tau, schemeData);
-	}
+	hjipde->get_datas(datas, tau, schemeData);
 
 	std::string MyPlane_test1_filename("MyPlane_test1.mat");
 	beacls::MatFStream* fs = beacls::openMatFStream(MyPlane_test1_filename, beacls::MatOpenMode_Write);

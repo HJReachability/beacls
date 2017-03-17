@@ -12,6 +12,7 @@
 //#include <opencv2/opencv.hpp>
 #include <sstream>
 #include <Core/UVec.hpp>
+using namespace helperOC;
 
 bool HPxPy::save(
 	beacls::MatFStream* fs,
@@ -196,7 +197,7 @@ DynSys_impl::DynSys_impl(
 }
 DynSys_impl::~DynSys_impl() {
 }
-bool DynSys_impl::operator==(const DynSys_impl& rhs) const {
+bool helperOC::DynSys_impl::operator==(const helperOC::DynSys_impl& rhs) const {
 	if (this == &rhs) return true;
 	else if (nx != rhs.nx) return false;
 	else if (nu != rhs.nu) return false;
@@ -232,7 +233,7 @@ bool DynSys_impl::operator==(const DynSys_impl& rhs) const {
 	else return true;
 }
 DynSys::DynSys() {
-	pimpl = new DynSys_impl;
+	pimpl = new helperOC::DynSys_impl;
 
 }
 
@@ -245,7 +246,7 @@ DynSys::DynSys(
 	const beacls::IntegerVec& vdim,
 	const beacls::IntegerVec& TIdims)
 {
-	pimpl = new DynSys_impl(nx, nu, nd, pdim, hdim, vdim, TIdims);
+	pimpl = new helperOC::DynSys_impl(nx, nu, nd, pdim, hdim, vdim, TIdims);
 }
 DynSys::DynSys(
 	beacls::MatFStream* fs,
@@ -266,7 +267,7 @@ DynSys::DynSys(
 	load_vector(vdim, std::string("vdim"), dummy, true, fs, variable_ptr);
 	load_vector(hdim, std::string("hdim"), dummy, true, fs, variable_ptr);
 	load_vector(TIdims, std::string("TIdims"), dummy, true, fs, variable_ptr);
-	pimpl = new DynSys_impl(nx, nu, nd, pdim, hdim, vdim, TIdims, fs, variable_ptr);
+	pimpl = new helperOC::DynSys_impl(nx, nu, nd, pdim, hdim, vdim, TIdims, fs, variable_ptr);
 }
 DynSys::~DynSys() {
 	if (pimpl) delete pimpl;
@@ -287,7 +288,7 @@ bool DynSys::operator==(const DynSys& rhs) const {
 	}
 }
 
-bool DynSys_impl::save(
+bool helperOC::DynSys_impl::save(
 	beacls::MatFStream* fs,
 	beacls::MatVariable* variable_ptr
 ) {
@@ -387,7 +388,7 @@ public:
 	}
 };
 
-bool DynSys_impl::ode113(
+bool helperOC::DynSys_impl::ode113(
 	beacls::FloatVec& dst_x,
 	const DynSys* dynSys,
 	const std::vector<beacls::FloatVec >& src_u,
@@ -477,7 +478,7 @@ bool DynSys::getVelocity(beacls::FloatVec& v, std::vector<beacls::FloatVec>& vhi
 	return true;
 }
 
-bool DynSys_impl::plotPosition(const DynSys* dynSys, helperOC::PlotExtraArgs& extraArgs) {
+bool helperOC::DynSys_impl::plotPosition(const DynSys* dynSys, helperOC::PlotExtraArgs& extraArgs) {
 	beacls::FloatVec p;
 	std::vector<beacls::FloatVec> phist;
 	dynSys->getPosition(p, phist);
@@ -538,7 +539,7 @@ bool DynSys::plotPosition(helperOC::PlotExtraArgs& extraArgs) {
 	else return false;
 }
 
-bool DynSys_impl::updateState(
+bool helperOC::DynSys_impl::updateState(
 	beacls::FloatVec& x1,
 	const DynSys* dynSys,
 	const std::vector<beacls::FloatVec >& src_u,
@@ -601,7 +602,7 @@ bool DynSys::optCtrl(
 	const std::vector<const FLOAT_TYPE*>&,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec&,
-	const DynSys_UMode_Type
+	const helperOC::DynSys_UMode_Type
 ) const {
 	return true;
 }
@@ -613,7 +614,7 @@ bool DynSys::optDstb(
 	const std::vector<const FLOAT_TYPE* >&,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec&,
-	const DynSys_DMode_Type
+	const helperOC::DynSys_DMode_Type
 ) const {
 	return true;
 }
@@ -636,7 +637,7 @@ bool DynSys::optCtrl_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>&,
-	const DynSys_UMode_Type
+	const helperOC::DynSys_UMode_Type
 ) const {
 	return false;
 }
@@ -646,7 +647,7 @@ bool DynSys::optDstb_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>&,
-	const DynSys_DMode_Type
+	const helperOC::DynSys_DMode_Type
 ) const {
 	return false;
 }
@@ -667,7 +668,7 @@ bool DynSys::optCtrl_cuda(
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>&,
-	const DynSys_UMode_Type
+	const helperOC::DynSys_UMode_Type
 ) const {
 	return false;
 }
@@ -678,7 +679,7 @@ bool DynSys::optDstb_cuda(
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>&,
-	const DynSys_DMode_Type
+	const helperOC::DynSys_DMode_Type
 ) const {
 	return false;
 }
@@ -900,8 +901,8 @@ void DynSys::set_partialFunction(const helperOC::PartialFunction_cuda* partialFu
 	if (pimpl) pimpl->set_partialFunction(partialFunction);
 }
 
-DynSys_impl* DynSys_impl::clone() const {
-	return new DynSys_impl(*this);
+DynSys_impl* helperOC::DynSys_impl::clone() const {
+	return new helperOC::DynSys_impl(*this);
 }
 DynSys::DynSys(const DynSys& rhs) :
 	pimpl(rhs.pimpl->clone())

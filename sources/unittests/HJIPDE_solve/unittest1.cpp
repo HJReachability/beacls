@@ -19,7 +19,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_minWith)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_minWith;
@@ -42,7 +42,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_tvTargets)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvTargets;
@@ -64,7 +64,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_singleObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_singleObs;
@@ -86,7 +86,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_tvObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvObs;
@@ -108,7 +108,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_obs_stau)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_obs_stau;
@@ -130,7 +130,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_stopInit)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopInit;
@@ -152,7 +152,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_stopSetInclude)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetInclude;
@@ -174,7 +174,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_stopSetIntersect)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetIntersect;
@@ -196,7 +196,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_plotData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_plotData;
@@ -218,7 +218,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_savedData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_savedData;
@@ -241,7 +241,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarC)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCar;
@@ -263,7 +263,7 @@ namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_wLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarCAvoid)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCarCAvoid;
@@ -289,7 +289,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_minWith)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_minWith;
@@ -312,7 +312,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_tvTargets)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvTargets;
@@ -334,7 +334,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_singleObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_singleObs;
@@ -356,7 +356,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_tvObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvObs;
@@ -378,7 +378,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_obs_stau)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_obs_stau;
@@ -400,7 +400,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_stopInit)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopInit;
@@ -422,7 +422,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_stopSetInclude)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetInclude;
@@ -444,7 +444,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_stopSetIntersect)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetIntersect;
@@ -466,7 +466,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_plotData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_plotData;
@@ -488,7 +488,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_savedData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_savedData;
@@ -511,7 +511,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarC)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCar;
@@ -533,7 +533,7 @@ namespace UTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_wLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarCAvoid)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCarCAvoid;
@@ -560,7 +560,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_minWith)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_minWith;
@@ -583,7 +583,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_tvTargets)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvTargets;
@@ -605,7 +605,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_singleObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_singleObs;
@@ -627,7 +627,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_tvObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvObs;
@@ -649,7 +649,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_obs_stau)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_obs_stau;
@@ -671,7 +671,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_stopInit)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopInit;
@@ -693,7 +693,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_stopSetInclude)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetInclude;
@@ -715,7 +715,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_stopSetIntersect)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetIntersect;
@@ -737,7 +737,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_plotData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_plotData;
@@ -759,7 +759,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_savedData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_savedData;
@@ -782,7 +782,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarC)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCar;
@@ -804,7 +804,7 @@ namespace UTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_wLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarCAvoid)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCarCAvoid;
@@ -832,7 +832,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_minWith)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_minWith;
@@ -855,7 +855,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_tvTargets)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvTargets;
@@ -877,7 +877,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_singleObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_singleObs;
@@ -899,7 +899,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_tvObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvObs;
@@ -921,7 +921,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_obs_stau)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_obs_stau;
@@ -943,7 +943,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_stopInit)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopInit;
@@ -965,7 +965,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_stopSetInclude)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetInclude;
@@ -987,7 +987,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_stopSetIntersect)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetIntersect;
@@ -1009,7 +1009,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_plotData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_plotData;
@@ -1031,7 +1031,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_savedData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_savedData;
@@ -1054,7 +1054,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarC)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCar;
@@ -1076,7 +1076,7 @@ namespace UTest_CPU_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_CPU_woLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarCAvoid)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Vector;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCarCAvoid;
@@ -1102,7 +1102,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_minWith)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_minWith;
@@ -1125,7 +1125,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_tvTargets)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvTargets;
@@ -1147,7 +1147,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_singleObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_singleObs;
@@ -1169,7 +1169,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_tvObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvObs;
@@ -1191,7 +1191,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_obs_stau)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_obs_stau;
@@ -1213,7 +1213,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_stopInit)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopInit;
@@ -1235,7 +1235,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_stopSetInclude)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetInclude;
@@ -1257,7 +1257,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_stopSetIntersect)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetIntersect;
@@ -1279,7 +1279,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_plotData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_plotData;
@@ -1301,7 +1301,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_savedData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_savedData;
@@ -1324,7 +1324,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarC)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCar;
@@ -1346,7 +1346,7 @@ namespace UTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE1_woLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarCAvoid)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = false;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCarCAvoid;
@@ -1373,7 +1373,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_minWith)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_minWith;
@@ -1396,7 +1396,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_tvTargets)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvTargets;
@@ -1418,7 +1418,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_singleObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_singleObs;
@@ -1440,7 +1440,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_tvObs)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_tvObs;
@@ -1462,7 +1462,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_obs_stau)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_obs_stau;
@@ -1484,7 +1484,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_stopInit)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopInit;
@@ -1506,7 +1506,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_stopSetInclude)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetInclude;
@@ -1528,7 +1528,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_stopSetIntersect)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopSetIntersect;
@@ -1550,7 +1550,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_plotData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_plotData;
@@ -1572,7 +1572,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_savedData)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_savedData;
@@ -1595,7 +1595,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarC)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCar;
@@ -1617,7 +1617,7 @@ namespace UTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve
 	TEST_CLASS(UnitTest_GPU_PHASE2_woLastMinMax_HJIPDE_solve_stopConvergeSmallDubinsCarCAvoid)
 	{
 	public:
-		const beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 		const bool enable_user_defined_dynamics_on_gpu = true;
 		const beacls::UVecType type = beacls::UVecType_Cuda;
 		HJIPDE_solve_WhatTest HJIPDE_solve_whatTest = HJIPDE_solve_WhatTest_stopConvergeSmallDubinsCarCAvoid;

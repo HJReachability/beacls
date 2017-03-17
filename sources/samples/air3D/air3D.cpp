@@ -43,18 +43,18 @@ int main(int argc, char *argv[])
 	if (argc >= 6) {
 		num_of_gpus = atoi(argv[5]);
 	}
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	if (argc >= 7) {
 		switch (atoi(argv[6])) {
 		default:
 		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 			break;
 		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 			break;
 		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Adaptive;
 			break;
 		}
 	}
@@ -99,19 +99,19 @@ int main(int argc, char *argv[])
 	Ns = {Nx, (size_t)std::ceil(Nx * (maxs[1] - mins[1])/(maxs[0]-mins[0])), Nx-1};
 	maxs[2] = (FLOAT_TYPE)(maxs[2] * (1 - 1. / Ns[2]));
 
-	ShapeCylinder *shape = new ShapeCylinder(
+	levelset::ShapeCylinder *shape = new levelset::ShapeCylinder(
 		beacls::IntegerVec{2},
 		beacls::FloatVec{0.,0.,0},
 		targetRadius);
 
-	AddGhostExtrapolate *addGhostExtrapolate = new AddGhostExtrapolate();
-	AddGhostPeriodic *addGhostPeriodic = new AddGhostPeriodic();
-	std::vector<BoundaryCondition*> boundaryConditions(3);
+	levelset::AddGhostExtrapolate *addGhostExtrapolate = new levelset::AddGhostExtrapolate();
+	levelset::AddGhostPeriodic *addGhostPeriodic = new levelset::AddGhostPeriodic();
+	std::vector<levelset::BoundaryCondition*> boundaryConditions(3);
 	boundaryConditions[0] = addGhostExtrapolate;
 	boundaryConditions[1] = addGhostExtrapolate;
 	boundaryConditions[2] = addGhostPeriodic;
 
-	HJI_Grid *hJI_Grid = new HJI_Grid(
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(
 		num_of_dimensions);
 	hJI_Grid->set_mins(mins);
 	hJI_Grid->set_maxs(maxs);
@@ -129,35 +129,35 @@ int main(int argc, char *argv[])
 //	ApproximationAccuracy_Type accuracy = ApproximationAccuracy_veryHigh;
 
 	// Choose spatial derivative approimation at appropriate level of accuracy.
-	SpatialDerivative *spatialDerivative = NULL;
+	levelset::SpatialDerivative *spatialDerivative = NULL;
 	switch (accuracy) {
 	case ApproximationAccuracy_low:
-		spatialDerivative = new UpwindFirstFirst(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstFirst(hJI_Grid, type);
 		break;
 	case ApproximationAccuracy_medium:
-		spatialDerivative = new UpwindFirstENO2(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO2(hJI_Grid, type);
 		break;
 	case ApproximationAccuracy_high:
-		spatialDerivative = new UpwindFirstENO3(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstENO3(hJI_Grid, type);
 		break;
 	case ApproximationAccuracy_veryHigh:
-		spatialDerivative = new UpwindFirstWENO5(hJI_Grid, type);
+		spatialDerivative = new levelset::UpwindFirstWENO5(hJI_Grid, type);
 		break;
 	default:
 		printf("Unkown accuracy level %d\n", accuracy);
 		return -1;
 	}
 
-	ArtificialDissipationGLF *dissipation = new ArtificialDissipationGLF();
+	levelset::ArtificialDissipationGLF *dissipation = new levelset::ArtificialDissipationGLF();
 
-	std::vector<beacls::PostTimestep_Exec_Type*> postTimestep_Execs;
-	Integrator *integrator;
+	std::vector<levelset::PostTimestep_Exec_Type*> postTimestep_Execs;
+	levelset::Integrator *integrator;
 	FLOAT_TYPE factor_cfl = (FLOAT_TYPE)0.75;
 	FLOAT_TYPE max_step = (FLOAT_TYPE)8.0e16;
 	bool single_step = false;
 //	bool single_step = true;
 	bool stats = false;
-	beacls::TerminalEvent_Exec_Type *terminalEvent_Exec_Type = NULL;
+	levelset::TerminalEvent_Exec_Type *terminalEvent_Exec_Type = NULL;
 
 	Air3DSchemeData *innerData = new Air3DSchemeData();
 	innerData->set_spatialDerivative(spatialDerivative);
@@ -171,8 +171,8 @@ int main(int argc, char *argv[])
 	innerData->inputA = inputA;
 	innerData->inputB = inputB;
 
-	TermLaxFriedrichs *innerFunc = new TermLaxFriedrichs(innerData, type);
-	TermRestrictUpdate *schemeFunc = new TermRestrictUpdate();
+	levelset::TermLaxFriedrichs *innerFunc = new levelset::TermLaxFriedrichs(innerData, type);
+	levelset::TermRestrictUpdate *schemeFunc = new levelset::TermRestrictUpdate();
 	Air3DSchemeData *schemeData = new Air3DSchemeData();
 
 	schemeData->set_grid(hJI_Grid);
@@ -183,16 +183,16 @@ int main(int argc, char *argv[])
 	// Choose integration approimation at appropriate level of accuracy.
 	switch (accuracy) {
 	case ApproximationAccuracy_low:
-		integrator = new OdeCFL1(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL1(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	case ApproximationAccuracy_medium:
-		integrator = new OdeCFL2(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL2(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	case ApproximationAccuracy_high:
-		integrator = new OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	case ApproximationAccuracy_veryHigh:
-		integrator = new OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
+		integrator = new levelset::OdeCFL3(schemeFunc, factor_cfl, max_step, postTimestep_Execs, single_step, stats, terminalEvent_Exec_Type);
 		break;
 	default:
 		printf("Unkown accuracy level %d\n", accuracy);
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 		//		beacls::FloatVec reload_data;
 //		load_vector(std::string("initial.mat"), reload_data);
 
-//		HJI_Grid* tmp_grid = new HJI_Grid();
+//		HJI_Grid* tmp_grid = new levelset::HJI_Grid();
 //		tmp_grid->load_grid(std::string("air3D_0_g_v7_3.mat"));
 //		tmp_grid->save_grid(std::string("air3D_0_g_v7_3_new.mat"),std::string("grid"));
 //		delete tmp_grid;

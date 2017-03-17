@@ -12,7 +12,9 @@
 
 #include <vector>
 #include <typedef.hpp>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 
 namespace helperOC {
 	/**
@@ -30,9 +32,9 @@ namespace helperOC {
 	PREFIX_VC_DLL
 	bool migrateGrid(
 		std::vector<beacls::FloatVec>& dataNew,
-		const HJI_Grid* gOld,
+		const levelset::HJI_Grid* gOld,
 		const std::vector<beacls::FloatVec>& dataOld,
-		const HJI_Grid* gNew
+		const levelset::HJI_Grid* gNew
 		);
 	/**
 	@brief	migrateGrid
@@ -49,9 +51,9 @@ namespace helperOC {
 	PREFIX_VC_DLL
 		bool migrateGrid(
 			beacls::FloatVec& dataNew,
-			const HJI_Grid* gOld,
+			const levelset::HJI_Grid* gOld,
 			const beacls::FloatVec& dataOld,
-			const HJI_Grid* gNew
+			const levelset::HJI_Grid* gNew
 		);
 };
 #endif	/* __migrateGrid_hpp__ */

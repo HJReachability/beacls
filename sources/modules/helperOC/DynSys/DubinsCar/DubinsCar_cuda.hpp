@@ -12,13 +12,13 @@ namespace DubinsCar_CUDA {
 		beacls::UVec& u_uvec,
 		const beacls::UVec& deriv_uvec,
 		const FLOAT_TYPE wMax,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	);
 	bool optDstb_execute_cuda(
 		std::vector<beacls::UVec>& d_uvecs,
 		const beacls::UVec& deriv_uvec,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode,
+		const helperOC::DynSys_DMode_Type dMode,
 		const beacls::IntegerVec& dims
 	);
 	bool dynamics_cell_helper_execute_cuda_dimAll(

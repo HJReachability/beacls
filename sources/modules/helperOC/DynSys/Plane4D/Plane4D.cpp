@@ -5,6 +5,7 @@
 #include <numeric>
 #include <typeinfo>
 #include <levelset/Grids/HJI_Grid.hpp>
+using namespace helperOC;
 
 
 Plane4D::Plane4D(
@@ -74,7 +75,7 @@ bool Plane4D::optCtrl0_cell_helper(
 	beacls::FloatVec& uOpt0,
 	const std::vector<const FLOAT_TYPE* >& derivs,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode,
+	const helperOC::DynSys_UMode_Type uMode,
 	const size_t src_target_dim_index
 ) const {
 	if (src_target_dim_index < dims.size()) {
@@ -83,17 +84,17 @@ bool Plane4D::optCtrl0_cell_helper(
 		if (length == 0 || deriv == NULL) return false;
 		uOpt0.resize(length);
 		switch (uMode) {
-		case DynSys_UMode_Max:
+		case helperOC::DynSys_UMode_Max:
 			for (size_t i = 0; i < length; ++i) {
 				uOpt0[i] = (deriv[i] >= 0) ? wMax : -wMax;
 			}
 			break;
-		case DynSys_UMode_Min:
+		case helperOC::DynSys_UMode_Min:
 			for (size_t i = 0; i < length; ++i) {
 				uOpt0[i] = (deriv[i] >= 0) ? -wMax : wMax;
 			}
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			std::cerr << "Unknown uMode!: " << uMode << std::endl;
 			return false;
@@ -105,7 +106,7 @@ bool Plane4D::optCtrl1_cell_helper(
 	beacls::FloatVec& uOpt1,
 	const std::vector<const FLOAT_TYPE* >& derivs,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode,
+	const helperOC::DynSys_UMode_Type uMode,
 	const size_t src_target_dim_index
 ) const {
 	if (src_target_dim_index < dims.size()) {
@@ -114,17 +115,17 @@ bool Plane4D::optCtrl1_cell_helper(
 		if (length == 0 || deriv == NULL) return false;
 		uOpt1.resize(length);
 		switch (uMode) {
-		case DynSys_UMode_Max:
+		case helperOC::DynSys_UMode_Max:
 			for (size_t i = 0; i < length; ++i) {
 				uOpt1[i] = (deriv[i] >= 0) ? aRange[1] : aRange[0];
 			}
 			break;
-		case DynSys_UMode_Min:
+		case helperOC::DynSys_UMode_Min:
 			for (size_t i = 0; i < length; ++i) {
 				uOpt1[i] = (deriv[i] >= 0) ? aRange[0] : aRange[1];
 			}
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			std::cerr << "Unknown uMode!: " << uMode << std::endl;
 			return false;
@@ -137,7 +138,7 @@ bool Plane4D::optDstb0_cell_helper(
 	beacls::FloatVec& dOpt0,
 	const std::vector<const FLOAT_TYPE* >& derivs,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode,
+	const helperOC::DynSys_DMode_Type dMode,
 	const size_t src_target_dim_index
 ) const {
 	if (src_target_dim_index != dims.size()) {
@@ -147,17 +148,17 @@ bool Plane4D::optDstb0_cell_helper(
 		dOpt0.resize(length);
 		const FLOAT_TYPE dMax0 = dMax[0];
 		switch (dMode) {
-		case DynSys_DMode_Max:
+		case helperOC::DynSys_DMode_Max:
 			for (size_t i = 0; i < length; ++i) {
 				dOpt0[i] = (deriv[i] >= 0) ? dMax0 : -dMax0;
 			}
 			break;
-		case DynSys_DMode_Min:
+		case helperOC::DynSys_DMode_Min:
 			for (size_t i = 0; i < length; ++i) {
 				dOpt0[i] = (deriv[i] >= 0) ? -dMax0 : dMax0;
 			}
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			std::cerr << "Unknown uMode!: " << dMode << std::endl;
 			return false;
@@ -170,7 +171,7 @@ bool Plane4D::optDstb1_cell_helper(
 	beacls::FloatVec& dOpt1,
 	const std::vector<const FLOAT_TYPE* >& derivs,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode,
+	const helperOC::DynSys_DMode_Type dMode,
 	const size_t src_target_dim_index
 ) const {
 	if (src_target_dim_index != dims.size()) {
@@ -180,17 +181,17 @@ bool Plane4D::optDstb1_cell_helper(
 		dOpt1.resize(length);
 		const FLOAT_TYPE dMax1 = dMax[1];
 		switch (dMode) {
-		case DynSys_DMode_Max:
+		case helperOC::DynSys_DMode_Max:
 			for (size_t i = 0; i < length; ++i) {
 				dOpt1[i] = (deriv[i] >= 0) ? dMax1 : -dMax1;
 			}
 			break;
-		case DynSys_DMode_Min:
+		case helperOC::DynSys_DMode_Min:
 			for (size_t i = 0; i < length; ++i) {
 				dOpt1[i] = (deriv[i] >= 0) ? -dMax1 : dMax1;
 			}
 			break;
-		case DynSys_UMode_Invalid:
+		case helperOC::DynSys_UMode_Invalid:
 		default:
 			std::cerr << "Unknown uMode!: " << dMode << std::endl;
 			return false;
@@ -205,9 +206,9 @@ bool Plane4D::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const size_t src_target_dim2_index = find_val(dims, 2);
 	const size_t src_target_dim3_index = find_val(dims, 3);
 	uOpts.resize(get_nu());
@@ -224,9 +225,9 @@ bool Plane4D::optDstb(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	const size_t src_target_dim0_index = find_val(dims, 0);
 	const size_t src_target_dim1_index = find_val(dims, 1);
 	dOpts.resize(get_nd());

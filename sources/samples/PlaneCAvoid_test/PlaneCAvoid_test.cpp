@@ -39,18 +39,18 @@ int main(int argc, char *argv[])
 	}
 	const bool keepLast = false;
 	const bool calculateTTRduringSolving = false;
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	if (argc >= 6) {
 		switch (atoi(argv[5])) {
 		default:
 		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 			break;
 		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 			break;
 		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Adaptive;
 			break;
 		}
 	}
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	const beacls::FloatVec gMax = beacls::FloatVec{ (FLOAT_TYPE)25, (FLOAT_TYPE)15, (FLOAT_TYPE)(2*M_PI) };
 	beacls::IntegerVec gN;
 	gN.resize(3, gN_size);
-	HJI_Grid* g = createGrid(gMin, gMax, gN);
+	levelset::HJI_Grid* g = helperOC::createGrid(gMin, gMax, gN);
 
 	//!< Time
 	//!< Choose tMax to be large enough for the set to converge
@@ -107,13 +107,13 @@ int main(int argc, char *argv[])
 	//!< Initial conditions
 	const FLOAT_TYPE targetR = 5; //!< collision radius
 	beacls::FloatVec data0;
-	ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ (FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0 }, targetR).execute(g, data0);
+	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ (FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0 }, targetR).execute(g, data0);
 
 	//!< Additional solver parameters
-	DynSysSchemeData* sD = new DynSysSchemeData;
+	helperOC::DynSysSchemeData* sD = new helperOC::DynSysSchemeData;
 	sD->set_grid(g);
-	sD->dynSys = new PlaneCAvoid(beacls::FloatVec{ (FLOAT_TYPE)0.,(FLOAT_TYPE)0.,(FLOAT_TYPE)0. }, wMaxA, vRangeA, wMaxB, vRangeB, dMaxA, dMaxB);
-	sD->uMode = DynSys_UMode_Max;
+	sD->dynSys = new helperOC::PlaneCAvoid(beacls::FloatVec{ (FLOAT_TYPE)0.,(FLOAT_TYPE)0.,(FLOAT_TYPE)0. }, wMaxA, vRangeA, wMaxB, vRangeB, dMaxA, dMaxB);
+	sD->uMode = helperOC::DynSys_UMode_Max;
 
 	// Target set and visualization
 	helperOC::HJIPDE_extraArgs extraArgs;
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
 	extraArgs.execParameters.delayedDerivMinMax = delayedDerivMinMax;
 	extraArgs.execParameters.enable_user_defined_dynamics_on_gpu = enable_user_defined_dynamics_on_gpu;
 
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	//!< Call solver and save
 
 	beacls::FloatVec tau2;
-	hjipde->solve(tau2, extraOuts, data0, tau, sD, HJIPDE::MinWithType_Zero, extraArgs);
+	hjipde->solve(tau2, extraOuts, data0, tau, sD, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 	std::vector<beacls::FloatVec > datas;
 	hjipde->get_datas(datas, tau, sD);
 	if (hjipde) delete hjipde;

@@ -1,4 +1,3 @@
-
 #ifndef __UTest_HamFunc_hpp__
 #define __UTest_HamFunc_hpp__
 #include <cstring>
@@ -13,7 +12,7 @@ bool run_UTest_HamFunc(
 	const std::string& expects_filename,
 	const beacls::FloatVec &maxs,
 	const beacls::FloatVec &mins,
-	SchemeData *schemeData,
+	levelset::SchemeData *schemeData,
 	const beacls::UVecType type,
 	const FLOAT_TYPE small_diff,
 	const size_t line_length_of_chunk,

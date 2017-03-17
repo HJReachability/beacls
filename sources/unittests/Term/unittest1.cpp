@@ -15,6 +15,7 @@ static const int num_of_threads = 0;
 static const int num_of_gpus = 0;
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace helperOC;
 
 namespace UTest_CPU_Term
 {

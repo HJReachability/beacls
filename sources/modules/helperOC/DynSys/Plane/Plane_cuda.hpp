@@ -16,14 +16,14 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE wMax,
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	);
 	bool optDstb_execute_cuda(
 		std::vector<beacls::UVec>& d_uvecs,
 		const std::vector<beacls::UVec>& x_uvecs,
 		const std::vector<beacls::UVec>& deriv_uvecs,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 	);
 	bool dynamics_cell_helper_execute_cuda_dimAll(
 		std::vector<beacls::UVec>& dx_uvecs,
@@ -47,7 +47,7 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE wMax,
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	);
 	bool optDstb_execute_cuda(
 		std::vector<beacls::UVec>& dL_uvecs,
@@ -56,7 +56,7 @@ namespace Plane_CUDA {
 		const std::vector<beacls::UVec>& derivMin_uvecs,
 		const std::vector<beacls::UVec>& derivMax_uvecs,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 	);
 	bool dynamics_cell_helper_execute_cuda(
 		beacls::UVec& alpha_uvec,
@@ -75,8 +75,8 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
 		const beacls::FloatVec& dMax,
-		const DynSys_UMode_Type uMode,
-		const DynSys_DMode_Type dMode,
+		const helperOC::DynSys_UMode_Type uMode,
+		const helperOC::DynSys_DMode_Type dMode,
 		const bool negate);
 	bool PartialFunction_cuda(
 		beacls::UVec& alpha_uvecs,
@@ -88,8 +88,8 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
 		const beacls::FloatVec& dMax,
-		const DynSys_UMode_Type uMode,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_UMode_Type uMode,
+		const helperOC::DynSys_DMode_Type dMode
 	);
 	template<typename T>
 	__host__ __device__

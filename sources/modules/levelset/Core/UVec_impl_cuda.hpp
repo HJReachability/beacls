@@ -57,6 +57,6 @@ namespace beacls
 	void fillCudaMemory(float* dst, const float val, size_t s);
 	int get_num_of_gpus_impl();
 	void set_gpu_id_impl(const int id);
-}	// bears
+}	// beacls
 #endif	/* __UVec_impl_cuda_hpp__ */
 

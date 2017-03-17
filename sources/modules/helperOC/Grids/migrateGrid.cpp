@@ -24,17 +24,17 @@ namespace helperOC {
 	*/
 	bool migrateGridSingle(
 		beacls::FloatVec& dataNew,
-		const HJI_Grid* gOld,
+		const levelset::HJI_Grid* gOld,
 		const beacls::FloatVec& dataOld,
-		const HJI_Grid* gNew
+		const levelset::HJI_Grid* gNew
 	);
 };
 
 bool helperOC::migrateGridSingle(
 	beacls::FloatVec& dataNew,
-	const HJI_Grid* gOld,
+	const levelset::HJI_Grid* gOld,
 	const beacls::FloatVec& dataOld,
-	const HJI_Grid* gNew
+	const levelset::HJI_Grid* gNew
 ) {
 	const std::vector<beacls::FloatVec>& gNew_xs = gNew->get_xss();
 	if (gNew_xs.empty()) return false;
@@ -57,17 +57,17 @@ bool helperOC::migrateGridSingle(
 
 bool helperOC::migrateGrid(
 	beacls::FloatVec& dataNew,
-	const HJI_Grid* gOld,
+	const levelset::HJI_Grid* gOld,
 	const beacls::FloatVec& dataOld,
-	const HJI_Grid* gNew
+	const levelset::HJI_Grid* gNew
 ) {
 	return migrateGridSingle(dataNew, gOld, dataOld, gNew);
 }
 bool helperOC::migrateGrid(
 	std::vector<beacls::FloatVec>& dataNew,
-	const HJI_Grid* gOld,
+	const levelset::HJI_Grid* gOld,
 	const std::vector<beacls::FloatVec>& dataOld,
-	const HJI_Grid* gNew
+	const levelset::HJI_Grid* gNew
 ) {
 	const size_t dataOld_size = dataOld.size();
 	bool result = true;

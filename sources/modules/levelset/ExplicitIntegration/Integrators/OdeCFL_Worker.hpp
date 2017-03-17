@@ -2,9 +2,9 @@
 #define __OdeCFL_Worker_hpp__
 
 #include <cstddef>
-class Term;
-class SchemeData;
-namespace beacls {
+namespace levelset {
+	class Term;
+	class SchemeData;
 	class OdeCFL_Worker_impl;
 	class OdeCFL_CommandQueue;
 

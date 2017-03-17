@@ -5,10 +5,11 @@
 #include <cstddef>
 #include <thread>
 #include <Core/UVec.hpp>
-
-class ComputeGradients_CommandQueue;
-class SpatialDerivative;
+namespace levelset {
+	class SpatialDerivative;
+};
 namespace helperOC {
+	class ComputeGradients_CommandQueue;
 	class ComputeGradients_Worker_impl {
 	private:
 		ComputeGradients_CommandQueue* commandQueue;
@@ -16,7 +17,7 @@ namespace helperOC {
 		std::thread th;
 		int gpu_id;
 		bool exitFlag;
-		SpatialDerivative* spatialDerivative;
+		levelset::SpatialDerivative* spatialDerivative;
 		beacls::UVec original_data_line_uvec;
 		std::vector<beacls::UVec> deriv_c_line_uvecs;
 		std::vector<beacls::UVec> deriv_l_line_uvecs;
@@ -25,7 +26,7 @@ namespace helperOC {
 		void ComputeGradients_Worker_proc();
 		void run();
 		void terminate();
-		const SpatialDerivative* get_spatialDerivative() const {
+		const levelset::SpatialDerivative* get_spatialDerivative() const {
 			return spatialDerivative;
 		}
 		int get_gpu_id() const {
@@ -33,7 +34,7 @@ namespace helperOC {
 		}
 		ComputeGradients_Worker_impl(
 			ComputeGradients_CommandQueue* commandQueue,
-			const SpatialDerivative* spatialDerivative,
+			const levelset::SpatialDerivative* spatialDerivative,
 			const int gpu_id
 		);
 		~ComputeGradients_Worker_impl();

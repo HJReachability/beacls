@@ -4,14 +4,16 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 
 namespace helperOC {
 	class ComputeGradients_OneSlice_impl {
 		std::vector<beacls::FloatVec>& derivC;
 		std::vector<beacls::FloatVec>& derivL;
 		std::vector<beacls::FloatVec>& derivR;
-		const HJI_Grid* grid;
+		const levelset::HJI_Grid* grid;
 		const beacls::FloatVec& modified_data;
 		const beacls::FloatVec& original_data;
 		const beacls::UVecType type;
@@ -37,7 +39,7 @@ namespace helperOC {
 			std::vector<beacls::FloatVec>& derivR,
 			const beacls::FloatVec& modified_data,
 			const beacls::FloatVec& original_data,
-			const HJI_Grid* grid,
+			const levelset::HJI_Grid* grid,
 			const beacls::UVecType type,
 			const beacls::UVecDepth depth,
 			const size_t num_of_dimensions,
@@ -74,7 +76,7 @@ namespace helperOC {
 			finished(false)
 		{}
 		void execute(
-			SpatialDerivative* spatialDerivative,
+			levelset::SpatialDerivative* spatialDerivative,
 			beacls::UVec& original_data_line_uvec,
 			std::vector<beacls::UVec>& deriv_c_line_uvecs,
 			std::vector<beacls::UVec>& deriv_l_line_uvecs,

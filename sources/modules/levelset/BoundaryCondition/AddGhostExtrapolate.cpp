@@ -8,6 +8,7 @@
 #include "AddGhostExtrapolate_impl.hpp"
 #include <macro.hpp>
 //#define PARALLEL_Y
+using namespace levelset;
 AddGhostExtrapolate_impl::AddGhostExtrapolate_impl(
 	const bool towardZero
 	) : towardZero(towardZero)

@@ -12,6 +12,7 @@
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3a.hpp>
 #include "UpwindFirstENO3a_impl.hpp"
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3aHelper.hpp>
+using namespace levelset;
 
 UpwindFirstENO3a_impl::UpwindFirstENO3a_impl(
 	const HJI_Grid *hji_grid,

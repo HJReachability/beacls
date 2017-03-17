@@ -2,6 +2,7 @@
 #include <levelset/Grids/HJI_Grid.hpp>
 #include <levelset/ExplicitIntegration/SchemeData.hpp>
 #include "SchemeData_impl.hpp"
+using namespace levelset;
 
 SchemeData::SchemeData(
 ) {

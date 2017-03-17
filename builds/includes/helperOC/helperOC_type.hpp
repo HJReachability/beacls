@@ -24,14 +24,16 @@ using namespace std::rel_ops;
 
 #include <typedef.hpp>
 #include <Core/UVec.hpp>
-static const size_t obstacles_fix_depth = 2;
-static const FLOAT_TYPE obstacles_fix_ratio = (FLOAT_TYPE)(1 << obstacles_fix_depth);
-static const FLOAT_TYPE obstacles_fix_ratio_inv = (FLOAT_TYPE)(1. / obstacles_fix_ratio);
-
-class SchemeData;
-class DynSysSchemeData;
-
+namespace levelset {
+	class SchemeData;
+};
 namespace helperOC {
+	static const size_t obstacles_fix_depth = 2;
+	static const FLOAT_TYPE obstacles_fix_ratio = (FLOAT_TYPE)(1 << obstacles_fix_depth);
+	static const FLOAT_TYPE obstacles_fix_ratio_inv = (FLOAT_TYPE)(1. / obstacles_fix_ratio);
+
+	class DynSysSchemeData;
+
 	typedef enum LineStyleType {
 		LineStyle_invalid,
 		LineStyle_none,
@@ -45,7 +47,7 @@ namespace helperOC {
 		LineStyleType LineStyle;
 		FLOAT_TYPE LineWidth;
 		PlotExtraArgs() :
-			colors(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}),
+			colors(beacls::FloatVec{ (FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0 }),
 			MarkerSize((FLOAT_TYPE)20),
 			arrowLength((FLOAT_TYPE)10),
 			LineStyle(LineStyle_none),
@@ -86,7 +88,7 @@ namespace helperOC {
 	} DynSysStatus_Type;
 	typedef bool(*PartialFunction_cuda)(
 		beacls::UVec&,
-		const SchemeData*,
+		const levelset::SchemeData*,
 		const FLOAT_TYPE,
 		const beacls::UVec&,
 		const std::vector<beacls::UVec>&,
@@ -101,7 +103,7 @@ namespace helperOC {
 		size_t num_of_threads;	//!< Number of CPU Threads (0 means use all logical threads of CPU)
 		size_t num_of_gpus;	//!<	Number of GPUs which (0 means use all GPUs)
 		bool calcTTR; //!< calculate TTR during solving
-		beacls::DelayedDerivMinMax_Type delayedDerivMinMax;	//!< Use last step's min/max of derivatives, and skip 2nd pass.
+		levelset::DelayedDerivMinMax_Type delayedDerivMinMax;	//!< Use last step's min/max of derivatives, and skip 2nd pass.
 		bool useCuda;//!< Execute type CPU Vector or GPU.
 		bool enable_user_defined_dynamics_on_gpu; //!< Flag for user defined dynamics function on gpu
 		ExecParameters() :
@@ -109,12 +111,12 @@ namespace helperOC {
 			num_of_threads(0),
 			num_of_gpus(0),
 			calcTTR(false),
-			delayedDerivMinMax(beacls::DelayedDerivMinMax_Disable),
+			delayedDerivMinMax(levelset::DelayedDerivMinMax_Disable),
 			useCuda(false),
 			enable_user_defined_dynamics_on_gpu(true)
 		{}
 		PREFIX_VC_DLL
-		bool operator==(const ExecParameters& rhs) const;
+			bool operator==(const ExecParameters& rhs) const;
 	};
 	class SDModParams;
 
@@ -229,5 +231,4 @@ namespace helperOC {
 
 	};
 };
-
 #endif	/* __helperOC_type_hpp__ */

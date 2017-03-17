@@ -221,5 +221,5 @@ void set_gpu_id_impl(const int id) {
 	cudaSetDevice(id);
 }
 
-}	// bears
+}	// beacls
 #endif /* defined(WITH_GPU) */

@@ -6,9 +6,10 @@
 #include <algorithm>
 #include <numeric>
 #include <typeinfo>
+#if 0
 HJI_Grid* helperOC::augmentPeriodicData(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* gIn,
+	const levelset::HJI_Grid* gIn,
 	const beacls::FloatVec& data) {
 	const size_t num_of_dimensions = gIn->get_num_of_dimensions();
 	HJI_Grid* gOut = gIn->clone(false);
@@ -74,3 +75,4 @@ HJI_Grid* helperOC::augmentPeriodicData(
 	
 	return gOut;
 }
+#endif

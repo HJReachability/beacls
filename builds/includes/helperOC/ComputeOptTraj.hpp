@@ -15,10 +15,12 @@
 #include <iostream>
 #include <helperOC/ValFuncs/HJIPDE.hpp>
 #include <helperOC/DynSys/DynSys/DynSysTypeDef.hpp>
-class DynSys;
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 
 namespace helperOC {
+	class DynSys;
 	class ComputeOptTraj_impl;
 	class ComputeOptTraj {
 	private:
@@ -46,12 +48,12 @@ namespace helperOC {
 			bool operator()(
 				std::vector<beacls::FloatVec >& traj,
 				beacls::FloatVec& traj_tau,
-				const HJI_Grid* grid,
+				const levelset::HJI_Grid* grid,
 				const std::vector<beacls::FloatVec >& data,
 				const beacls::FloatVec& tau,
 				DynSys* dynSys,
 				const HJIPDE_extraArgs& extraArgs = HJIPDE_extraArgs(),
-				const DynSys_UMode_Type uMode = DynSys_UMode_Min,
+				const helperOC::DynSys_UMode_Type uMode = helperOC::DynSys_UMode_Min,
 				const size_t subSamples = 4
 			);
 		PREFIX_VC_DLL

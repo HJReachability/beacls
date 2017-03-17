@@ -3,6 +3,7 @@
 #include <levelset/InitialConditions/BasicShapes/ShapeRectangleByCorner.hpp>
 #include <levelset/Grids/HJI_Grid.hpp>
 #include "ShapeRectangleByCenter_impl.hpp"
+using namespace levelset;
 
 ShapeRectangleByCenter_impl::ShapeRectangleByCenter_impl(
 	const beacls::FloatVec& center,

@@ -4,7 +4,9 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
+};
 
 namespace helperOC {
 	class ComputeGradients;
@@ -17,12 +19,12 @@ namespace helperOC {
 		bool operator()(
 			std::vector<beacls::FloatVec >& traj,
 			beacls::FloatVec& traj_tau,
-			const HJI_Grid* grid,
+			const levelset::HJI_Grid* grid,
 			const std::vector<beacls::FloatVec >& data,
 			const beacls::FloatVec& tau,
 			DynSys* dynSys,
 			const HJIPDE_extraArgs& extraArgs,
-			const DynSys_UMode_Type uMode,
+			const helperOC::DynSys_UMode_Type uMode,
 			const size_t subSamples
 		);
 	private:

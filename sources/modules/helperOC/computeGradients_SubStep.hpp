@@ -5,8 +5,9 @@
 #include <vector>
 #include <deque>
 #include <cstddef>
-class HJI_Grid;
-
+namespace levelset {
+	class HJI_Grid;
+};
 namespace helperOC {
 	class ComputeGradients_CommandQueue;
 	void computeGradients_SubStep(
@@ -16,7 +17,7 @@ namespace helperOC {
 		std::vector<beacls::FloatVec>& derivR,
 		const beacls::FloatVec& modified_data,
 		const beacls::FloatVec& original_data,
-		const HJI_Grid* grid,
+		const levelset::HJI_Grid* grid,
 		const beacls::UVecType type,
 		const beacls::UVecDepth depth,
 		const size_t num_of_dimensions,

@@ -5,7 +5,7 @@
 #include <levelset/ExplicitIntegration/Terms/Term.hpp>
 #include <macro.hpp>
 
-beacls::OdeCFL_OneSlice_impl::OdeCFL_OneSlice_impl(
+levelset::OdeCFL_OneSlice_impl::OdeCFL_OneSlice_impl(
 	const FLOAT_TYPE t,
 	beacls::FloatVec& sb_inv_out,
 	beacls::FloatVec& local_derivMins,
@@ -51,7 +51,7 @@ beacls::OdeCFL_OneSlice_impl::OdeCFL_OneSlice_impl(
 	finished(false)
 {}
 
-void beacls::OdeCFL_OneSlice_impl::execute(
+void levelset::OdeCFL_OneSlice_impl::execute(
 	const Term* term,
 	const SchemeData* schemeData,
 	std::vector<beacls::FloatVec>& thread_local_derivMins,
@@ -95,7 +95,7 @@ void beacls::OdeCFL_OneSlice_impl::execute(
 	}
 	term->synchronize(schemeData);
 }
-void beacls::OdeCFL_OneSlice::execute(
+void levelset::OdeCFL_OneSlice::execute(
 	const Term* term,
 	const SchemeData* schemeData,
 	std::vector<beacls::FloatVec>& thread_local_derivMins,
@@ -104,19 +104,19 @@ void beacls::OdeCFL_OneSlice::execute(
 ) {
 	if (pimpl) pimpl->execute(term, schemeData, thread_local_derivMins, thread_local_derivMaxs, new_step_bound_invs);
 }
-bool beacls::OdeCFL_OneSlice::get_executeAgain() const {
+bool levelset::OdeCFL_OneSlice::get_executeAgain() const {
 	if (pimpl) return pimpl->get_executeAgain();
 	else return false;
 }
-bool beacls::OdeCFL_OneSlice::is_finished() const {
+bool levelset::OdeCFL_OneSlice::is_finished() const {
 	if (pimpl) return pimpl->is_finished();
 	else return false;
 }
-void beacls::OdeCFL_OneSlice::set_finished() { 
+void levelset::OdeCFL_OneSlice::set_finished() { 
 	if (pimpl) pimpl->set_finished();
 }
 
-beacls::OdeCFL_OneSlice::OdeCFL_OneSlice(
+levelset::OdeCFL_OneSlice::OdeCFL_OneSlice(
 	const FLOAT_TYPE t,
 	beacls::FloatVec& sb_inv_out,
 	beacls::FloatVec& local_derivMins,
@@ -161,7 +161,7 @@ beacls::OdeCFL_OneSlice::OdeCFL_OneSlice(
 		updateDerivMinMax
 	);
 }
-beacls::OdeCFL_OneSlice::~OdeCFL_OneSlice()
+levelset::OdeCFL_OneSlice::~OdeCFL_OneSlice()
 {
 	if (pimpl) delete pimpl;
 }

@@ -16,15 +16,15 @@
 #include "odeCFL_SubStep.hpp"
 #include "OdeCFL_CommandQueue.hpp"
 #include "OdeCFL_Worker.hpp"
-
+using namespace levelset;
 OdeCFL2_impl::OdeCFL2_impl(
 	const Term *schemeFunc,
 	const FLOAT_TYPE factor_cfl,
 	const FLOAT_TYPE max_step,
-	const std::vector<beacls::PostTimestep_Exec_Type*> &post_time_steps,
+	const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
 	const bool single_step,
 	const bool stats,
-	const beacls::TerminalEvent_Exec_Type* terminalEvent) :
+	const levelset::TerminalEvent_Exec_Type* terminalEvent) :
 	term(schemeFunc->clone()),
 	factor_cfl(factor_cfl),
 	max_step(max_step),
@@ -32,9 +32,9 @@ OdeCFL2_impl::OdeCFL2_impl(
 	single_step(single_step),
 	stats(stats),
 	terminalEvent(terminalEvent) {
-	beacls::OdeCFL_CommandQueue* commandQueue = new beacls::OdeCFL_CommandQueue;
+	levelset::OdeCFL_CommandQueue* commandQueue = new levelset::OdeCFL_CommandQueue;
 	commandQueues.push_back(commandQueue);
-	beacls::OdeCFL_Worker* worker = new  beacls::OdeCFL_Worker(commandQueue, term, 0);
+	levelset::OdeCFL_Worker* worker = new  levelset::OdeCFL_Worker(commandQueue, term, 0);
 	workers.push_back(worker);
 	worker->run();
 }
@@ -74,11 +74,11 @@ OdeCFL2_impl::OdeCFL2_impl(const OdeCFL2_impl& rhs) :
 {
 	commandQueues.resize(rhs.commandQueues.size());
 	std::for_each(commandQueues.begin(), commandQueues.end(), [this](auto& rhs) {
-		rhs = new beacls::OdeCFL_CommandQueue;
+		rhs = new levelset::OdeCFL_CommandQueue;
 	});
 	workers.resize(rhs.workers.size());
 	std::transform(commandQueues.cbegin(), commandQueues.cend(), rhs.workers.cbegin(), workers.begin(), [this](const auto& lhs, const auto& rhs) {
-		beacls::OdeCFL_Worker* worker = new beacls::OdeCFL_Worker(lhs, term, rhs->get_gpu_id());
+		levelset::OdeCFL_Worker* worker = new levelset::OdeCFL_Worker(lhs, term, rhs->get_gpu_id());
 		worker->run();
 		return worker;
 	});
@@ -91,7 +91,7 @@ FLOAT_TYPE OdeCFL2_impl::execute(
 	const size_t line_length_of_chunk,
 	const size_t num_of_threads,
 	const size_t num_of_gpus,
-	const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
+	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu)
 {
 	const HJI_Grid* grid = schemeData->get_grid();
@@ -157,14 +157,14 @@ FLOAT_TYPE OdeCFL2_impl::execute(
 	if (workers.size() < actual_num_of_threads) workers.resize(actual_num_of_threads, NULL);
 	if (commandQueues.size() < actual_num_of_threads) commandQueues.resize(actual_num_of_threads, NULL);
 	for (size_t thread_id = 0; thread_id < actual_num_of_threads; ++thread_id) {
-		beacls::OdeCFL_CommandQueue* commandQueue = commandQueues[thread_id];
+		levelset::OdeCFL_CommandQueue* commandQueue = commandQueues[thread_id];
 		if (commandQueue == NULL) {
-			commandQueue = new beacls::OdeCFL_CommandQueue();
+			commandQueue = new levelset::OdeCFL_CommandQueue();
 			commandQueues[thread_id] = commandQueue;
 		}
-		beacls::OdeCFL_Worker* worker = workers[thread_id];
+		levelset::OdeCFL_Worker* worker = workers[thread_id];
 		if (worker == NULL) {
-			worker = new beacls::OdeCFL_Worker(commandQueue, term, (num_of_activated_gpus > 1) ? (int)thread_id % num_of_activated_gpus : 0);
+			worker = new levelset::OdeCFL_Worker(commandQueue, term, (num_of_activated_gpus > 1) ? (int)thread_id % num_of_activated_gpus : 0);
 			worker->run();
 			workers[thread_id] = worker;
 		}
@@ -193,7 +193,7 @@ FLOAT_TYPE OdeCFL2_impl::execute(
 		// -----------------------------------------------------------
 		// First substep: Forward Euler from t_n to t_{n+1}.
 		// Approximate the derivative and CFL restriction.
-		beacls::odeCFL_SubStep(
+		levelset::odeCFL_SubStep(
 			commandQueues,
 			t,
 			step_bound_invss,
@@ -243,7 +243,7 @@ FLOAT_TYPE OdeCFL2_impl::execute(
 		// -----------------------------------------------------------
 		// Second substep: Forward Euler from t_{n+1} to t_{n+2}.
 		// Approximate the derivative.
-		beacls::odeCFL_SubStep(
+		levelset::odeCFL_SubStep(
 			commandQueues, 
 			t1,
 			step_bound_invss,
@@ -334,10 +334,10 @@ OdeCFL2::OdeCFL2(
 	const Term *schemeFunc,
 	const FLOAT_TYPE factor_cfl,
 	const FLOAT_TYPE max_step,
-	const std::vector<beacls::PostTimestep_Exec_Type*> &post_time_steps,
+	const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
 	const bool single_step,
 	const bool stats,
-	const beacls::TerminalEvent_Exec_Type* terminalEvent) {
+	const levelset::TerminalEvent_Exec_Type* terminalEvent) {
 	pimpl = new OdeCFL2_impl(schemeFunc, factor_cfl, max_step, post_time_steps, single_step, stats, terminalEvent);
 }
 OdeCFL2::~OdeCFL2() {
@@ -351,7 +351,7 @@ FLOAT_TYPE OdeCFL2::execute(
 	const size_t line_length_of_chunk,
 	const size_t num_of_threads,
 	const size_t num_of_gpus,
-	const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
+	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu) {
 	if (pimpl) return pimpl->execute(y, tspan, y0, schemeData, line_length_of_chunk, num_of_threads, num_of_gpus, delayedDerivMinMax, enable_user_defined_dynamics_on_gpu);
 	else return 0;

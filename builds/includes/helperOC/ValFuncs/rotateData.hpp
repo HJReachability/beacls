@@ -31,7 +31,7 @@ namespace helperOC {
 	PREFIX_VC_DLL
 	bool rotateData(
 		beacls::FloatVec& dataOut,
-		const HJI_Grid* g,
+		const levelset::HJI_Grid* g,
 		const beacls::FloatVec& dataIn,
 		const FLOAT_TYPE theta,
 		const beacls::IntegerVec& pdims = beacls::IntegerVec{ 0,1 },

@@ -8,7 +8,7 @@
 #include <levelset/Grids/HJI_Grid.hpp>
 
 #include "DubinsCar_cuda.hpp"
-
+using namespace helperOC;
 
 DubinsCar::DubinsCar(
 	const beacls::FloatVec& x,
@@ -104,9 +104,9 @@ bool DubinsCar::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const size_t src_target_dim_index = find_val(dims, 2);
 	if (src_target_dim_index == dims.size()) return false;
 	const FLOAT_TYPE* deriv = deriv_ptrs[src_target_dim_index];
@@ -115,13 +115,13 @@ bool DubinsCar::optCtrl(
 	beacls::FloatVec& uOpt = uOpts[0];
 	uOpt.resize(length);
 	switch (modified_uMode) {
-	case DynSys_UMode_Max:
+	case helperOC::DynSys_UMode_Max:
 		std::transform(deriv, deriv + length, uOpt.begin(), [this](const auto& rhs) { return (rhs >= 0) ? wMax : -wMax;  });
 		break;
-	case DynSys_UMode_Min:
+	case helperOC::DynSys_UMode_Min:
 		std::transform(deriv, deriv + length, uOpt.begin(), [this](const auto& rhs) { return (rhs >= 0) ? -wMax : wMax;  });
 		break;
-	case DynSys_UMode_Invalid:
+	case helperOC::DynSys_UMode_Invalid:
 	default:
 		std::cerr << "Unknown uMode!: " << modified_uMode << std::endl;
 		return false;
@@ -135,9 +135,9 @@ bool DubinsCar::optDstb(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	const size_t src_target_dim_index = find_val(dims, 2);
 	if (src_target_dim_index == dims.size()) return false;
 	const FLOAT_TYPE* deriv = deriv_ptrs[src_target_dim_index];
@@ -150,13 +150,13 @@ bool DubinsCar::optDstb(
 			const FLOAT_TYPE dMax_d = dMax[dim];
 			dOpt.resize(length);
 			switch (modified_dMode) {
-			case DynSys_DMode_Max:
+			case helperOC::DynSys_DMode_Max:
 				std::transform(deriv, deriv + length, dOpt.begin(), [dMax_d](const auto& rhs) { return (rhs >= 0) ? dMax_d : -dMax_d;  });
 				break;
-			case DynSys_DMode_Min:
+			case helperOC::DynSys_DMode_Min:
 				std::transform(deriv, deriv + length, dOpt.begin(), [dMax_d](const auto& rhs) { return (rhs >= 0) ? -dMax_d : dMax_d;  });
 				break;
-			case DynSys_UMode_Invalid:
+			case helperOC::DynSys_UMode_Invalid:
 			default:
 				std::cerr << "Unknown dMode!: " << modified_dMode << std::endl;
 				return false;
@@ -277,9 +277,9 @@ bool DubinsCar::optCtrl_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const size_t src_target_dim_index = find_val(dims, 2);
 	if (src_target_dim_index == dims.size()) return false;
 	if (deriv_uvecs.empty() || deriv_uvecs[src_target_dim_index].empty()) return false;
@@ -291,9 +291,9 @@ bool DubinsCar::optDstb_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>&,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	const size_t src_target_dim_index = find_val(dims, 2);
 	if (src_target_dim_index == dims.size()) return false;
 	if (deriv_uvecs.empty() || deriv_uvecs[src_target_dim_index].empty()) return false;

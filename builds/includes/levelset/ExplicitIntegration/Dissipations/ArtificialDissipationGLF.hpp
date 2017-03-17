@@ -16,46 +16,47 @@
 using namespace std::rel_ops;
 #include <typedef.hpp>
 #include <levelset/ExplicitIntegration/Dissipations/Dissipation.hpp>
-class SchemeData;
+namespace levelset {
 
-class ArtificialDissipationGLF_impl;
+	class SchemeData;
 
-class ArtificialDissipationGLF : public Dissipation {
-public:
-	PREFIX_VC_DLL
-		ArtificialDissipationGLF(
+	class ArtificialDissipationGLF_impl;
+
+	class ArtificialDissipationGLF : public Dissipation {
+	public:
+		PREFIX_VC_DLL
+			ArtificialDissipationGLF(
+			);
+		~ArtificialDissipationGLF();
+		bool execute(
+			beacls::UVec& diss,
+			beacls::FloatVec& step_bound_invs,
+			std::vector<beacls::UVec>& derivMins,
+			std::vector<beacls::UVec>& derivMaxs,
+			const FLOAT_TYPE t,
+			const beacls::UVec& data,
+			const std::vector<beacls::UVec>& x_uvecs,
+			const std::vector<beacls::UVec >& deriv_ls,
+			const std::vector<beacls::UVec >& deriv_rs,
+			const SchemeData *schemeData,
+			const size_t begin_index,
+			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax
 		);
-	~ArtificialDissipationGLF();
-	bool execute(
-		beacls::UVec& diss,
-		beacls::FloatVec& step_bound_invs,
-		std::vector<beacls::UVec>& derivMins,
-		std::vector<beacls::UVec>& derivMaxs,
-		const FLOAT_TYPE t,
-		const beacls::UVec& data,
-		const std::vector<beacls::UVec>& x_uvecs,
-		const std::vector<beacls::UVec >& deriv_ls,
-		const std::vector<beacls::UVec >& deriv_rs,
-		const SchemeData *schemeData,
-		const size_t begin_index,
-		const bool enable_user_defined_dynamics_on_gpu,
-		const bool updateDerivMinMax
-	);
-	bool operator==(const ArtificialDissipationGLF& rhs) const;
-	bool operator==(const Dissipation& rhs) const;
-	ArtificialDissipationGLF* clone() const;
-private:
-	ArtificialDissipationGLF_impl *pimpl;
+		bool operator==(const ArtificialDissipationGLF& rhs) const;
+		bool operator==(const Dissipation& rhs) const;
+		ArtificialDissipationGLF* clone() const;
+	private:
+		ArtificialDissipationGLF_impl *pimpl;
 
-	/** @overload
-	Disable operator=
-	*/
-	ArtificialDissipationGLF& operator=(const ArtificialDissipationGLF& rhs);
-	/** @overload
-	Disable copy constructor
-	*/
-	ArtificialDissipationGLF(const ArtificialDissipationGLF& rhs);
+		/** @overload
+		Disable operator=
+		*/
+		ArtificialDissipationGLF& operator=(const ArtificialDissipationGLF& rhs);
+		/** @overload
+		Disable copy constructor
+		*/
+		ArtificialDissipationGLF(const ArtificialDissipationGLF& rhs);
+	};
 };
-
 #endif	/* __ArtificialDissipationGLF_hpp__ */
-

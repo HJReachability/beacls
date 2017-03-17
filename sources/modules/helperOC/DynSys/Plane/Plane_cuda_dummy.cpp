@@ -17,14 +17,14 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE wMax,
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	)
 	{
 		bool result = true;
-		if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-			const FLOAT_TYPE moded_vrange_max = (uMode == DynSys_UMode_Max) ? vrange_max : vrange_min;
-			const FLOAT_TYPE moded_vrange_min = (uMode == DynSys_UMode_Max) ? vrange_min : vrange_max;
-			const FLOAT_TYPE moded_wMax = (uMode == DynSys_UMode_Max) ? wMax : -wMax;
+		if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+			const FLOAT_TYPE moded_vrange_max = (uMode == helperOC::DynSys_UMode_Max) ? vrange_max : vrange_min;
+			const FLOAT_TYPE moded_vrange_min = (uMode == helperOC::DynSys_UMode_Max) ? vrange_min : vrange_max;
+			const FLOAT_TYPE moded_wMax = (uMode == helperOC::DynSys_UMode_Max) ? wMax : -wMax;
 			beacls::reallocateAsSrc(u_uvecs[0], x_uvecs[2]);
 			beacls::reallocateAsSrc(u_uvecs[1], deriv_uvecs[2]);
 			FLOAT_TYPE* uOpt0_ptr = beacls::UVec_<FLOAT_TYPE>(u_uvecs[0]).ptr();
@@ -69,15 +69,15 @@ namespace Plane_CUDA {
 		const std::vector<beacls::UVec>& x_uvecs,
 		const std::vector<beacls::UVec>& deriv_uvecs,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 	)
 	{
 		bool result = true;
 		const FLOAT_TYPE dMax_0 = dMax[0];
 		const FLOAT_TYPE dMax_1 = dMax[1];
-		if ((dMode == DynSys_DMode_Max) || (dMode == DynSys_DMode_Min)) {
-			const FLOAT_TYPE moded_dMax_0 = (dMode == DynSys_DMode_Max) ? dMax_0 : -dMax_0;
-			const FLOAT_TYPE moded_dMax_1 = (dMode == DynSys_DMode_Max) ? dMax_1 : -dMax_1;
+		if ((dMode == helperOC::DynSys_DMode_Max) || (dMode == helperOC::DynSys_DMode_Min)) {
+			const FLOAT_TYPE moded_dMax_0 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_0 : -dMax_0;
+			const FLOAT_TYPE moded_dMax_1 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_1 : -dMax_1;
 			beacls::reallocateAsSrc(d_uvecs[0], deriv_uvecs[0]);
 			beacls::reallocateAsSrc(d_uvecs[1], deriv_uvecs[0]);
 			beacls::reallocateAsSrc(d_uvecs[2], deriv_uvecs[2]);
@@ -283,14 +283,14 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE wMax,
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	)
 	{
 		bool result = true;
-		if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-			const FLOAT_TYPE moded_vrange_max = (uMode == DynSys_UMode_Max) ? vrange_max : vrange_min;
-			const FLOAT_TYPE moded_vrange_min = (uMode == DynSys_UMode_Max) ? vrange_min : vrange_max;
-			const FLOAT_TYPE moded_wMax = (uMode == DynSys_UMode_Max) ? wMax : -wMax;
+		if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+			const FLOAT_TYPE moded_vrange_max = (uMode == helperOC::DynSys_UMode_Max) ? vrange_max : vrange_min;
+			const FLOAT_TYPE moded_vrange_min = (uMode == helperOC::DynSys_UMode_Max) ? vrange_min : vrange_max;
+			const FLOAT_TYPE moded_wMax = (uMode == helperOC::DynSys_UMode_Max) ? wMax : -wMax;
 			beacls::reallocateAsSrc(uU_uvecs[0], x_uvecs[2]);
 			beacls::reallocateAsSrc(uU_uvecs[1], derivMax_uvecs[2]);
 			beacls::reallocateAsSrc(uL_uvecs[0], x_uvecs[2]);
@@ -344,15 +344,15 @@ namespace Plane_CUDA {
 		const std::vector<beacls::UVec>& derivMin_uvecs,
 		const std::vector<beacls::UVec>& derivMax_uvecs,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 	)
 	{
 		bool result = true;
 		const FLOAT_TYPE dMax_0 = dMax[0];
 		const FLOAT_TYPE dMax_1 = dMax[1];
-		if ((dMode == DynSys_DMode_Max) || (dMode == DynSys_DMode_Min)) {
-			const FLOAT_TYPE moded_dMax_0 = (dMode == DynSys_DMode_Max) ? dMax_0 : -dMax_0;
-			const FLOAT_TYPE moded_dMax_1 = (dMode == DynSys_DMode_Max) ? dMax_1 : -dMax_1;
+		if ((dMode == helperOC::DynSys_DMode_Max) || (dMode == helperOC::DynSys_DMode_Min)) {
+			const FLOAT_TYPE moded_dMax_0 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_0 : -dMax_0;
+			const FLOAT_TYPE moded_dMax_1 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_1 : -dMax_1;
 			beacls::reallocateAsSrc(dU_uvecs[0], derivMax_uvecs[0]);
 			beacls::reallocateAsSrc(dU_uvecs[1], derivMax_uvecs[0]);
 			beacls::reallocateAsSrc(dU_uvecs[2], derivMax_uvecs[2]);
@@ -541,18 +541,18 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
 		const beacls::FloatVec& dMax,
-		const DynSys_UMode_Type uMode,
-		const DynSys_DMode_Type dMode,
+		const helperOC::DynSys_UMode_Type uMode,
+		const helperOC::DynSys_DMode_Type dMode,
 		const bool negate) {
-		if ((uMode != DynSys_UMode_Max) && (uMode != DynSys_UMode_Min)) return false;
-		if ((dMode != DynSys_DMode_Max) && (dMode != DynSys_DMode_Min)) return false;
-		const FLOAT_TYPE moded_vrange_max = (uMode == DynSys_UMode_Max) ? vrange_max : vrange_min;
-		const FLOAT_TYPE moded_vrange_min = (uMode == DynSys_UMode_Max) ? vrange_min : vrange_max;
-		const FLOAT_TYPE moded_wMax = (uMode == DynSys_UMode_Max) ? wMax : -wMax;
+		if ((uMode != helperOC::DynSys_UMode_Max) && (uMode != helperOC::DynSys_UMode_Min)) return false;
+		if ((dMode != helperOC::DynSys_DMode_Max) && (dMode != helperOC::DynSys_DMode_Min)) return false;
+		const FLOAT_TYPE moded_vrange_max = (uMode == helperOC::DynSys_UMode_Max) ? vrange_max : vrange_min;
+		const FLOAT_TYPE moded_vrange_min = (uMode == helperOC::DynSys_UMode_Max) ? vrange_min : vrange_max;
+		const FLOAT_TYPE moded_wMax = (uMode == helperOC::DynSys_UMode_Max) ? wMax : -wMax;
 		const FLOAT_TYPE dMax_0 = dMax[0];
 		const FLOAT_TYPE dMax_1 = dMax[1];
-		const FLOAT_TYPE moded_dMax_0 = (dMode == DynSys_DMode_Max) ? dMax_0 : -dMax_0;
-		const FLOAT_TYPE moded_dMax_1 = (dMode == DynSys_DMode_Max) ? dMax_1 : -dMax_1;
+		const FLOAT_TYPE moded_dMax_0 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_0 : -dMax_0;
+		const FLOAT_TYPE moded_dMax_1 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_1 : -dMax_1;
 		const size_t src_x_dim_index = 2;
 		const FLOAT_TYPE* y2_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvecs[src_x_dim_index]).ptr();
 		const FLOAT_TYPE* deriv0_ptr = beacls::UVec_<FLOAT_TYPE>(deriv_uvecs[0]).ptr();
@@ -608,18 +608,18 @@ namespace Plane_CUDA {
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
 		const beacls::FloatVec& dMax,
-		const DynSys_UMode_Type uMode,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_UMode_Type uMode,
+		const helperOC::DynSys_DMode_Type dMode
 	) {
-		if ((uMode != DynSys_UMode_Max) && (uMode != DynSys_UMode_Min)) return false;
-		if ((dMode != DynSys_DMode_Max) && (dMode != DynSys_DMode_Min)) return false;
-		const FLOAT_TYPE moded_vrange_max = (uMode == DynSys_UMode_Max) ? vrange_max : vrange_min;
-		const FLOAT_TYPE moded_vrange_min = (uMode == DynSys_UMode_Max) ? vrange_min : vrange_max;
-		const FLOAT_TYPE moded_wMax = (uMode == DynSys_UMode_Max) ? wMax : -wMax;
+		if ((uMode != helperOC::DynSys_UMode_Max) && (uMode != helperOC::DynSys_UMode_Min)) return false;
+		if ((dMode != helperOC::DynSys_DMode_Max) && (dMode != helperOC::DynSys_DMode_Min)) return false;
+		const FLOAT_TYPE moded_vrange_max = (uMode == helperOC::DynSys_UMode_Max) ? vrange_max : vrange_min;
+		const FLOAT_TYPE moded_vrange_min = (uMode == helperOC::DynSys_UMode_Max) ? vrange_min : vrange_max;
+		const FLOAT_TYPE moded_wMax = (uMode == helperOC::DynSys_UMode_Max) ? wMax : -wMax;
 		const FLOAT_TYPE dMax_0 = dMax[0];
 		const FLOAT_TYPE dMax_1 = dMax[1];
-		const FLOAT_TYPE moded_dMax_0 = (dMode == DynSys_DMode_Max) ? dMax_0 : -dMax_0;
-		const FLOAT_TYPE moded_dMax_1 = (dMode == DynSys_DMode_Max) ? dMax_1 : -dMax_1;
+		const FLOAT_TYPE moded_dMax_0 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_0 : -dMax_0;
+		const FLOAT_TYPE moded_dMax_1 = (dMode == helperOC::DynSys_DMode_Max) ? dMax_1 : -dMax_1;
 		const size_t src_x_dim_index = 2;
 
 		const FLOAT_TYPE* y2_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvecs[src_x_dim_index]).ptr();

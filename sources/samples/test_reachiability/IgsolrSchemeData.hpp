@@ -9,7 +9,7 @@
 #include <Core/UVec.hpp>
 using namespace std::rel_ops;
 
-class IgsolrSchemeData : public SchemeData {
+class IgsolrSchemeData : public levelset::SchemeData {
 public:
 	FLOAT_TYPE g;
 	FLOAT_TYPE k_p;

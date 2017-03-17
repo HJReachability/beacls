@@ -8,6 +8,7 @@
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3aHelper.hpp>
 #include "UpwindFirstENO3aHelper_impl.hpp"
 #include "UpwindFirstENO3aHelper_cuda.hpp"
+using namespace levelset;
 
 UpwindFirstENO3aHelper_impl::UpwindFirstENO3aHelper_impl(
 	const HJI_Grid *hji_grid,

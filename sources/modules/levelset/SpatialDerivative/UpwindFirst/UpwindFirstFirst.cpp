@@ -7,6 +7,7 @@
 #include <levelset/BoundaryCondition/BoundaryCondition.hpp>
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstFirst.hpp>
 #include "UpwindFirstFirst_impl.hpp"
+using namespace levelset;
 
 UpwindFirstFirst_impl::UpwindFirstFirst_impl(
 	const HJI_Grid *hji_grid,

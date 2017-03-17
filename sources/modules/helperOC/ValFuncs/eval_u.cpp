@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <typeinfo>
 #include <levelset/BoundaryCondition/AddGhostPeriodic.hpp>
-#include <helperOC/ValFuncs/augmentPeriodicData.hpp>
+//#include <helperOC/ValFuncs/augmentPeriodicData.hpp>
 #include <macro.hpp>
 
 namespace helperOC {
@@ -23,7 +23,7 @@ namespace helperOC {
 	*/
 	static bool eval_u_single(
 		beacls::FloatVec& v,
-		const HJI_Grid* g,
+		const levelset::HJI_Grid* g,
 		const beacls::FloatVec& data,
 		const std::vector<beacls::FloatVec >& xss,
 		const beacls::Interpolate_Type interp_method
@@ -32,7 +32,7 @@ namespace helperOC {
 static
 bool helperOC::eval_u_single(
 	beacls::FloatVec& v,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& data,
 	const std::vector<beacls::FloatVec >& xss,
 	const beacls::Interpolate_Type interp_method
@@ -47,8 +47,8 @@ bool helperOC::eval_u_single(
 	std::deque<bool> i_above_bounds;
 	std::deque<bool> i_below_bounds;
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
-		const BoundaryCondition* boundaryCondition = g->get_boundaryCondition(dimension);
-		if (boundaryCondition && (typeid(*boundaryCondition) == typeid(AddGhostPeriodic))) {
+		const levelset::BoundaryCondition* boundaryCondition = g->get_boundaryCondition(dimension);
+		if (boundaryCondition && (typeid(*boundaryCondition) == typeid(levelset::AddGhostPeriodic))) {
 			extrapolate_methods[dimension] = beacls::Extrapolate_periodic;
 			//!< Map input points to within grid bounds
 			const beacls::FloatVec& vs = g->get_vs(dimension);
@@ -107,7 +107,7 @@ bool helperOC::eval_u_single(
 
 bool helperOC::eval_u(
 	beacls::FloatVec& dataOut,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& data,
 	const std::vector<beacls::FloatVec >& xs,
 	const beacls::Interpolate_Type interp_method
@@ -116,7 +116,7 @@ bool helperOC::eval_u(
 }
 bool helperOC::eval_u(
 	std::vector<beacls::FloatVec>& dataOuts,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const std::vector<beacls::FloatVec >& datas,
 	const beacls::FloatVec& x,
 	const beacls::Interpolate_Type interp_method
@@ -130,7 +130,7 @@ bool helperOC::eval_u(
 }
 bool helperOC::eval_u(
 	std::vector<beacls::FloatVec>& dataOuts,
-	const std::vector<HJI_Grid*>& gs,
+	const std::vector<levelset::HJI_Grid*>& gs,
 	const std::vector<beacls::FloatVec >& datas,
 	const std::vector<beacls::FloatVec >& xs,
 	const beacls::Interpolate_Type interp_method

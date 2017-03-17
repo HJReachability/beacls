@@ -9,7 +9,7 @@
 #include <Core/UVec.hpp>
 using namespace std::rel_ops;
 
-class Plane4DSchemeData : public SchemeData {
+class Plane4DSchemeData : public levelset::SchemeData {
 public:
 	FLOAT_TYPE wMax;
 	beacls::FloatVec aranges;

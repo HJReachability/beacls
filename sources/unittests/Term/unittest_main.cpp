@@ -10,6 +10,8 @@
 #include <helperOC/DynSys/DynSys/DynSysSchemeData.hpp>
 #include "Air3DSchemeData.hpp"
 #include "Plane4DSchemeData.hpp"
+using namespace helperOC;
+
 namespace UTest_CPU_Term
 {
 	class UnitTest_CPU_DubinsCar_RS_termLaxFriedrichs

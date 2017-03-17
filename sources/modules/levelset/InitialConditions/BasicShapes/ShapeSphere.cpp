@@ -2,6 +2,7 @@
 #include <levelset/InitialConditions/BasicShapes/ShapeSphere.hpp>
 #include <levelset/InitialConditions/BasicShapes/ShapeCylinder.hpp>
 #include <levelset/Grids/HJI_Grid.hpp>
+using namespace levelset;
 
 ShapeSphere::ShapeSphere(
 	const beacls::FloatVec& center,

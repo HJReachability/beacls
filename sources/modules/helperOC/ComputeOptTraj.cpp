@@ -47,12 +47,12 @@ helperOC::ComputeOptTraj_impl::~ComputeOptTraj_impl()
 bool helperOC::ComputeOptTraj_impl::operator()(
 	std::vector<beacls::FloatVec >& traj,
 	beacls::FloatVec& traj_tau,
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	const std::vector<beacls::FloatVec >& data,
 	const beacls::FloatVec& tau,
 	DynSys* dynSys,
 	const HJIPDE_extraArgs& extraArgs,
-	const DynSys_UMode_Type uMode,
+	const helperOC::DynSys_UMode_Type uMode,
 	const size_t subSamples
 ) {
 	const bool visualize = extraArgs.visualize;
@@ -132,7 +132,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 					x_types.push_back(helperOC::Projection_Vector);
 				}
 			}
-			HJI_Grid* g2D = proj(data2D, grid, BRS_at_t, hideDims, x_types, trajHide_at_t);
+			levelset::HJI_Grid* g2D = proj(data2D, grid, BRS_at_t, hideDims, x_types, trajHide_at_t);
 #if defined(VISUALIZE_BY_OPENCV)
 			const int left_margin = 25;
 			const int right_margin = 25;
@@ -245,12 +245,12 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 bool helperOC::ComputeOptTraj::operator()(
 	std::vector<beacls::FloatVec >& traj,
 	beacls::FloatVec& traj_tau,
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	const std::vector<beacls::FloatVec >& data,
 	const beacls::FloatVec& tau,
 	DynSys* dynSys,
 	const HJIPDE_extraArgs& extraArgs,
-	const DynSys_UMode_Type uMode,
+	const helperOC::DynSys_UMode_Type uMode,
 	const size_t subSamples
 ) {
 	if (pimpl) pimpl->operator()(traj, traj_tau, grid, data, tau, dynSys, extraArgs, uMode, subSamples);

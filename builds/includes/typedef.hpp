@@ -15,7 +15,6 @@ typedef double FLOAT_TYPE;
 typedef float FLOAT_TYPE;
 #endif	/* defined(FLOAT_TYPE_64F) */
 
-class HJI_Grid;
 namespace beacls {
 	typedef std::vector<FLOAT_TYPE> FloatVec;
 	typedef std::vector<size_t> IntegerVec;
@@ -39,24 +38,14 @@ namespace beacls {
 		Extrapolate_none,
 		Extrapolate_periodic,
 	} Extrapolate_Type;	
-	typedef enum EpsilonCalculationMethod_Type {
-		EpsilonCalculationMethod_Invalid,
-		EpsilonCalculationMethod_Constant,
-		EpsilonCalculationMethod_maxOverGrid,
-		EpsilonCalculationMethod_maxOverNeighbor,
-	} EpsilonCalculationMethod_Type;
+
 
 	typedef enum UVecType {
 		UVecType_Invalid = -1,
 		UVecType_Vector,
 		UVecType_Cuda,
 	} UVecType;
-	typedef enum DelayedDerivMinMax_Type {
-		DelayedDerivMinMax_Invalid = -1,
-		DelayedDerivMinMax_Disable,
-		DelayedDerivMinMax_Always,
-		DelayedDerivMinMax_Adaptive,
-	} DelayedDerivMinMax_Type;
+
 	typedef enum UVecDepth {
 		UVecDepth_Invalid = -1,
 		UVecDepth_8U = 0,
@@ -71,12 +60,21 @@ namespace beacls {
 		UVecDepth_64U,
 		UVecDepth_64S,
 	} UVecDepth;
-
+	class MatFStream;
+	class MatVariable;
+	typedef enum MatOpenMode {
+		MatOpenMode_Read,
+		MatOpenMode_Write,
+		MatOpenMode_WriteAppend,
+	}MatOpenMode;
+};	// beacls
+namespace levelset {
+	class HJI_Grid;
 	typedef bool(*PostTimestep_Exec_Type)(
 		beacls::FloatVec&,
 		const FLOAT_TYPE,
 		const beacls::FloatVec&,
-		const HJI_Grid *
+		const levelset::HJI_Grid *
 		);
 
 	typedef bool(*TerminalEvent_Exec_Type)(
@@ -85,15 +83,19 @@ namespace beacls {
 		const beacls::FloatVec&,
 		const FLOAT_TYPE,
 		const beacls::FloatVec&,
-		const HJI_Grid *
+		const levelset::HJI_Grid *
 		);
-		class MatFStream;
-		class MatVariable;
-		typedef enum MatOpenMode {
-			MatOpenMode_Read,
-			MatOpenMode_Write,
-			MatOpenMode_WriteAppend,
-		}MatOpenMode;
-};	// bears
-
+	typedef enum EpsilonCalculationMethod_Type {
+		EpsilonCalculationMethod_Invalid,
+		EpsilonCalculationMethod_Constant,
+		EpsilonCalculationMethod_maxOverGrid,
+		EpsilonCalculationMethod_maxOverNeighbor,
+	} EpsilonCalculationMethod_Type;
+	typedef enum DelayedDerivMinMax_Type {
+		DelayedDerivMinMax_Invalid = -1,
+		DelayedDerivMinMax_Disable,
+		DelayedDerivMinMax_Always,
+		DelayedDerivMinMax_Adaptive,
+	} DelayedDerivMinMax_Type;
+};
 #endif	/* __typedef_hpp__ */

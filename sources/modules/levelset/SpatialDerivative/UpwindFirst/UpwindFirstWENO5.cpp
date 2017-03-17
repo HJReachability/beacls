@@ -5,6 +5,7 @@
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstWENO5.hpp>
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstWENO5a.hpp>
 #include "UpwindFirstWENO5_impl.hpp"
+using namespace levelset;
 
 UpwindFirstWENO5_impl::UpwindFirstWENO5_impl(
 	const HJI_Grid *hji_grid,

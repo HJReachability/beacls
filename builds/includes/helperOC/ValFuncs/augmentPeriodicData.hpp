@@ -9,7 +9,7 @@
 #else              
 #define PREFIX_VC_DLL
 #endif
-
+#if 0
 #include <helperOC/helperOC_type.hpp>
 #include <typedef.hpp>
 #include <vector>
@@ -17,9 +17,10 @@ class HJI_Grid;
 namespace helperOC {
 	HJI_Grid* augmentPeriodicData(
 		beacls::FloatVec& dataOut,
-		const HJI_Grid* gIn,
+		const levelset::HJI_Grid* gIn,
 		const beacls::FloatVec& data);
 
 };
+#endif
 #endif	/* __augmentPeriodicData_hpp__ */
 

@@ -14,22 +14,24 @@
 #include <cstdint>
 #include <vector>
 #include <typedef.hpp>
+namespace levelset {
 
-class HJI_Grid;
+	class HJI_Grid;
 
-class InitialCondition  {
-public:
-	PREFIX_VC_DLL
-	virtual bool execute(
-		const HJI_Grid *grid, 
-		beacls::FloatVec& data
-		) const = 0;
-	PREFIX_VC_DLL
-	virtual InitialCondition* clone() const = 0;
-	virtual ~InitialCondition() = 0;
+	class InitialCondition {
+	public:
+		PREFIX_VC_DLL
+			virtual bool execute(
+				const HJI_Grid *grid,
+				beacls::FloatVec& data
+			) const = 0;
+		PREFIX_VC_DLL
+			virtual InitialCondition* clone() const = 0;
+		virtual ~InitialCondition() = 0;
 
-};
-inline
-InitialCondition::~InitialCondition() {}
+	};
+	inline
+		InitialCondition::~InitialCondition() {}
+}
 #endif	/* __InitialCondition_hpp__ */
 

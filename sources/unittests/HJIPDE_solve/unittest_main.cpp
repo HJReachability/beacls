@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "UTest_HJIPDE_solve.hpp"
+using namespace helperOC;
 
 namespace UTest_CPU_wLastMinMax_HJIPDE_solve
 {		

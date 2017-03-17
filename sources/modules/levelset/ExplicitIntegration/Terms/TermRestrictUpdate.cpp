@@ -5,6 +5,8 @@
 #include <numeric>
 #include <typeinfo>
 #include "TermRestrictUpdate_impl.hpp"
+using namespace levelset;
+
 TermRestrictUpdate_impl::TermRestrictUpdate_impl(
 	const beacls::UVecType type
 ) : type(type) {

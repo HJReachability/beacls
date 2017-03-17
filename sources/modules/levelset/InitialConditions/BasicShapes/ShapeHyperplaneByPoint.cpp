@@ -5,6 +5,7 @@
 #include <macro.hpp>
 #include <limits>
 #include <functional>
+using namespace levelset;
 
 ShapeHyperplaneByPoint_impl::ShapeHyperplaneByPoint_impl(
 	const std::vector<beacls::FloatVec >& points,

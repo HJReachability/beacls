@@ -8,7 +8,7 @@
 #include "OdeCFL_OneSlice.hpp"
 #include "OdeCFL_CommandQueue.hpp"
 #include <macro.hpp>
-void beacls::odeCFL_SubStep(
+void levelset::odeCFL_SubStep(
 	std::vector<OdeCFL_CommandQueue*> odeCFL_CommandQueues,
 	const FLOAT_TYPE t,
 	std::vector<beacls::FloatVec >& step_bound_invss,
@@ -32,7 +32,7 @@ void beacls::odeCFL_SubStep(
 	const size_t third_dimension_loop_size,
 	const size_t num_of_parallel_loop_lines,
 	const size_t actual_num_of_threas,
-	const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
+	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu
 ) {
 	bool executeAgain = false;

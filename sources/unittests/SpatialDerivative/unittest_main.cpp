@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "UTest_SpatialDerivative.hpp"
+using namespace helperOC;
 
 namespace UTest_CPU_SpatialDerivative
 {		

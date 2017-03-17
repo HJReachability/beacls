@@ -13,26 +13,26 @@
 #include <levelset/levelset.hpp>
 
 helperOC::ComputeGradients::ComputeGradients(
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	helperOC::ApproximationAccuracy_Type accuracy,
 	const beacls::UVecType type
 ) : 
 	commandQueue(new helperOC::ComputeGradients_CommandQueue),
 	type(type) {
-	const SpatialDerivative* derivFunc;
+	const levelset::SpatialDerivative* derivFunc;
 	//! accuracy
 	switch (accuracy) {
 	case helperOC::ApproximationAccuracy_low:
-		derivFunc = new UpwindFirstFirst(grid, type);
+		derivFunc = new levelset::UpwindFirstFirst(grid, type);
 		break;
 	case helperOC::ApproximationAccuracy_medium:
-		derivFunc = new UpwindFirstENO2(grid, type);
+		derivFunc = new levelset::UpwindFirstENO2(grid, type);
 		break;
 	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new UpwindFirstENO3(grid, type);
+		derivFunc = new levelset::UpwindFirstENO3(grid, type);
 		break;
 	case helperOC::ApproximationAccuracy_veryHigh:
-		derivFunc = new UpwindFirstWENO5(grid, type);
+		derivFunc = new levelset::UpwindFirstWENO5(grid, type);
 		break;
 	case helperOC::ApproximationAccuracy_Invalid:
 	default:
@@ -67,7 +67,7 @@ bool helperOC::ComputeGradients::operator()(
 	std::vector<beacls::FloatVec >& derivC,
 	std::vector<beacls::FloatVec >& derivL,
 	std::vector<beacls::FloatVec >& derivR,
-	const HJI_Grid* grid,
+	const levelset::HJI_Grid* grid,
 	const beacls::FloatVec& data,
 	const size_t data_length,
 	const bool upWind,
@@ -121,7 +121,7 @@ bool helperOC::ComputeGradients::operator()(
 
 	const size_t num_of_activated_gpus = (num_of_gpus == 0) ? beacls::get_num_of_gpus() : num_of_gpus;
 	const size_t hardware_concurrency = (std::thread::hardware_concurrency() == 0) ? 1 : std::thread::hardware_concurrency();
-	const SpatialDerivative* spatialDerivative = workers[0]->get_spatialDerivative();
+	const levelset::SpatialDerivative* spatialDerivative = workers[0]->get_spatialDerivative();
 	const size_t actual_num_of_threads = (num_of_threads == 0) ? ((spatialDerivative->get_type() == beacls::UVecType_Cuda) ? num_of_activated_gpus : hardware_concurrency) : num_of_threads;
 
 	const size_t num_of_parallel_loop_lines = std::min((size_t)actual_num_of_threads, num_of_outer_lines);

@@ -13,6 +13,7 @@
 #if defined(VISUALIZE_BY_OPENCV)
 #include <opencv2/opencv.hpp>
 #endif	/* defined(VISUALIZE_BY_OPENCV) */
+using namespace helperOC;
 
 HJIPDE_impl::HJIPDE_impl(
 	const std::string& tmp_filename
@@ -35,11 +36,11 @@ bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
 
 
 bool HJIPDE_impl::getNumericalFuncs(
-	Dissipation*& dissFunc,
-	Integrator*& integratorFunc,
-	SpatialDerivative*& derivFunc,
-	const HJI_Grid* grid,
-	const Term* schemeFunc,
+	levelset::Dissipation*& dissFunc,
+	levelset::Integrator*& integratorFunc,
+	levelset::SpatialDerivative*& derivFunc,
+	const levelset::HJI_Grid* grid,
+	const levelset::Term* schemeFunc,
 	const helperOC::Dissipation_Type dissType,
 	const helperOC::ApproximationAccuracy_Type accuracy,
 	const FLOAT_TYPE factorCFL,
@@ -50,12 +51,12 @@ bool HJIPDE_impl::getNumericalFuncs(
 	//! Dissipation
 	switch (dissType) {
 	case helperOC::Dissipation_global:
-		dissFunc = new ArtificialDissipationGLF();
+		dissFunc = new levelset::ArtificialDissipationGLF();
 		break;
 	case helperOC::Dissipation_local:
 #if 0
 		///! ToDo
-		dissFunc = new ArtificialDissipationLLF();
+		dissFunc = new levelset::ArtificialDissipationLLF();
 		break;
 #else
 		std::cerr << "Dissipation function " << dissType << " is not implemented yet." << std::endl;
@@ -65,7 +66,7 @@ bool HJIPDE_impl::getNumericalFuncs(
 	case helperOC::Dissipation_locallocal:
 #if 0
 		///! ToDo
-		dissFunc = new ArtificialDissipationLLLF();
+		dissFunc = new levelset::ArtificialDissipationLLLF();
 		break;
 #else
 		std::cerr << "Dissipation function " << dissType << " is not implemented yet." << std::endl;
@@ -80,25 +81,25 @@ bool HJIPDE_impl::getNumericalFuncs(
 	}
 
 	const FLOAT_TYPE max_step = std::numeric_limits<FLOAT_TYPE>::max();
-	std::vector<beacls::PostTimestep_Exec_Type* > postTimestep_Execs;
+	std::vector<levelset::PostTimestep_Exec_Type* > postTimestep_Execs;
 
 	//! accuracy
 	switch (accuracy) {
 	case helperOC::ApproximationAccuracy_low:
-		derivFunc = new UpwindFirstFirst(grid, type);
-		integratorFunc = new OdeCFL1(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
+		derivFunc = new levelset::UpwindFirstFirst(grid, type);
+		integratorFunc = new levelset::OdeCFL1(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
 		break;
 	case helperOC::ApproximationAccuracy_medium:
-		derivFunc = new UpwindFirstENO2(grid, type);
-		integratorFunc = new OdeCFL2(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
+		derivFunc = new levelset::UpwindFirstENO2(grid, type);
+		integratorFunc = new levelset::OdeCFL2(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
 		break;
 	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new UpwindFirstENO3(grid, type);
-		integratorFunc = new OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
+		derivFunc = new levelset::UpwindFirstENO3(grid, type);
+		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
 		break;
 	case helperOC::ApproximationAccuracy_veryHigh:
-		derivFunc = new UpwindFirstWENO5(grid, type);
-		integratorFunc = new OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
+		derivFunc = new levelset::UpwindFirstWENO5(grid, type);
+		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
 		break;
 	case helperOC::ApproximationAccuracy_Invalid:
 	default:
@@ -136,7 +137,7 @@ bool HJIPDE_impl::solve(
 
 	const FLOAT_TYPE large = (FLOAT_TYPE)1e6;
 	const FLOAT_TYPE small = (FLOAT_TYPE)1e-4;
-	const HJI_Grid* grid = schemeData->get_grid();
+	const levelset::HJI_Grid* grid = schemeData->get_grid();
 	const size_t num_of_dimensions = grid->get_num_of_dimensions();
 	// Extract the information from extraargs
 	if (quiet) {
@@ -266,7 +267,7 @@ bool HJIPDE_impl::solve(
 				helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, grid, *obstacle_ptr, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0});
 			}
 			else {
-				HJI_Grid* gPlot;
+				levelset::HJI_Grid* gPlot;
 				beacls::FloatVec obsPlot;
 				beacls::IntegerVec negatedPlotDims(plotDims.size());
 				std::transform(plotDims.cbegin(), plotDims.cend(), negatedPlotDims.begin(), [](const auto& rhs) { return (rhs == 0) ? 1 : 0; });
@@ -338,7 +339,7 @@ bool HJIPDE_impl::solve(
 	FLOAT_TYPE convergeThreshold = extraArgs.convergeThreshold;
 
 	//// SchemeFunc and SchemeData
-	Term* schemeFunc = new TermLaxFriedrichs(schemeData, execType);
+	levelset::Term* schemeFunc = new levelset::TermLaxFriedrichs(schemeData, execType);
 	// Extract accuracy parameter o/w set default accuracy
 	helperOC::ApproximationAccuracy_Type accuracy = helperOC::ApproximationAccuracy_veryHigh;
 	if (schemeData->accuracy != helperOC::ApproximationAccuracy_Invalid) {
@@ -354,9 +355,9 @@ bool HJIPDE_impl::solve(
 
 	// Numerical approximation functions
 	helperOC::Dissipation_Type dissType = helperOC::Dissipation_global;
-	Dissipation* dissFunc;
-	Integrator* integratorFunc;
-	SpatialDerivative* derivFunc;
+	levelset::Dissipation* dissFunc;
+	levelset::Integrator* integratorFunc;
+	levelset::SpatialDerivative* derivFunc;
 	getNumericalFuncs(dissFunc, integratorFunc, derivFunc, grid, schemeFunc, dissType, accuracy, factor_cfl, stats, single_step, execType);
 	modified_schemeData->set_spatialDerivative(derivFunc);
 	modified_schemeData->set_dissipation(dissFunc);
@@ -702,7 +703,7 @@ bool HJIPDE_impl::solve(
 			}
 			const beacls::FloatVec* obstacle_ptr = obstacle_i ? obstacle_i : &tmp_obstacle;
 			// Project
-			const HJI_Grid* gPlot;
+			const levelset::HJI_Grid* gPlot;
 			beacls::FloatVec tmp_dataPlot;
 			beacls::FloatVec tmp_obsPlot;
 			if (projDims == 0) {
@@ -714,7 +715,7 @@ bool HJIPDE_impl::solve(
 				gPlot = helperOC::proj(tmp_dataPlot, grid, y, plotDims_inv, projtypes, projpt);
 				if (obsMode == HJIPDE::ObsModeType_TimeVarying) {
 					if (!obstacle_ptr->empty()) {
-						HJI_Grid* gObsPlot = helperOC::proj(tmp_obsPlot, grid, *obstacle_ptr, plotDims_inv, projtypes, projpt);
+						levelset::HJI_Grid* gObsPlot = helperOC::proj(tmp_obsPlot, grid, *obstacle_ptr, plotDims_inv, projtypes, projpt);
 						if (gObsPlot) delete gObsPlot;
 					}
 				}
@@ -822,7 +823,7 @@ bool HJIPDE_impl::get_datas(
 ) const {
 	//!< Load dst_datas from file.
 	if (!tmp_filename.empty()) {
-		const HJI_Grid* grid = schemeData->get_grid();
+		const levelset::HJI_Grid* grid = schemeData->get_grid();
 		const size_t num_of_elements = grid->get_sum_of_elems();
 		dst_datas.resize(src_tau.size());
 		beacls::IntegerVec dummy;
@@ -849,7 +850,7 @@ bool HJIPDE_impl::get_datas(
 }
 bool HJIPDE_impl::TD2TTR(
 	beacls::FloatVec& TTR,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& tau
 ) const {
 	size_t num_of_elements = g->get_sum_of_elems();
@@ -970,7 +971,7 @@ bool HJIPDE::get_last_data(
 }
 bool HJIPDE::TD2TTR(
 	beacls::FloatVec& TTR,
-	const HJI_Grid* g,
+	const levelset::HJI_Grid* g,
 	const beacls::FloatVec& tau
 ) const {
 	if (pimpl) return pimpl->TD2TTR(TTR, g, tau);

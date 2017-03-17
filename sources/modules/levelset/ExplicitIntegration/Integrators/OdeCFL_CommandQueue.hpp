@@ -1,7 +1,7 @@
 #ifndef __OdeCFL_CommandQueue_hpp__
 #define __OdeCFL_CommandQueue_hpp__
 
-namespace beacls {
+namespace levelset {
 	class OdeCFL_OneSlice;
 	class OdeCFL_CommandQueue_impl;
 	class OdeCFL_CommandQueue {

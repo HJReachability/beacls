@@ -8,6 +8,7 @@
 #include <levelset/Grids/HJI_Grid.hpp>
 #include <Core/UVec.hpp>
 #include <Core/CudaStream.hpp>
+using namespace levelset;
 
 UpwindFirstWENO5b_impl::UpwindFirstWENO5b_impl(
 	const HJI_Grid *hji_grid,

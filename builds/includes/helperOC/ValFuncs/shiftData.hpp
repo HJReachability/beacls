@@ -31,7 +31,7 @@ namespace helperOC {
 	PREFIX_VC_DLL
 		bool shiftData(
 			beacls::FloatVec& dataOut,
-			const HJI_Grid* g,
+			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& dataIn,
 			const beacls::FloatVec& shift,
 			const beacls::IntegerVec& pdims = beacls::IntegerVec{ 0,1 },

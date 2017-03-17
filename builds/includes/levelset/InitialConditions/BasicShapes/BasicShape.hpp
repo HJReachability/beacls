@@ -15,19 +15,21 @@
 #include <vector>
 #include <typedef.hpp>
 #include <levelset/InitialConditions/InitialCondition.hpp>
-class HJI_Grid;
+namespace levelset {
+	class HJI_Grid;
 
-class BasicShape : public InitialCondition {
-public:
-	virtual bool execute(
-		const HJI_Grid *grid, 
-		beacls::FloatVec& data
+	class BasicShape : public InitialCondition {
+	public:
+		virtual bool execute(
+			const HJI_Grid *grid,
+			beacls::FloatVec& data
 		) const = 0;
-	virtual BasicShape* clone() const = 0;
-	virtual ~BasicShape() = 0;
-private:
+		virtual BasicShape* clone() const = 0;
+		virtual ~BasicShape() = 0;
+	private:
+	};
+	inline
+		BasicShape::~BasicShape() {}
 };
-inline
-BasicShape::~BasicShape() {}
 #endif	/* __BasicShape_hpp__ */
 

@@ -14,7 +14,7 @@ namespace KinVehicleND_CUDA {
 		std::vector<beacls::UVec>& u_uvecs,
 		const std::vector<beacls::UVec>& deriv_uvecs,
 		const FLOAT_TYPE vMax,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	){
 		bool result = true;
 		const size_t length = deriv_uvecs[0].size();
@@ -24,8 +24,8 @@ namespace KinVehicleND_CUDA {
 		const size_t nu = deriv_uvecs.size();
 		if (beacls::is_cuda(deriv_uvecs[0])) {
 			FLOAT_TYPE* last_uOpt_ptr = beacls::UVec_<FLOAT_TYPE>(u_uvecs[nu - 1]).ptr();
-			if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-				const FLOAT_TYPE moded_vMax = (uMode == DynSys_UMode_Max) ? vMax : -vMax;
+			if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+				const FLOAT_TYPE moded_vMax = (uMode == helperOC::DynSys_UMode_Max) ? vMax : -vMax;
 				//!< store denom to uOpts[nu-1]
 				const FLOAT_TYPE* deriv0 = beacls::UVec_<FLOAT_TYPE>(deriv_uvecs[0]).ptr();
 				for (size_t index = 0; index < length; ++index) {
@@ -58,8 +58,8 @@ namespace KinVehicleND_CUDA {
 			}
 		}
 		else {
-			if ((uMode == DynSys_UMode_Max) || (uMode == DynSys_UMode_Min)) {
-				const FLOAT_TYPE moded_vMax = (uMode == DynSys_UMode_Max) ? vMax : -vMax;
+			if ((uMode == helperOC::DynSys_UMode_Max) || (uMode == helperOC::DynSys_UMode_Min)) {
+				const FLOAT_TYPE moded_vMax = (uMode == helperOC::DynSys_UMode_Max) ? vMax : -vMax;
 				//!< store denom to uOpts[nu-1]
 				const FLOAT_TYPE* deriv0_ptr = beacls::UVec_<FLOAT_TYPE>(deriv_uvecs[0]).ptr();
 				const FLOAT_TYPE d0 = deriv0_ptr[0];

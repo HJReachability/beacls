@@ -12,6 +12,8 @@
 #include "Quad4D_cuda.hpp"
 #include <random>
 #include <macro.hpp>
+using namespace helperOC;
+
 Quad4D::Quad4D(
 	const beacls::FloatVec& x,
 	const FLOAT_TYPE uMin,
@@ -81,9 +83,9 @@ bool Quad4D::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Min : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Min : uMode;
 	const size_t dim1 = (size_t)std::distance(dims.cbegin(), std::find(dims.cbegin(), dims.cend(), 1));
 	const size_t dim3 = (size_t)std::distance(dims.cbegin(), std::find(dims.cbegin(), dims.cend(), 3));
 
@@ -98,9 +100,9 @@ bool Quad4D::optCtrl(
 	beacls::FloatVec& uOpt0 = uOpts[0];
 	beacls::FloatVec& uOpt1 = uOpts[1];
 
-	if ((modified_uMode == DynSys_UMode_Max) || (modified_uMode == DynSys_UMode_Min)) {
-		const FLOAT_TYPE moded_uMax = (modified_uMode == DynSys_UMode_Max) ? uMax : uMin;
-		const FLOAT_TYPE moded_uMin = (modified_uMode == DynSys_UMode_Max) ? uMin : uMax;
+	if ((modified_uMode == helperOC::DynSys_UMode_Max) || (modified_uMode == helperOC::DynSys_UMode_Min)) {
+		const FLOAT_TYPE moded_uMax = (modified_uMode == helperOC::DynSys_UMode_Max) ? uMax : uMin;
+		const FLOAT_TYPE moded_uMin = (modified_uMode == helperOC::DynSys_UMode_Max) ? uMin : uMax;
 		if (std::find(dims.cbegin(), dims.cend(), 1) != dims.cend()) {
 			for (size_t index = 0; index < deriv1_size; ++index) {
 				uOpt0[index] = (deriv1_ptr[index] >= 0) ? moded_uMax : moded_uMin;
@@ -189,9 +191,9 @@ bool Quad4D::optCtrl_cuda(
 	const FLOAT_TYPE,
 	const std::vector<beacls::UVec>& x_uvecs,
 	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Min : uMode;
+	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Min : uMode;
 	const size_t dim1 = (size_t)std::distance(dims.cbegin(), std::find(dims.cbegin(), dims.cend(), 1));
 	const size_t dim3 = (size_t)std::distance(dims.cbegin(), std::find(dims.cbegin(), dims.cend(), 3));
 

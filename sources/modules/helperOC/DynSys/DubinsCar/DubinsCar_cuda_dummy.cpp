@@ -14,7 +14,7 @@ namespace DubinsCar_CUDA {
 		beacls::UVec& u_uvec,
 		const beacls::UVec& deriv_uvec,
 		const FLOAT_TYPE wMax,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	)
 	{
 		bool result = true;
@@ -23,17 +23,17 @@ namespace DubinsCar_CUDA {
 		const FLOAT_TYPE* deriv_ptr = beacls::UVec_<FLOAT_TYPE>(deriv_uvec).ptr();
 		if (beacls::is_cuda(deriv_uvec)) {
 			switch (uMode) {
-			case DynSys_UMode_Max:
+			case helperOC::DynSys_UMode_Max:
 				for (size_t index = 0; index < deriv_uvec.size(); ++index) {
 					uOpt_ptr[index] = (deriv_ptr[index] >= 0) ? wMax : -wMax;
 				}
 				break;
-			case DynSys_UMode_Min:
+			case helperOC::DynSys_UMode_Min:
 				for (size_t index = 0; index < deriv_uvec.size(); ++index) {
 					uOpt_ptr[index] = (deriv_ptr[index] >= 0) ? -wMax : wMax;
 				}
 				break;
-			case DynSys_UMode_Invalid:
+			case helperOC::DynSys_UMode_Invalid:
 			default:
 				std::cerr << "Unknown uMode!: " << uMode << std::endl;
 				result = false;
@@ -43,13 +43,13 @@ namespace DubinsCar_CUDA {
 		else {
 			const FLOAT_TYPE d = deriv_ptr[0];
 			switch (uMode) {
-			case DynSys_UMode_Max:
+			case helperOC::DynSys_UMode_Max:
 				uOpt_ptr[0] = (d >= 0) ? wMax : -wMax;
 				break;
-			case DynSys_UMode_Min:
+			case helperOC::DynSys_UMode_Min:
 				uOpt_ptr[0] = (d >= 0) ? -wMax : wMax;
 				break;
-			case DynSys_UMode_Invalid:
+			case helperOC::DynSys_UMode_Invalid:
 			default:
 				std::cerr << "Unknown uMode!: " << uMode << std::endl;
 				result = false;
@@ -63,7 +63,7 @@ namespace DubinsCar_CUDA {
 		std::vector<beacls::UVec>& d_uvecs,
 		const beacls::UVec& deriv_uvec,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode,
+		const helperOC::DynSys_DMode_Type dMode,
 		const beacls::IntegerVec& dims
 	)
 	{
@@ -76,17 +76,17 @@ namespace DubinsCar_CUDA {
 					FLOAT_TYPE* dOpt_ptr = beacls::UVec_<FLOAT_TYPE>(d_uvecs[dim]).ptr();
 					const FLOAT_TYPE dMax_d = dMax[dim];
 					switch (dMode) {
-					case DynSys_DMode_Max:
+					case helperOC::DynSys_DMode_Max:
 						for (size_t index = 0; index < deriv_uvec.size(); ++index) {
 							dOpt_ptr[index] = deriv_ptr[index] >= 0 ? dMax_d : -dMax_d;
 						}
 						break;
-					case DynSys_DMode_Min:
+					case helperOC::DynSys_DMode_Min:
 						for (size_t index = 0; index < deriv_uvec.size(); ++index) {
 							dOpt_ptr[index] = deriv_ptr[index] >= 0 ? -dMax_d : dMax_d;
 						}
 						break;
-					case DynSys_UMode_Invalid:
+					case helperOC::DynSys_UMode_Invalid:
 					default:
 						std::cerr << "Unknown dMode!: " << dMode << std::endl;
 						result = false;
@@ -102,13 +102,13 @@ namespace DubinsCar_CUDA {
 					FLOAT_TYPE* dOpt_ptr = beacls::UVec_<FLOAT_TYPE>(d_uvecs[dim]).ptr();
 					const FLOAT_TYPE dMax_d = dMax[dim];
 					switch (dMode) {
-					case DynSys_DMode_Max:
+					case helperOC::DynSys_DMode_Max:
 						dOpt_ptr[0] = (d >= 0) ? dMax_d : -dMax_d;
 						break;
-					case DynSys_DMode_Min:
+					case helperOC::DynSys_DMode_Min:
 						dOpt_ptr[0] = (d >= 0) ? -dMax_d : dMax_d;
 						break;
-					case DynSys_UMode_Invalid:
+					case helperOC::DynSys_UMode_Invalid:
 					default:
 						std::cerr << "Unknown dMode!: " << dMode << std::endl;
 						result = false;

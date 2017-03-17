@@ -296,6 +296,6 @@ void reallocateAsSrc(beacls::UVec& dst, const::beacls::UVec& src);
 PREFIX_VC_DLL
 bool is_cuda(const::beacls::UVec& src);
 
-};	// bears
+};	// beacls
 #endif	/* __UVec_hpp__ */
 

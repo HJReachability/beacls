@@ -7,6 +7,8 @@
 #include <levelset/Grids/HJI_Grid.hpp>
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO2.hpp>
 #include "UpwindFirstENO2_impl.hpp"
+using namespace levelset;
+
 UpwindFirstENO2_impl::UpwindFirstENO2_impl(
 	const HJI_Grid *hji_grid,
 	const beacls::UVecType type

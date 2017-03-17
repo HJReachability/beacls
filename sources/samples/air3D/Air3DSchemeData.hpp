@@ -9,7 +9,7 @@
 #include <Core/UVec.hpp>
 using namespace std::rel_ops;
 
-class Air3DSchemeData : public SchemeData {
+class Air3DSchemeData : public levelset::SchemeData {
 public:
 	FLOAT_TYPE velocityA;
 	FLOAT_TYPE velocityB;

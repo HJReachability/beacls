@@ -78,7 +78,7 @@ bool check_and_make_message(
 bool run_UTest_HJIPDE_solve_minWith(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& tau,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE small,
@@ -89,7 +89,7 @@ bool run_UTest_HJIPDE_solve_minWith(
 		selecting 'data0' computes reachable tube, but only use this if there are
 		obstacles(constraint / avoid sets) in the state space
 		*/
-	std::vector<HJIPDE::MinWithType> minWiths{HJIPDE::MinWithType_None, HJIPDE::MinWithType_Zero};
+	std::vector<helperOC::HJIPDE::MinWithType> minWiths{helperOC::HJIPDE::MinWithType_None, helperOC::HJIPDE::MinWithType_Zero};
 	bool result = true;
 	for (size_t i = 0; i < minWiths.size(); ++i) {
 		helperOC::HJIPDE_extraArgs extraArgs;
@@ -97,7 +97,7 @@ bool run_UTest_HJIPDE_solve_minWith(
 
 		extraArgs.keepLast = false;
 		extraArgs.execParameters = execParameters;
-		HJIPDE* hjipde = new HJIPDE();
+		helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 		beacls::FloatVec stoptau;
 		std::vector<beacls::FloatVec > datas;
@@ -135,24 +135,24 @@ bool run_UTest_HJIPDE_solve_minWith(
 bool run_UTest_HJIPDE_solve_tvTarget(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& tau,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE radius,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 	std::vector<beacls::FloatVec> targets(tau.size());
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 	for (size_t i = 0; i < targets.size(); ++i) {
-		BasicShape* shape = new ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i+1)/tau.size()*radius);
+		levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i+1)/tau.size()*radius);
 		shape->execute(g, targets[i]);
 		delete shape;
 	}
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -160,7 +160,7 @@ bool run_UTest_HJIPDE_solve_tvTarget(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -196,14 +196,14 @@ bool run_UTest_HJIPDE_solve_tvTarget(
 bool run_UTest_HJIPDE_solve_singleObs(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& tau,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE radius,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 	std::vector<const beacls::FloatVec*> obstacles(1);
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
@@ -211,13 +211,13 @@ bool run_UTest_HJIPDE_solve_singleObs(
 	std::vector<beacls::FloatVec> targets(1);
 	targets[0] = data0;
 
-	BasicShape* shape = new ShapeCylinder(pdDims, center, (FLOAT_TYPE)(0.75*radius));
+	levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, (FLOAT_TYPE)(0.75*radius));
 	beacls::FloatVec obstacle;
 	shape->execute(g, obstacle);
 	obstacles[0] = &obstacle;
 	delete shape;
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -226,7 +226,7 @@ bool run_UTest_HJIPDE_solve_singleObs(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -263,14 +263,14 @@ bool run_UTest_HJIPDE_solve_singleObs(
 bool run_UTest_HJIPDE_solve_tvObs(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& tau,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE radius,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 	std::vector<const beacls::FloatVec*> obstacles(tau.size());
 	std::vector<beacls::FloatVec> obstacles_vec(tau.size());
 	beacls::FloatVec center{ 1.5,1.5,0. };
@@ -280,13 +280,13 @@ bool run_UTest_HJIPDE_solve_tvObs(
 	targets[0] = data0;
 
 	for (size_t i = 0; i < obstacles.size(); ++i) {
-		BasicShape* shape = new ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i+1) / obstacles.size()*radius);
+		levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i+1) / obstacles.size()*radius);
 		shape->execute(g, obstacles_vec[i]);
 		obstacles[i] = &obstacles_vec[i];
 		delete shape;
 	}
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -295,7 +295,7 @@ bool run_UTest_HJIPDE_solve_tvObs(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -332,13 +332,13 @@ bool run_UTest_HJIPDE_solve_tvObs(
 bool run_UTest_HJIPDE_solve_obs_stau(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE radius,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 	std::vector<const beacls::FloatVec*> obstacles(1);
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
@@ -346,7 +346,7 @@ bool run_UTest_HJIPDE_solve_obs_stau(
 	std::vector<beacls::FloatVec> targets(1);
 	targets[0] = data0;
 	beacls::FloatVec obstacle;
-	BasicShape* shape = new ShapeCylinder(pdDims, center, (FLOAT_TYPE)(0.75*radius));
+	levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, (FLOAT_TYPE)(0.75*radius));
 	shape->execute(g, obstacle);
 	obstacles[0] = &obstacle;
 	delete shape;
@@ -359,7 +359,7 @@ bool run_UTest_HJIPDE_solve_obs_stau(
 		local_tau[i] = local_tau_bottom + i * (local_tau_top - local_tau_bottom) / (local_tau_num - 1);
 	}
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -368,7 +368,7 @@ bool run_UTest_HJIPDE_solve_obs_stau(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -405,7 +405,7 @@ bool run_UTest_HJIPDE_solve_obs_stau(
 bool run_UTest_HJIPDE_solve_stopInit(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
@@ -418,7 +418,7 @@ bool run_UTest_HJIPDE_solve_stopInit(
 		local_tau[i] = local_tau_bottom + i * (local_tau_top - local_tau_bottom) / (local_tau_num - 1);
 	}
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -426,7 +426,7 @@ bool run_UTest_HJIPDE_solve_stopInit(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -463,15 +463,15 @@ bool run_UTest_HJIPDE_solve_stopInit(
 bool run_UTest_HJIPDE_solve_stopSetInclude(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 
 	beacls::FloatVec stopSetInclude;
-	BasicShape* shape = new ShapeSphere(beacls::FloatVec{(FLOAT_TYPE)-1.1, (FLOAT_TYPE)1.1, (FLOAT_TYPE)0}, (FLOAT_TYPE)0.5);
+	levelset::BasicShape* shape = new levelset::ShapeSphere(beacls::FloatVec{(FLOAT_TYPE)-1.1, (FLOAT_TYPE)1.1, (FLOAT_TYPE)0}, (FLOAT_TYPE)0.5);
 	shape->execute(g, stopSetInclude);
 	delete shape;
 
@@ -483,7 +483,7 @@ bool run_UTest_HJIPDE_solve_stopSetInclude(
 		local_tau[i] = local_tau_bottom + i * (local_tau_top - local_tau_bottom) / (local_tau_num - 1);
 	}
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -491,7 +491,7 @@ bool run_UTest_HJIPDE_solve_stopSetInclude(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -528,15 +528,15 @@ bool run_UTest_HJIPDE_solve_stopSetInclude(
 bool run_UTest_HJIPDE_solve_stopSetIntersect(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 
 	beacls::FloatVec stopSetIntersect;
-	BasicShape* shape = new ShapeSphere(beacls::FloatVec{-1.25, 1.25, 0}, 0.5);
+	levelset::BasicShape* shape = new levelset::ShapeSphere(beacls::FloatVec{-1.25, 1.25, 0}, 0.5);
 	shape->execute(g, stopSetIntersect);
 	delete shape;
 
@@ -548,7 +548,7 @@ bool run_UTest_HJIPDE_solve_stopSetIntersect(
 		local_tau[i] = local_tau_bottom + i * (local_tau_top - local_tau_bottom) / (local_tau_num - 1);
 	}
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -556,7 +556,7 @@ bool run_UTest_HJIPDE_solve_stopSetIntersect(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -593,13 +593,13 @@ bool run_UTest_HJIPDE_solve_stopSetIntersect(
 bool run_UTest_HJIPDE_solve_plotData(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE radius,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	const HJI_Grid *g = schemeData->get_grid();
+	const levelset::HJI_Grid *g = schemeData->get_grid();
 
 	FLOAT_TYPE local_tau_bottom = 0.;
 	FLOAT_TYPE local_tau_top = 2.;
@@ -615,14 +615,14 @@ bool run_UTest_HJIPDE_solve_plotData(
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 
 	for (size_t i = 0; i < obstacles.size(); ++i) {
-		BasicShape* shape = new ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i + 1) / obstacles.size()*radius);
+		levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i + 1) / obstacles.size()*radius);
 		shape->execute(g, obstacles_vec[i]);
 		obstacles[i] = &obstacles_vec[i];
 		delete shape;
 	}
 
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_None;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -630,7 +630,7 @@ bool run_UTest_HJIPDE_solve_plotData(
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -667,20 +667,20 @@ bool run_UTest_HJIPDE_solve_plotData(
 bool run_UTest_HJIPDE_solve_savedData(
 	std::string &message,
 	const std::vector<std::vector<beacls::FloatVec > >& expected_datas,
-	DynSysSchemeData* schemeData,
+	helperOC::DynSysSchemeData* schemeData,
 	beacls::FloatVec& tau,
 	beacls::FloatVec& data0,
 	const FLOAT_TYPE small,
 	const helperOC::ExecParameters& execParameters
 ) {
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_Zero;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_Zero;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
 
 	extraArgs.keepLast = false;
 	extraArgs.execParameters = execParameters;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas1;
@@ -807,19 +807,19 @@ bool run_UTest_HJIPDE_solve_stopConverge(
 
 
 
-	HJI_Grid* g = createGrid(grid_min, grid_max, Ns, pdDims);
-	BasicShape* shape;
+	levelset::HJI_Grid* g = helperOC::createGrid(grid_min, grid_max, Ns, pdDims);
+	levelset::BasicShape* shape;
 	beacls::FloatVec center{ 0.,0.,0. };	//!< Center coordinate
-	shape = new ShapeCylinder(pdDims, center, captureRadius);
+	shape = new levelset::ShapeCylinder(pdDims, center, captureRadius);
 	beacls::FloatVec data0;
 	shape->execute(g, data0);
 	if (shape) delete shape;
 
-    DynSys* dynSys;
+    helperOC::DynSys* dynSys;
     if(isDubinsCarCAvoidModel)
-        dynSys = new DubinsCarCAvoid(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, uMax, dMax, va, vb);
+        dynSys = new helperOC::DubinsCarCAvoid(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, uMax, dMax, va, vb);
     else
-        dynSys = new DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, wMax, speed);
+        dynSys = new helperOC::DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, wMax, speed);
     
     //!< time vector
 	FLOAT_TYPE t0 = 0;
@@ -827,14 +827,14 @@ bool run_UTest_HJIPDE_solve_stopConverge(
 	FLOAT_TYPE dt = (FLOAT_TYPE)0.01;
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(t0, dt, tMax);
 
-	DynSysSchemeData* schemeData = new DynSysSchemeData;
+	helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData;
 	schemeData->set_grid(g);	//!< Grid MUST be specified!
 								//!<Dynamical system parameters
 	schemeData->dynSys = dynSys;
-	schemeData->uMode = DynSys_UMode_Max;
-	schemeData->dMode = DynSys_DMode_Min;
+	schemeData->uMode = helperOC::DynSys_UMode_Max;
+	schemeData->dMode = helperOC::DynSys_DMode_Min;
 
-	HJIPDE::MinWithType minWith = HJIPDE::MinWithType_Zero;
+	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_Zero;
 	bool result = true;
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
@@ -844,7 +844,7 @@ bool run_UTest_HJIPDE_solve_stopConverge(
 
 	extraArgs.stopConverge = true;
 	extraArgs.convergeThreshold = (FLOAT_TYPE)1e-3;
-	HJIPDE* hjipde = new HJIPDE();
+	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
@@ -892,7 +892,7 @@ bool run_UTest_HJIPDE_solve(
 	const size_t chunk_size,
 	const int num_of_threads,
 	const int num_of_gpus,
-	const beacls::DelayedDerivMinMax_Type delayedDerivMinMax,
+	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu
 ) {
 	helperOC::ExecParameters execParameters;
@@ -937,11 +937,11 @@ bool run_UTest_HJIPDE_solve(
 	beacls::IntegerVec	Ns = beacls::IntegerVec{ 41, 41, 41 };	//!< Number of grid points per dimension
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 
-	HJI_Grid* g = createGrid(grid_min, grid_max, Ns, pdDims);
+	levelset::HJI_Grid* g = helperOC::createGrid(grid_min, grid_max, Ns, pdDims);
 	// state space dimensions
 
 	// target set
-	BasicShape* shape;
+	levelset::BasicShape* shape;
 	FLOAT_TYPE radius = 1;
 	beacls::FloatVec center{ 0.,0.,0.};	//!< Center coordinate
 	switch (shapeType) {
@@ -954,16 +954,16 @@ bool run_UTest_HJIPDE_solve(
 		}
 		return false;
 	case HJIPDE_solve_Shape_Cylinder:
-		shape = new ShapeCylinder(pdDims, center, radius);
+		shape = new levelset::ShapeCylinder(pdDims, center, radius);
 		break;
 	case HJIPDE_solve_Shape_Sphere:
-		shape = new ShapeSphere(center, radius);
+		shape = new levelset::ShapeSphere(center, radius);
 		break;
 	case HJIPDE_solve_Shape_RectangleByCorner:
-		shape = new ShapeRectangleByCorner(beacls::FloatVec{-radius, -radius, -radius}, beacls::FloatVec{radius, radius, radius});
+		shape = new levelset::ShapeRectangleByCorner(beacls::FloatVec{-radius, -radius, -radius}, beacls::FloatVec{radius, radius, radius});
 		break;
 	case HJIPDE_solve_Shape_RectangleByCenter:
-		shape = new ShapeRectangleByCenter(center, beacls::FloatVec{radius,radius,radius});
+		shape = new levelset::ShapeRectangleByCenter(center, beacls::FloatVec{radius,radius,radius});
 		break;
 	}
 	beacls::FloatVec data0;
@@ -982,10 +982,10 @@ bool run_UTest_HJIPDE_solve(
 	FLOAT_TYPE wMax = 1;
 
 	//!< Pack problem parameters
-	DynSysSchemeData* schemeData = new DynSysSchemeData;
+	helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData;
 	schemeData->set_grid(g);	//!< Grid MUST be specified!
 	//!<Dynamical system parameters
-	DubinsCar* dCar = new DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, wMax, speed);
+	helperOC::DubinsCar* dCar = new helperOC::DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, wMax, speed);
 	schemeData->dynSys = dCar;
 
 	bool result = true;

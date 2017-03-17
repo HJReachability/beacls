@@ -16,14 +16,14 @@ namespace MyPlane_CUDA {
 		const FLOAT_TYPE wMax,
 		const FLOAT_TYPE vrange_min,
 		const FLOAT_TYPE vrange_max,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	);
 	bool optDstb_execute_cuda(
 		std::vector<beacls::UVec>& d_uvecs,
 		const std::vector<beacls::UVec>& x_uvecs,
 		const std::vector<beacls::UVec>& deriv_uvecs,
 		const beacls::FloatVec& dMax,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 	);
 	bool dynamics_cell_helper_execute_cuda_dimAll(
 		std::vector<beacls::UVec>& dx_uvecs,

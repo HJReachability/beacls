@@ -9,6 +9,7 @@
 #include <levelset/SpatialDerivative/SpatialDerivative.hpp>
 #include <levelset/ExplicitIntegration/Dissipations/Dissipation.hpp>
 #include <Core/CacheTag.hpp>
+using namespace levelset;
 
 TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(
 	const SchemeData* schemeData,
@@ -20,7 +21,7 @@ TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(
 	deriv_r_uvecs(num_of_dimensions),
 	deriv_c_uvecs(num_of_dimensions),
 	type(type),
-	cacheTag(new beacls::CacheTag())
+	cacheTag(new levelset::CacheTag())
 	{
 }
 TermLaxFriedrichs_impl::~TermLaxFriedrichs_impl() {
@@ -31,7 +32,7 @@ TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(const TermLaxFriedrichs_impl& rhs
 	first_dimension_loop_size(rhs.first_dimension_loop_size),
 	num_of_dimensions(rhs.num_of_dimensions),
 	type(rhs.type),
-	cacheTag(new beacls::CacheTag())
+	cacheTag(new levelset::CacheTag())
 {
 	deriv_l_uvecs.resize(rhs.deriv_l_uvecs.size());
 	deriv_r_uvecs.resize(rhs.deriv_r_uvecs.size());

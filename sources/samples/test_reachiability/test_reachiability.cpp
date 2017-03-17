@@ -50,18 +50,18 @@ int main(int argc, char *argv[])
 	if (argc >= 6) {
 		num_of_gpus = atoi(argv[5]);
 	}
-	beacls::DelayedDerivMinMax_Type delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+	levelset::DelayedDerivMinMax_Type delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 	if (argc >= 7) {
 		switch (atoi(argv[6])) {
 		default:
 		case 0:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Disable;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Disable;
 			break;
 		case 1:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Always;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Always;
 			break;
 		case 2:
-			delayedDerivMinMax = beacls::DelayedDerivMinMax_Adaptive;
+			delayedDerivMinMax = levelset::DelayedDerivMinMax_Adaptive;
 			break;
 		}
 	}
@@ -88,12 +88,12 @@ int main(int argc, char *argv[])
 		beacls::FloatVec{(FLOAT_TYPE)0.0, (FLOAT_TYPE)0.0, (FLOAT_TYPE)0.0} //!< Indicate whether or not these properties are known and should be fixed
 	);
 
-	ShapeRectangleByCorner *shape = new ShapeRectangleByCorner(
+	levelset::ShapeRectangleByCorner *shape = new levelset::ShapeRectangleByCorner(
 		beacls::FloatVec{(FLOAT_TYPE)0.5, (FLOAT_TYPE)-3.5, (FLOAT_TYPE)-6.0e16},
 		beacls::FloatVec{(FLOAT_TYPE)2.8, (FLOAT_TYPE) 3.5, (FLOAT_TYPE)6.0e16});
 
-	AddGhostExtrapolate *addGhostExtrapolate = new AddGhostExtrapolate();
-	std::vector<BoundaryCondition*> boundaryConditions(3);
+	levelset::AddGhostExtrapolate *addGhostExtrapolate = new levelset::AddGhostExtrapolate();
+	std::vector<levelset::BoundaryCondition*> boundaryConditions(3);
 	boundaryConditions[0] = addGhostExtrapolate;
 	boundaryConditions[1] = addGhostExtrapolate;
 	boundaryConditions[2] = addGhostExtrapolate;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 	const beacls::FloatVec& ths = innerData->ths;
 	beacls::FloatVec mins{ xs[0],vs[0],ths[0] };
 	beacls::FloatVec maxs{ xs[xs.size() - 1],vs[vs.size() - 1],ths[ths.size() - 1] };
-	HJI_Grid *hJI_Grid = new HJI_Grid(
+	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(
 		num_of_dimensions);
 	std::vector<beacls::FloatVec > vss(num_of_dimensions);
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
@@ -123,12 +123,12 @@ int main(int argc, char *argv[])
 
 	const beacls::UVecType type = useCuda ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
 
-	UpwindFirstENO2 *spatialDerivative = new UpwindFirstENO2(hJI_Grid, type);
+	levelset::UpwindFirstENO2 *spatialDerivative = new levelset::UpwindFirstENO2(hJI_Grid, type);
 
 
-	ArtificialDissipationGLF *dissipation = new ArtificialDissipationGLF();
+	levelset::ArtificialDissipationGLF *dissipation = new levelset::ArtificialDissipationGLF();
 
-	std::vector<beacls::PostTimestep_Exec_Type*> postTimestep_Execs;
+	std::vector<levelset::PostTimestep_Exec_Type*> postTimestep_Execs;
 
 	innerData->set_spatialDerivative(spatialDerivative);
 	innerData->set_dissipation(dissipation);
@@ -137,8 +137,8 @@ int main(int argc, char *argv[])
 	//	innerData->set_hamiltonJacobiFunction(hamiltonJacobiFunction);
 	//	innerData->set_partialFunction(partialFunction);
 
-	TermLaxFriedrichs *innerFunc = new TermLaxFriedrichs(innerData, type);
-	TermRestrictUpdate *schemeFunc = new TermRestrictUpdate();
+	levelset::TermLaxFriedrichs *innerFunc = new levelset::TermLaxFriedrichs(innerData, type);
+	levelset::TermRestrictUpdate *schemeFunc = new levelset::TermRestrictUpdate();
 	IgsolrSchemeData *schemeData = new IgsolrSchemeData();
 
 	schemeData->set_grid(hJI_Grid);
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 	schemeData->set_innerData(innerData);
 	schemeData->set_positive(false);
 
-	Integrator *integrator = new OdeCFL2(schemeFunc, (FLOAT_TYPE)0.75, (FLOAT_TYPE) 8.0e16, postTimestep_Execs, false, false, NULL);
+	levelset::Integrator *integrator = new levelset::OdeCFL2(schemeFunc, (FLOAT_TYPE)0.75, (FLOAT_TYPE) 8.0e16, postTimestep_Execs, false, false, NULL);
 
 	beacls::FloatVec data;
 	shape->execute(hJI_Grid, data);

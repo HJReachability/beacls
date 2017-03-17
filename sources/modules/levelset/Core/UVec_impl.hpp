@@ -351,6 +351,6 @@ const void* UVec_impl::vec_ptr() const {
 }
 
 
-}	// bears
+}	// beacls
 #endif	/* __UVec_impl_hpp__ */
 

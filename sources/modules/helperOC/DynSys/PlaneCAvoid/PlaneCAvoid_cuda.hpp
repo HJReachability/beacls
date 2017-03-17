@@ -15,7 +15,7 @@ namespace PlaneCAvoid_CUDA {
 		const std::vector<beacls::UVec>& deriv_uvecs,
 		const FLOAT_TYPE wMaxA,
 		const beacls::FloatVec& vRangeA,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	);
 	bool optDstb_execute_cuda(
 		std::vector<beacls::UVec>& d_uvecs,
@@ -25,7 +25,7 @@ namespace PlaneCAvoid_CUDA {
 		const beacls::FloatVec& dMaxB,
 		const beacls::FloatVec& vRangeB,
 		const FLOAT_TYPE wMaxB,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 
 	);
 	bool dynamics_cell_helper_execute_cuda_dimAll(

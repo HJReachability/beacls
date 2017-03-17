@@ -41,6 +41,6 @@ namespace beacls
 		cudaStream_t get_stream(const beacls::UVec& src);
 #endif
 
-};	// bears
+};	// beacls
 #endif	/* __CudaStream_hpp__ */
 

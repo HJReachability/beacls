@@ -78,115 +78,115 @@ namespace beacls {
 		size_t getCellSize(
 			MatVariable* variable_ptr);
 };
+namespace levelset {
+	class BoundaryCondition;
 
-class BoundaryCondition;
+	class HJI_Grid_impl;
 
-class HJI_Grid_impl;
+	class HJI_Grid {
+	public:
+	private:
+		HJI_Grid_impl *pimpl;
+		const std::vector<FLOAT_TYPE> dummy_float_type_vector;	//! dummy result for if pimpl is invalid;
+		const std::vector<std::vector<FLOAT_TYPE> > dummy_float_type_vector_vector;	//! dummy result for if pimpl is invalid;
+		const std::vector<size_t> dummy_size_t_vector;
+	public:
 
-class HJI_Grid {
-public:
-private:
-	HJI_Grid_impl *pimpl;
-	const std::vector<FLOAT_TYPE> dummy_float_type_vector;	//! dummy result for if pimpl is invalid;
-	const std::vector<std::vector<FLOAT_TYPE> > dummy_float_type_vector_vector;	//! dummy result for if pimpl is invalid;
-	const std::vector<size_t> dummy_size_t_vector;
-public:
+		PREFIX_VC_DLL
+			HJI_Grid(
+			);
+		PREFIX_VC_DLL
+			HJI_Grid(
+				const size_t num_of_dimensions
+			);
+		HJI_Grid(HJI_Grid_impl* pimpl);
+		PREFIX_VC_DLL
+			~HJI_Grid();
+		PREFIX_VC_DLL
+			bool operator==(const HJI_Grid& rhs) const;
+		PREFIX_VC_DLL
+			size_t get_sum_of_elems() const;
+		PREFIX_VC_DLL
+			size_t get_num_of_dimensions() const;
 
-	PREFIX_VC_DLL
-		HJI_Grid(
-		);
-	PREFIX_VC_DLL
-		HJI_Grid(
-			const size_t num_of_dimensions
-		);
-	HJI_Grid(HJI_Grid_impl* pimpl);
-	PREFIX_VC_DLL
-		~HJI_Grid();
-	PREFIX_VC_DLL
-		bool operator==(const HJI_Grid& rhs) const;
-	PREFIX_VC_DLL
-		size_t get_sum_of_elems() const;
-	PREFIX_VC_DLL
-		size_t get_num_of_dimensions() const;
+		PREFIX_VC_DLL
+			void set_num_of_dimensions(size_t num_of_dimensions);
+		PREFIX_VC_DLL
+			void set_mins(const std::vector<FLOAT_TYPE>& mins);
+		PREFIX_VC_DLL
+			void set_maxs(const std::vector<FLOAT_TYPE>& maxs);
+		PREFIX_VC_DLL
+			void set_boundaryConditions(const std::vector<BoundaryCondition*>& boundaryConditions);
+		PREFIX_VC_DLL
+			void set_Ns(const std::vector<size_t>& Ns);
+		PREFIX_VC_DLL
+			void set_dxs(const std::vector<FLOAT_TYPE>& dxs);
+		PREFIX_VC_DLL
+			void set_vss(const std::vector<std::vector<FLOAT_TYPE> >& vss);
+		PREFIX_VC_DLL
+			void set_xss(const std::vector<std::vector<FLOAT_TYPE> >& xss);
+		PREFIX_VC_DLL
+			void set_axis(const std::vector<FLOAT_TYPE>& axis);
+		PREFIX_VC_DLL
+			void set_shape(const std::vector<size_t>& shape);
 
-	PREFIX_VC_DLL
-		void set_num_of_dimensions(size_t num_of_dimensions);
-	PREFIX_VC_DLL
-		void set_mins(const std::vector<FLOAT_TYPE>& mins);
-	PREFIX_VC_DLL
-		void set_maxs(const std::vector<FLOAT_TYPE>& maxs);
-	PREFIX_VC_DLL
-		void set_boundaryConditions(const std::vector<BoundaryCondition*>& boundaryConditions);
-	PREFIX_VC_DLL
-		void set_Ns(const std::vector<size_t>& Ns);
-	PREFIX_VC_DLL
-		void set_dxs(const std::vector<FLOAT_TYPE>& dxs);
-	PREFIX_VC_DLL
-		void set_vss(const std::vector<std::vector<FLOAT_TYPE> >& vss);
-	PREFIX_VC_DLL
-		void set_xss(const std::vector<std::vector<FLOAT_TYPE> >& xss);
-	PREFIX_VC_DLL
-		void set_axis(const std::vector<FLOAT_TYPE>& axis);
-	PREFIX_VC_DLL
-		void set_shape(const std::vector<size_t>& shape);
+		PREFIX_VC_DLL
+			const std::vector<FLOAT_TYPE>& get_mins() const;
+		PREFIX_VC_DLL
+			const std::vector<FLOAT_TYPE>& get_maxs() const;
+		PREFIX_VC_DLL
+			BoundaryCondition* get_boundaryCondition(const size_t dimension) const;
+		PREFIX_VC_DLL
+			const std::vector<size_t>& get_Ns() const;
+		PREFIX_VC_DLL
+			size_t get_N(const size_t dimension) const;
+		const std::vector<FLOAT_TYPE>& get_dxs() const;
+		const std::vector<FLOAT_TYPE>& get_dxInvs() const;
+		PREFIX_VC_DLL
+			FLOAT_TYPE get_dx(const size_t dimension) const;
+		FLOAT_TYPE get_dxInv(const size_t dimension) const;
+		PREFIX_VC_DLL
+			const std::vector<std::vector<FLOAT_TYPE> >& get_vss() const;
+		PREFIX_VC_DLL
+			const std::vector<std::vector<FLOAT_TYPE> >& get_xss() const;
+		PREFIX_VC_DLL
+			const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const;
+		PREFIX_VC_DLL
+			const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const;
+		const std::vector<FLOAT_TYPE>& get_axis() const;
+		const std::vector<size_t>& get_shape() const;
 
-	PREFIX_VC_DLL
-		const std::vector<FLOAT_TYPE>& get_mins() const;
-	PREFIX_VC_DLL
-		const std::vector<FLOAT_TYPE>& get_maxs() const;
-	PREFIX_VC_DLL
-		BoundaryCondition* get_boundaryCondition(const size_t dimension) const;
-	PREFIX_VC_DLL
-		const std::vector<size_t>& get_Ns() const;
-	PREFIX_VC_DLL
-		size_t get_N(const size_t dimension) const;
-	const std::vector<FLOAT_TYPE>& get_dxs() const;
-	const std::vector<FLOAT_TYPE>& get_dxInvs() const;
-	PREFIX_VC_DLL
-		FLOAT_TYPE get_dx(const size_t dimension) const;
-	FLOAT_TYPE get_dxInv(const size_t dimension) const;
-	PREFIX_VC_DLL
-		const std::vector<std::vector<FLOAT_TYPE> >& get_vss() const;
-	PREFIX_VC_DLL
-		const std::vector<std::vector<FLOAT_TYPE> >& get_xss() const;
-	PREFIX_VC_DLL
-		const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const;
-	PREFIX_VC_DLL
-		const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const;
-	const std::vector<FLOAT_TYPE>& get_axis() const;
-	const std::vector<size_t>& get_shape() const;
+		PREFIX_VC_DLL
+			bool processGrid(const std::vector<FLOAT_TYPE> &data = std::vector<FLOAT_TYPE>());
 
-	PREFIX_VC_DLL
-		bool processGrid(const std::vector<FLOAT_TYPE> &data = std::vector<FLOAT_TYPE>());
+		PREFIX_VC_DLL
+			bool save_grid(
+				const std::string &variable_name,
+				beacls::MatFStream* fs,
+				beacls::MatVariable* parent = NULL,
+				const size_t cell_index = 0,
+				const bool compress = true
+			) const;
+		PREFIX_VC_DLL
+			bool load_grid(
+				const std::string &variable_name,
+				beacls::MatFStream* fs,
+				beacls::MatVariable* parent = NULL,
+				const size_t cell_index = 0);
 
-	PREFIX_VC_DLL
-		bool save_grid(
-			const std::string &variable_name,
-			beacls::MatFStream* fs,
-			beacls::MatVariable* parent = NULL,
-			const size_t cell_index = 0,
-			const bool compress = true
-		) const;
-	PREFIX_VC_DLL
-		bool load_grid(
-			const std::string &variable_name,
-			beacls::MatFStream* fs,
-			beacls::MatVariable* parent = NULL,
-			const size_t cell_index = 0);
-
-	PREFIX_VC_DLL
-		HJI_Grid* clone(const bool cloneAll = true) const;
-private:
-	/** @overload
-	Disable operator=
-	*/
-	HJI_Grid& operator=(const HJI_Grid& rhs);
-	/** @overload
-	Disable copy constructor
-	*/
-	HJI_Grid(const HJI_Grid& rhs);
+		PREFIX_VC_DLL
+			HJI_Grid* clone(const bool cloneAll = true) const;
+	private:
+		/** @overload
+		Disable operator=
+		*/
+		HJI_Grid& operator=(const HJI_Grid& rhs);
+		/** @overload
+		Disable copy constructor
+		*/
+		HJI_Grid(const HJI_Grid& rhs);
+	};
 };
-
 /*
 @brief	Dump vector to text file.
 @param	[in]	file_name	Filename.

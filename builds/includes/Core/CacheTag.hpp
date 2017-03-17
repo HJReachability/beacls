@@ -13,7 +13,7 @@
 #include <typedef.hpp>
 #include <cstdint>
 #include <cstddef>
-namespace beacls
+namespace levelset
 {
 	class CacheTag_impl;
 
@@ -44,6 +44,6 @@ namespace beacls
 			CacheTag(const CacheTag& rhs);
 	};
 
-}	// bears
+}	// beacls
 #endif	/* __CacheTag_hpp__ */
 
