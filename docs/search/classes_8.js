@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['kinvehiclend',['KinVehicleND',['../d0/d66/classKinVehicleND.html',1,'']]]
+  ['kinvehiclend',['KinVehicleND',['../dd/d68/classhelperOC_1_1KinVehicleND.html',1,'helperOC']]]
 ];

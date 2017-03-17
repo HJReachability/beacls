@@ -1,11 +1,11 @@
 var searchData=
 [
-  ['marker',['Marker',['../dc/d21/classHPxPy.html#ac427edeb9552d4f6264191873bd3f4cf',1,'HPxPy']]],
-  ['markerfacecolor',['MarkerFaceColor',['../dc/d21/classHPxPy.html#a583668b20ead544d5a83f3dabf1487a4',1,'HPxPy']]],
-  ['markersize',['MarkerSize',['../dc/d21/classHPxPy.html#a6a667e6a65bac98f27400faa37901193',1,'HPxPy::MarkerSize()'],['../da/d04/classhelperOC_1_1PlotExtraArgs.html#a2f026688c767f12bad19ff74e624e1e7',1,'helperOC::PlotExtraArgs::MarkerSize()']]],
+  ['marker',['Marker',['../da/d8f/classhelperOC_1_1HPxPy.html#aa8e735dc8a80acb6751a531b0ca70679',1,'helperOC::HPxPy']]],
+  ['markerfacecolor',['MarkerFaceColor',['../da/d8f/classhelperOC_1_1HPxPy.html#a6ea11f4a06a0c3a2655c1aa010698763',1,'helperOC::HPxPy']]],
+  ['markersize',['MarkerSize',['../da/d8f/classhelperOC_1_1HPxPy.html#ac09a3c54d3ec9a29d509f796dda8b010',1,'helperOC::HPxPy::MarkerSize()'],['../da/d04/classhelperOC_1_1PlotExtraArgs.html#a2f026688c767f12bad19ff74e624e1e7',1,'helperOC::PlotExtraArgs::MarkerSize()']]],
   ['max_5fnum_5fof_5fthreads',['max_num_of_threads',['../db/d52/UpwindFirstENO3aHelper__cuda_8hpp.html#a2e8a0c671186fec1e61745fceb164af4',1,'max_num_of_threads():&#160;UpwindFirstENO3aHelper_cuda.hpp'],['../da/d0e/UpwindFirstWENO5a__cuda_8hpp.html#a2e8a0c671186fec1e61745fceb164af4',1,'max_num_of_threads():&#160;UpwindFirstWENO5a_cuda.hpp']]],
-  ['maxdimension',['maxDimension',['../dd/df3/HJI__Grid__impl_8hpp.html#ad8fb8895d927549748d24865de5dbbeb',1,'HJI_Grid_impl.hpp']]],
-  ['maxheadsize',['MaxHeadSize',['../dc/d21/classHPxPy.html#ad810a53da38eb3d001053a183143d035',1,'HPxPy']]],
-  ['miederivs',['MIEderivs',['../db/d74/classDynSysSchemeData.html#a5704cef7ec2fbff33af586732ee65fab',1,'DynSysSchemeData']]],
-  ['miedims',['MIEdims',['../db/d74/classDynSysSchemeData.html#a9f4badf31b1d01897e1847d0ca4b40db',1,'DynSysSchemeData']]]
+  ['maxdimension',['maxDimension',['../d9/d85/namespacelevelset.html#a93c24beb665a88196f3819748a88042e',1,'levelset']]],
+  ['maxheadsize',['MaxHeadSize',['../da/d8f/classhelperOC_1_1HPxPy.html#a3e494cc725d61a6eb9a403ec152d14d1',1,'helperOC::HPxPy']]],
+  ['miederivs',['MIEderivs',['../d1/d0a/classhelperOC_1_1DynSysSchemeData.html#abb503d2115453ddba3dc70b00da887da',1,'helperOC::DynSysSchemeData']]],
+  ['miedims',['MIEdims',['../d1/d0a/classhelperOC_1_1DynSysSchemeData.html#a2d81e7d0137afbf85bda511af33c21fc',1,'helperOC::DynSysSchemeData']]]
 ];

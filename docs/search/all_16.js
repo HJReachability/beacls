@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['xdata',['XData',['../dc/d21/classHPxPy.html#a4bd8c54f26c400a9cddec2a8d38cff29',1,'HPxPy']]]
+  ['xdata',['XData',['../da/d8f/classhelperOC_1_1HPxPy.html#a5b4a819aa99e4e3aec81992c7875be76',1,'helperOC::HPxPy']]]
 ];
