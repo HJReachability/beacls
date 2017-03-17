@@ -54,6 +54,66 @@ namespace helperOC {
 		/*
 		@brief Solves HJIPDE with initial conditions data0, at times tau, and with
 		parameters schemeData and extraArgs
+		@param	[out]	dst_datas	solution corresponding to grid g and time vector tau
+		@param	[out]	dst_tau		list of computation times (redundant)
+		@param	[out]	extraOuts	extra outputs
+		@param	[in]	src_datas		initial value function
+		@param	[in]	src_tau			list of computation times
+		@param	[in]	SchemeData	problem parameters passed into the Hamiltonian function
+		grid: grid (required!)
+		@param	[in]	minWith
+		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
+		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@param	[in]	extraArgs	this structure can be used to leverage other additional
+		functionalities within this functionouts
+		@param	[in]	quiet
+		@arg	true	:	quiet mode
+		@arg	false	:	verbose mode (default)
+		*/
+		PREFIX_VC_DLL
+			bool solve(
+				std::vector<beacls::FloatVec >& dst_datas,
+				beacls::FloatVec& dst_tau,
+				helperOC::HJIPDE_extraOuts& extraOuts,
+				const std::vector<beacls::FloatVec >& src_datas,
+				const beacls::FloatVec& src_tau,
+				const DynSysSchemeData* schemeData,
+				const MinWithType minWith = MinWithType_Zero,
+				const helperOC::HJIPDE_extraArgs& extraArgs = helperOC::HJIPDE_extraArgs()
+			);
+		/*
+		@brief Solves HJIPDE with initial conditions data0, at times tau, and with
+		parameters schemeData and extraArgs
+		@param	[out]	dst_datas	solution corresponding to grid g and time vector tau
+		@param	[out]	dst_tau		list of computation times (redundant)
+		@param	[out]	extraOuts	extra outputs
+		@param	[in]	src_data		initial value function
+		@param	[in]	src_tau			list of computation times
+		@param	[in]	SchemeData	problem parameters passed into the Hamiltonian function
+		grid: grid (required!)
+		@param	[in]	minWith
+		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
+		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@param	[in]	extraArgs	this structure can be used to leverage other additional
+		functionalities within this functionouts
+		@param	[in]	quiet
+		@arg	true	:	quiet mode
+		@arg	false	:	verbose mode (default)
+		*/
+		PREFIX_VC_DLL
+			bool solve(
+				std::vector<beacls::FloatVec >& dst_datas,
+				beacls::FloatVec& dst_tau,
+				helperOC::HJIPDE_extraOuts& extraOuts,
+				const beacls::FloatVec& src_data,
+				const beacls::FloatVec& src_tau,
+				const DynSysSchemeData* schemeData,
+				const MinWithType minWith = MinWithType_Zero,
+				const helperOC::HJIPDE_extraArgs& extraArgs = helperOC::HJIPDE_extraArgs()
+			);
+		/*
+		@brief Solves HJIPDE with initial conditions data0, at times tau, and with
+		parameters schemeData and extraArgs
 		@param	[out]	dst_tau		list of computation times (redundant)
 		@param	[out]	extraOuts	extra outputs
 		@param	[in]	src_datas		initial value function

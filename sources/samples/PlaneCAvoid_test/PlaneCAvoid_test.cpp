@@ -136,9 +136,8 @@ int main(int argc, char *argv[])
 	//!< Call solver and save
 
 	beacls::FloatVec tau2;
-	hjipde->solve(tau2, extraOuts, data0, tau, sD, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 	std::vector<beacls::FloatVec > datas;
-	hjipde->get_datas(datas, tau, sD);
+	hjipde->solve(datas, tau2, extraOuts, data0, tau, sD, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 	if (hjipde) delete hjipde;
 
 	beacls::UVecType execType = useCuda ? beacls::UVecType_Cuda : beacls::UVecType_Vector;

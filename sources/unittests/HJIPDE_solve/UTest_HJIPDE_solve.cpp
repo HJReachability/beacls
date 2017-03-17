@@ -87,7 +87,7 @@ bool run_UTest_HJIPDE_solve_minWith(
 	/*!< selecting 'zero' computes reachable tube(usually, choose this option)
 		selecting 'none' computes reachable set
 		selecting 'data0' computes reachable tube, but only use this if there are
-		obstacles(constraint / avoid sets) in the state space
+		obstacles_ptrs(constraint / avoid sets) in the state space
 		*/
 	std::vector<helperOC::HJIPDE::MinWithType> minWiths{helperOC::HJIPDE::MinWithType_None, helperOC::HJIPDE::MinWithType_Zero};
 	bool result = true;
@@ -102,8 +102,7 @@ bool run_UTest_HJIPDE_solve_minWith(
 		beacls::FloatVec stoptau;
 		std::vector<beacls::FloatVec > datas;
 		const std::vector<beacls::FloatVec >& expected_datas_i = expected_datas[i];
-		hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, minWiths[i], extraArgs);
-		hjipde->get_datas(datas, tau, schemeData);
+		hjipde->solve(datas, stoptau, extraOuts, data0, tau, schemeData, minWiths[i], extraArgs);
 
 		if (datas.empty()) {
 			std::stringstream ss;
@@ -165,8 +164,7 @@ bool run_UTest_HJIPDE_solve_tvTarget(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -204,7 +202,7 @@ bool run_UTest_HJIPDE_solve_singleObs(
 	const helperOC::ExecParameters& execParameters
 ) {
 	const levelset::HJI_Grid *g = schemeData->get_grid();
-	std::vector<const beacls::FloatVec*> obstacles(1);
+	std::vector<beacls::FloatVec> obstacles(1);
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 
@@ -212,9 +210,7 @@ bool run_UTest_HJIPDE_solve_singleObs(
 	targets[0] = data0;
 
 	levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, (FLOAT_TYPE)(0.75*radius));
-	beacls::FloatVec obstacle;
-	shape->execute(g, obstacle);
-	obstacles[0] = &obstacle;
+	shape->execute(g, obstacles[0]);
 	delete shape;
 
 	helperOC::HJIPDE::MinWithType minWith = helperOC::HJIPDE::MinWithType_None;
@@ -231,8 +227,7 @@ bool run_UTest_HJIPDE_solve_singleObs(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -271,8 +266,7 @@ bool run_UTest_HJIPDE_solve_tvObs(
 	const helperOC::ExecParameters& execParameters
 ) {
 	const levelset::HJI_Grid *g = schemeData->get_grid();
-	std::vector<const beacls::FloatVec*> obstacles(tau.size());
-	std::vector<beacls::FloatVec> obstacles_vec(tau.size());
+	std::vector<beacls::FloatVec> obstacles(tau.size());
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 
@@ -281,8 +275,7 @@ bool run_UTest_HJIPDE_solve_tvObs(
 
 	for (size_t i = 0; i < obstacles.size(); ++i) {
 		levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i+1) / obstacles.size()*radius);
-		shape->execute(g, obstacles_vec[i]);
-		obstacles[i] = &obstacles_vec[i];
+		shape->execute(g, obstacles[i]);
 		delete shape;
 	}
 
@@ -300,9 +293,8 @@ bool run_UTest_HJIPDE_solve_tvObs(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, tau, schemeData);
-
+	hjipde->solve(datas, stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
+	
 	if (datas.empty()) {
 		std::stringstream ss;
 		ss << "Error result is empty" << std::endl;
@@ -339,16 +331,14 @@ bool run_UTest_HJIPDE_solve_obs_stau(
 	const helperOC::ExecParameters& execParameters
 ) {
 	const levelset::HJI_Grid *g = schemeData->get_grid();
-	std::vector<const beacls::FloatVec*> obstacles(1);
+	std::vector<beacls::FloatVec> obstacles(1);
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 
 	std::vector<beacls::FloatVec> targets(1);
 	targets[0] = data0;
-	beacls::FloatVec obstacle;
 	levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, (FLOAT_TYPE)(0.75*radius));
-	shape->execute(g, obstacle);
-	obstacles[0] = &obstacle;
+	shape->execute(g, obstacles[0]);
 	delete shape;
 
 	FLOAT_TYPE local_tau_bottom = 0.;
@@ -373,8 +363,7 @@ bool run_UTest_HJIPDE_solve_obs_stau(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, local_tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -431,8 +420,7 @@ bool run_UTest_HJIPDE_solve_stopInit(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, local_tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -496,8 +484,7 @@ bool run_UTest_HJIPDE_solve_stopSetInclude(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, local_tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -561,8 +548,7 @@ bool run_UTest_HJIPDE_solve_stopSetIntersect(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, local_tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -609,15 +595,13 @@ bool run_UTest_HJIPDE_solve_plotData(
 		local_tau[i] = local_tau_bottom + i * (local_tau_top - local_tau_bottom) / (local_tau_num - 1);
 	}
 
-	std::vector<const beacls::FloatVec*> obstacles(local_tau.size());
-	std::vector<beacls::FloatVec> obstacles_vec(local_tau.size());
+	std::vector<beacls::FloatVec> obstacles(local_tau.size());
 	beacls::FloatVec center{ 1.5,1.5,0. };
 	beacls::IntegerVec pdDims{ 2 };	//!< 2nd diemension is periodic
 
 	for (size_t i = 0; i < obstacles.size(); ++i) {
 		levelset::BasicShape* shape = new levelset::ShapeCylinder(pdDims, center, ((FLOAT_TYPE)i + 1) / obstacles.size()*radius);
-		shape->execute(g, obstacles_vec[i]);
-		obstacles[i] = &obstacles_vec[i];
+		shape->execute(g, obstacles[i]);
 		delete shape;
 	}
 
@@ -635,8 +619,7 @@ bool run_UTest_HJIPDE_solve_plotData(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, local_tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, local_tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;
@@ -685,8 +668,7 @@ bool run_UTest_HJIPDE_solve_savedData(
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > datas1;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas1, tau, schemeData);
+	hjipde->solve(datas1, stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
 
 	if (datas1.empty()) {
 		std::stringstream ss;
@@ -716,8 +698,7 @@ bool run_UTest_HJIPDE_solve_savedData(
 	std::copy(datas1.cbegin(), datas1.cbegin() + istart, dataSaved.begin());
 
 	std::vector<beacls::FloatVec > datas2;
-	hjipde->solve(stoptau, extraOuts, dataSaved, tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas2, tau, schemeData);
+	hjipde->solve(datas2, stoptau, extraOuts, dataSaved, tau, schemeData, minWith, extraArgs);
 
 	if (datas2.empty()) {
 		std::stringstream ss;
@@ -850,8 +831,7 @@ bool run_UTest_HJIPDE_solve_stopConverge(
 	std::vector<beacls::FloatVec > datas;
 	const std::vector<beacls::FloatVec >& expected_datas_0 = expected_datas[0];
 
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
-	hjipde->get_datas(datas, tau, schemeData);
+	hjipde->solve(datas, stoptau, extraOuts, data0, tau, schemeData, minWith, extraArgs);
 
 	if (datas.empty()) {
 		std::stringstream ss;

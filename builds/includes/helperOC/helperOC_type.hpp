@@ -28,9 +28,9 @@ namespace levelset {
 	class SchemeData;
 };
 namespace helperOC {
-	static const size_t obstacles_fix_depth = 2;
-	static const FLOAT_TYPE obstacles_fix_ratio = (FLOAT_TYPE)(1 << obstacles_fix_depth);
-	static const FLOAT_TYPE obstacles_fix_ratio_inv = (FLOAT_TYPE)(1. / obstacles_fix_ratio);
+	static const size_t fix_point_depth = 2;
+	static const FLOAT_TYPE fix_point_ratio = (FLOAT_TYPE)(1 << fix_point_depth);
+	static const FLOAT_TYPE fix_point_ratio_inv = (FLOAT_TYPE)(1. / fix_point_ratio);
 
 	class DynSysSchemeData;
 
@@ -127,7 +127,7 @@ namespace helperOC {
 			const size_t i,
 			const beacls::FloatVec& tau,
 			const std::vector<beacls::FloatVec >& data,
-			const std::vector<const beacls::FloatVec* > obstacles,
+			const std::vector<const beacls::FloatVec* > obstacles_ptrs,
 			const SDModParams* params
 			) const = 0;
 		virtual bool operator()(
@@ -135,7 +135,7 @@ namespace helperOC {
 			const size_t i,
 			const beacls::FloatVec& tau,
 			const std::vector<beacls::FloatVec >& data,
-			const std::vector<const std::vector<int8_t>* > obstacles_s8,
+			const std::vector<const std::vector<int8_t>* > obstacles_s8_ptrs,
 			const SDModParams* params
 			) const = 0;
 	};
@@ -152,8 +152,10 @@ namespace helperOC {
 	};
 	class HJIPDE_extraArgs {
 	public:
-		std::vector<const beacls::FloatVec* > obstacles;	//!< a single obstacle or a list of obstacles with time stamps tau(obstacles must have same time stamp as the solution)
-		std::vector<const std::vector<int8_t>* > obstacles_s8;	//!< a single obstacle or a list of obstacles in binary format with time stamps tau(obstacles must have same time stamp as the solution)
+		std::vector<beacls::FloatVec> obstacles;	//!< a single obstacle or a list of obstacles_ptrs with time stamps tau(obstacles_ptrs must have same time stamp as the solution)
+		std::vector<std::vector<int8_t>> obstacles_s8;	//!< a single obstacle or a list of obstacles_ptrs in binary format with time stamps tau(obstacles_ptrs must have same time stamp as the solution)
+		std::vector<const beacls::FloatVec* > obstacles_ptrs;	//!< pointers for a single obstacle or a list of obstacles_ptrs with time stamps tau(obstacles_ptrs must have same time stamp as the solution)
+		std::vector<const std::vector<int8_t>* > obstacles_s8_ptrs;	//!< pointers for a single obstacle or a list of obstacles_ptrs in binary format with time stamps tau(obstacles_ptrs must have same time stamp as the solution)
 		size_t compRegion;	//!< unused for now(meant to limit computation region)
 		bool visualize;	//!< set to true to visualize reachable set
 		beacls::FloatVec RS_level;	//!<level set of reachable set to visualize (defaults to 0)
@@ -167,6 +169,9 @@ namespace helperOC {
 		beacls::FloatVec stopSetIntersect;	//!< stops computation when reachable set intersects this set
 		size_t stopLevel;	//!< level of the stopSet to check the inclusion for.Default level is zero.
 		std::vector<beacls::FloatVec > targets;	//!< a single target or a list of targets with time stamps tau(targets must have same time stamp as the solution).This functionality is mainly useful when the targets are time - varying, in case of variational inequality for example; data0 can be used to specify the target otherwise.
+		std::vector<std::vector<int8_t> > targets_s8;	//!< a single target or a list of targets with time stamps tau(targets must have same time stamp as the solution).This functionality is mainly useful when the targets are time - varying, in case of variational inequality for example; data0 can be used to specify the target otherwise.
+		std::vector<const beacls::FloatVec* > targets_ptrs;	//!< pointers for a single target or a list of targets with time stamps tau(targets must have same time stamp as the solution).This functionality is mainly useful when the targets are time - varying, in case of variational inequality for example; data0 can be used to specify the target otherwise.
+		std::vector<const std::vector<int8_t>* > targets_s8_ptrs;	//!< pointers for a single target or a list of targets with time stamps tau(targets must have same time stamp as the solution).This functionality is mainly useful when the targets are time - varying, in case of variational inequality for example; data0 can be used to specify the target otherwise.
 		bool stopConverge;	//!< set to true to stop the computation when it converges
 		FLOAT_TYPE convergeThreshold;	//!< Max change in each iteration allowed when checking convergence
 		SDModFunctor* sdModFunctor;	//!< Function for modifying scheme data every time step given by tau. 		Currently this is only used to switch between using optimal control at every grid point and using maximal control for the SPP project when computing FRS using centralized controller
@@ -183,7 +188,10 @@ namespace helperOC {
 	private:
 	public:
 		HJIPDE_extraArgs() :
-			obstacles(std::vector<const beacls::FloatVec* >()),
+			obstacles(std::vector<beacls::FloatVec >()),
+			obstacles_s8(std::vector<std::vector<int8_t> >()),
+			obstacles_ptrs(std::vector<const beacls::FloatVec* >()),
+			obstacles_s8_ptrs(std::vector<const std::vector<int8_t>*>()),
 			compRegion(0),
 			visualize(false),
 			RS_level(beacls::FloatVec()),
@@ -197,6 +205,9 @@ namespace helperOC {
 			stopSetIntersect(beacls::FloatVec()),
 			stopLevel(0),
 			targets(std::vector<beacls::FloatVec >()),
+			targets_s8(std::vector<std::vector<int8_t> >()),
+			targets_ptrs(std::vector<const beacls::FloatVec* >()),
+			targets_s8_ptrs(std::vector<const std::vector<int8_t>* >()),
 			stopConverge(false),
 			convergeThreshold((FLOAT_TYPE)1e-5),
 			sdModFunctor(NULL),

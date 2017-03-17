@@ -127,12 +127,8 @@ int main(int argc, char *argv[])
 	else hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec tau2;
-	hjipde->solve(tau2, extraOuts, data0, tau, sD, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
-
 	std::vector<beacls::FloatVec > datas;
-	if (!keepLast) {
-		hjipde->get_datas(datas, tau, sD);
-	}
+	hjipde->solve(datas, tau2, extraOuts, data0, tau, sD, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 
 	if (dump_file) {
 		std::string Quad4D_test_filename("Quad4D_test.mat");

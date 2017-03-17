@@ -35,19 +35,15 @@ int main(int argc, char *argv[])
 		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
 		beacls::IntegerVec{41,41,11});
 	std::vector<beacls::FloatVec > targets(1);
-	levelset::BasicShape* shapeTarget = new levelset::ShapeCylinder(beacls::IntegerVec{2}, beacls::FloatVec{75., 50., 0.}, (FLOAT_TYPE)10);
-	shapeTarget->execute(g, targets[0]);
-	levelset::BasicShape* shapeObs1 = new levelset::ShapeRectangleByCorner(beacls::FloatVec{300, 250, -inf}, beacls::FloatVec{350, 300, inf});
-	levelset::BasicShape* shapeObs2 = new levelset::ShapeRectangleByCorner(beacls::FloatVec{5, 5, -inf}, beacls::FloatVec{145, 145, inf});
+	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
 	beacls::FloatVec obs1, obs2;
-	shapeObs1->execute(g, obs1);
-	shapeObs2->execute(g, obs2);
+	levelset::ShapeRectangleByCorner(beacls::FloatVec{ 300, 250, -inf }, beacls::FloatVec{ 350, 300, inf }).execute(g, obs1);
+	levelset::ShapeRectangleByCorner(beacls::FloatVec{ 5, 5, -inf }, beacls::FloatVec{ 145, 145, inf }).execute(g, obs2);
 	std::transform(obs2.cbegin(), obs2.cend(), obs2.begin(), std::negate<FLOAT_TYPE>());
-	beacls::FloatVec obstacle(obs1.size());
-	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacle.begin(), 
+	std::vector<beacls::FloatVec > obstacles(1);
+	obstacles[0].resize(obs1.size());
+	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacles[0].begin(),
 		std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
-	std::vector<const beacls::FloatVec* > obstacles(1);
-	obstacles[0] = &obstacle;
 
 	//!< Compute reachable set
 	const FLOAT_TYPE tMax = 500;
@@ -78,10 +74,8 @@ int main(int argc, char *argv[])
 	helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec tau2;
-	hjipde->solve(tau2, extraOuts, targets, tau, schemeData, helperOC::HJIPDE::MinWithType_None, extraArgs);
-
 	std::vector<beacls::FloatVec > datas;
-	hjipde->get_datas(datas, tau, schemeData);
+	hjipde->solve(datas, tau2, extraOuts, targets, tau, schemeData, helperOC::HJIPDE::MinWithType_None, extraArgs);
 
 	std::string MyPlane_test0_filename("MyPlane_test0.mat");
 	beacls::MatFStream* fs = beacls::openMatFStream(MyPlane_test0_filename, beacls::MatOpenMode_Write);
@@ -112,9 +106,6 @@ int main(int argc, char *argv[])
 
 
 	if (hjipde) delete hjipde;
-	if (shapeObs2) delete shapeObs2;
-	if (shapeObs1) delete shapeObs1;
-	if (shapeTarget) delete shapeTarget;
 	if (schemeData) delete schemeData;
 	if (pl) delete pl;
 	if (g) delete g;

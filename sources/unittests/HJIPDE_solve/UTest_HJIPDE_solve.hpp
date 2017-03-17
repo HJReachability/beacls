@@ -10,7 +10,7 @@ typedef enum HJIPDE_solve_WhatTest {
 	HJIPDE_solve_WhatTest_minWith,	//!<Test the minWith functionality
 	HJIPDE_solve_WhatTest_tvTargets,	//!<Test the time - varying targets
 	HJIPDE_solve_WhatTest_singleObs,	//!<Test with a single static obstacle
-	HJIPDE_solve_WhatTest_tvObs,	//!<Test with time - varying obstacles
+	HJIPDE_solve_WhatTest_tvObs,	//!<Test with time - varying obstacles_ptrs
 	HJIPDE_solve_WhatTest_obs_stau,	//!<single obstacle over a few time steps
 	HJIPDE_solve_WhatTest_stopInit,	//!<Test the functionality of stopping reachable set computation once it includes the initial state
 	HJIPDE_solve_WhatTest_stopSetInclude,	//!<Test the functionality of stopping reacahble set computation once it contains some set

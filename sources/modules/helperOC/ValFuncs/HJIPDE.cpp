@@ -154,18 +154,32 @@ bool HJIPDE_impl::solve(
 
 	const bool keepLast = extraArgs.keepLast;
 
-	// Extract the information about obstacles
+	// Extract the information about obstacles_ptrs
 	HJIPDE::ObsModeType obsMode = HJIPDE::ObsModeType_None;
-	const std::vector<const beacls::FloatVec* >& obstacles = extraArgs.obstacles;
-	const std::vector<const std::vector<int8_t>* >& obstacles_s8 = extraArgs.obstacles_s8;
+	std::vector<const beacls::FloatVec* > modified_obstacles_ptrs;
+	std::vector<const std::vector<int8_t>* > modified_obstacles_s8_ptrs;
+	if (extraArgs.obstacles_ptrs.empty()) {
+		modified_obstacles_ptrs.resize(extraArgs.obstacles.size());
+		for (size_t i = 0; i < extraArgs.obstacles.size(); ++i) {
+			modified_obstacles_ptrs[i] = &extraArgs.obstacles[i];
+		}
+	}
+	if (extraArgs.obstacles_s8_ptrs.empty()) {
+		modified_obstacles_s8_ptrs.resize(extraArgs.obstacles_s8.size());
+		for (size_t i = 0; i < extraArgs.obstacles_s8.size(); ++i) {
+			modified_obstacles_s8_ptrs[i] = &extraArgs.obstacles_s8[i];
+		}
+	}
+	const std::vector<const beacls::FloatVec* >& obstacles_ptrs = !extraArgs.obstacles_ptrs.empty() ? extraArgs.obstacles_ptrs : modified_obstacles_ptrs;
+	const std::vector<const std::vector<int8_t>* >& obstacles_s8_ptrs = !extraArgs.obstacles_s8_ptrs.empty() ? extraArgs.obstacles_s8_ptrs : modified_obstacles_s8_ptrs;
 	const beacls::FloatVec* obstacle_i = NULL;
 	const std::vector<int8_t>* obstacle_s8_i = NULL;
-	if (!obstacles.empty()) {
-		obstacle_i = obstacles[0];
-		if (obstacles.size() == 1) {
+	if (!obstacles_ptrs.empty()) {
+		obstacle_i = obstacles_ptrs[0];
+		if (obstacles_ptrs.size() == 1) {
 			obsMode = HJIPDE::ObsModeType_Static;
 		}
-		else if (obstacles.size() > 1) {
+		else if (obstacles_ptrs.size() > 1) {
 			obsMode = HJIPDE::ObsModeType_TimeVarying;
 		}
 		else {
@@ -173,12 +187,12 @@ bool HJIPDE_impl::solve(
 			return false;
 		}
 	}
-	if (!obstacles_s8.empty()) {
-		obstacle_s8_i = obstacles_s8[0];
-		if (obstacles_s8.size() == 1) {
+	if (!obstacles_s8_ptrs.empty()) {
+		obstacle_s8_i = obstacles_s8_ptrs[0];
+		if (obstacles_s8_ptrs.size() == 1) {
 			obsMode = HJIPDE::ObsModeType_Static;
 		}
-		else if (obstacles_s8.size() > 1) {
+		else if (obstacles_s8_ptrs.size() > 1) {
 			obsMode = HJIPDE::ObsModeType_TimeVarying;
 		}
 		else {
@@ -187,7 +201,22 @@ bool HJIPDE_impl::solve(
 		}
 	}
 	// Extract the information about targets
-	const std::vector<beacls::FloatVec >& targets = extraArgs.targets;
+	std::vector<const beacls::FloatVec* > modified_targets_ptrs;
+	std::vector<const std::vector<int8_t>* > modified_targets_s8_ptrs;
+	if (extraArgs.targets_ptrs.empty()) {
+		modified_targets_ptrs.resize(extraArgs.targets.size());
+		for (size_t i = 0; i < extraArgs.targets.size(); ++i) {
+			modified_targets_ptrs[i] = &extraArgs.targets[i];
+		}
+	}
+	if (extraArgs.targets_s8_ptrs.empty()) {
+		modified_targets_s8_ptrs.resize(extraArgs.targets_s8.size());
+		for (size_t i = 0; i < extraArgs.targets_s8.size(); ++i) {
+			modified_targets_s8_ptrs[i] = &extraArgs.targets_s8[i];
+		}
+	}
+	const std::vector<const beacls::FloatVec* >& targets_ptrs = !extraArgs.targets_ptrs.empty() ? extraArgs.targets_ptrs : modified_targets_ptrs;
+	const std::vector<const std::vector<int8_t>* >& targets_s8_ptrs = !extraArgs.targets_s8_ptrs.empty() ? extraArgs.targets_s8_ptrs : modified_targets_s8_ptrs;
 
 	// Check validity of stopInit if needed
 	if (!extraArgs.stopInit.empty()) {
@@ -258,8 +287,7 @@ bool HJIPDE_impl::solve(
 			if (obstacle_s8_i) {
 				tmp_obstacle.resize(obstacle_s8_i->size());
 				std::transform(obstacle_s8_i->cbegin(), obstacle_s8_i->cend(), tmp_obstacle.begin(), [large](const auto& rhs) {
-					return rhs * obstacles_fix_ratio_inv;
-//					return (rhs + 0.5) * obstacles_fix_ratio_inv;
+					return rhs * fix_point_ratio_inv;
 				});
 			}
 			const beacls::FloatVec* obstacle_ptr = obstacle_i ? obstacle_i : &tmp_obstacle;
@@ -426,18 +454,17 @@ bool HJIPDE_impl::solve(
 		});
 	}
 #endif
-	if (!obstacles.empty() && obstacle_i) {
+	if (!obstacles_ptrs.empty() && obstacle_i) {
 		if (y.size() == obstacle_i->size()) {
 			std::transform(y.cbegin(), y.cend(), obstacle_i->cbegin(), y.begin(), ([](const auto& lhs, const auto& rhs) {
 				return std::max<FLOAT_TYPE>(lhs, -rhs);
 			}));
 		}
 	}
-	if (!obstacles_s8.empty() && obstacle_s8_i) {
+	if (!obstacles_s8_ptrs.empty() && obstacle_s8_i) {
 		if (y.size() == obstacle_s8_i->size()) {
 			std::transform(y.cbegin(), y.cend(), obstacle_s8_i->cbegin(), y.begin(), ([large](const auto& lhs, const auto& rhs) {
-				return std::max<FLOAT_TYPE>(lhs, -rhs * obstacles_fix_ratio_inv);
-//				return std::max<FLOAT_TYPE>(lhs, -(rhs + 0.5) * obstacles_fix_ratio_inv);
+				return std::max<FLOAT_TYPE>(lhs, -rhs * fix_point_ratio_inv);
 			}));
 		}
 	}
@@ -471,10 +498,10 @@ bool HJIPDE_impl::solve(
 			if (!tmp_filename.empty()) {
 				std::vector<beacls::FloatVec> datas_vec;
 				get_datas(datas_vec, src_tau, modified_schemeData);
-				if (!obstacles_s8.empty())
-					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8, extraArgs.sdModParams);
+				if (!obstacles_s8_ptrs.empty())
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8_ptrs, extraArgs.sdModParams);
 				else
-					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles, extraArgs.sdModParams);
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_ptrs, extraArgs.sdModParams);
 				datas.resize(datas_vec.size());
 				std::copy(datas_vec.cbegin(), datas_vec.cend(), datas.begin());
 				//!< Put away dst_datas from file.
@@ -489,10 +516,10 @@ bool HJIPDE_impl::solve(
 			} else if (!keepLast) {
 				std::vector<beacls::FloatVec> datas_vec(datas.size());
 				std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
-				if (!obstacles_s8.empty())
-					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8, extraArgs.sdModParams);
+				if (!obstacles_s8_ptrs.empty())
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8_ptrs, extraArgs.sdModParams);
 				else
-					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles, extraArgs.sdModParams);
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_ptrs, extraArgs.sdModParams);
 			} else {
 				std::cerr << "error : " << __func__ << "SchemeData mod fucntor needs to keep time dependent values." << std::endl;
 				if (tmp_datas_variable) {
@@ -509,11 +536,11 @@ bool HJIPDE_impl::solve(
 
 
 		FLOAT_TYPE tNow = src_tau[i - 1];
-		if (!obstacles.empty()) {
-			obstacle_i = (obstacles.size() == 1) ? obstacles[0] : obstacles[i];
+		if (!obstacles_ptrs.empty()) {
+			obstacle_i = (obstacles_ptrs.size() == 1) ? obstacles_ptrs[0] : obstacles_ptrs[i];
 		}
-		if (!obstacles_s8.empty()) {
-			obstacle_s8_i = (obstacles_s8.size() == 1) ? obstacles_s8[0] : obstacles_s8[i];
+		if (!obstacles_s8_ptrs.empty()) {
+			obstacle_s8_i = (obstacles_s8_ptrs.size() == 1) ? obstacles_s8_ptrs[0] : obstacles_s8_ptrs[i];
 		}
 
 		// Main integration loop to ge to the next tau(i)
@@ -545,9 +572,15 @@ bool HJIPDE_impl::solve(
 			}
 
 			// Min with targets
-			if (!targets.empty()) {
-				const beacls::FloatVec& target_i = (targets.size() == 1) ? targets[0] : targets[i];
-				std::transform(y.cbegin(), y.cend(), target_i.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
+			if (!targets_ptrs.empty()) {
+				const beacls::FloatVec* target_i = (targets_ptrs.size() == 1) ? targets_ptrs[0] : targets_ptrs[i];
+				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
+			}
+			if (!targets_s8_ptrs.empty()) {
+				const std::vector<int8_t>* target_i = (targets_s8_ptrs.size() == 1) ? targets_s8_ptrs[0] : targets_s8_ptrs[i];
+				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), ([large](const auto& lhs, const auto& rhs) {
+					return std::min<FLOAT_TYPE>(lhs, rhs * fix_point_ratio_inv);
+				}));
 			}
 
 			// "Mask" using obstales
@@ -561,8 +594,7 @@ bool HJIPDE_impl::solve(
 			if (obstacle_s8_i) {
 				if (obstacle_s8_i->size() == y.size()) {
 					std::transform(y.cbegin(), y.cend(), obstacle_s8_i->cbegin(), y.begin(), ([large](const auto& lhs, const auto& rhs) {
-						return std::max<FLOAT_TYPE>(lhs, -rhs * obstacles_fix_ratio_inv);
-//						return std::max<FLOAT_TYPE>(lhs, -(rhs + 0.5) * obstacles_fix_ratio_inv);
+						return std::max<FLOAT_TYPE>(lhs, -rhs * fix_point_ratio_inv);
 					}));
 				}
 
@@ -697,8 +729,7 @@ bool HJIPDE_impl::solve(
 			if (obstacle_s8_i) {
 				tmp_obstacle.resize(obstacle_s8_i->size());
 				std::transform(obstacle_s8_i->cbegin(), obstacle_s8_i->cend(), tmp_obstacle.begin(), [large](const auto& rhs) {
-					return rhs * obstacles_fix_ratio_inv;
-//					return (rhs + 0.5) * obstacles_fix_ratio_inv;
+					return rhs * fix_point_ratio_inv;
 				});
 			}
 			const beacls::FloatVec* obstacle_ptr = obstacle_i ? obstacle_i : &tmp_obstacle;
@@ -940,6 +971,40 @@ bool HJIPDE::solve(
 	const helperOC::HJIPDE_extraArgs& extraArgs
 ) {
 	if (pimpl) return pimpl->solve(stoptau, extraOuts, std::vector<beacls::FloatVec>{data}, tau, schemeData, minWith, extraArgs);
+	return false;
+}
+bool HJIPDE::solve(
+	std::vector<beacls::FloatVec >& dst_datas,
+	beacls::FloatVec& stoptau,
+	helperOC::HJIPDE_extraOuts& extraOuts,
+	const std::vector<beacls::FloatVec>& datas,
+	const beacls::FloatVec& tau,
+	const DynSysSchemeData* schemeData,
+	const HJIPDE::MinWithType minWith,
+	const helperOC::HJIPDE_extraArgs& extraArgs
+) {
+	if (pimpl) {
+		if (pimpl->solve(stoptau, extraOuts, datas, tau, schemeData, minWith, extraArgs)) {
+			return get_datas(dst_datas, tau, schemeData);
+		}
+	}
+	return false;
+}
+bool HJIPDE::solve(
+	std::vector<beacls::FloatVec >& dst_datas,
+	beacls::FloatVec& stoptau,
+	helperOC::HJIPDE_extraOuts& extraOuts,
+	const beacls::FloatVec& data,
+	const beacls::FloatVec& tau,
+	const DynSysSchemeData* schemeData,
+	const HJIPDE::MinWithType minWith,
+	const helperOC::HJIPDE_extraArgs& extraArgs
+) {
+	if (pimpl) {
+		if (pimpl->solve(stoptau, extraOuts, std::vector<beacls::FloatVec>{data}, tau, schemeData, minWith, extraArgs))	{
+			return get_datas(dst_datas, tau, schemeData);
+		}
+	}
 	return false;
 }
 bool HJIPDE::get_datas(

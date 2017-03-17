@@ -132,7 +132,8 @@ int main(int argc, char *argv[])
 	else hjipde = new helperOC::HJIPDE();
 
 	beacls::FloatVec stoptau;
-	hjipde->solve(stoptau, extraOuts, data0, tau, schemeData, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
+	std::vector<beacls::FloatVec > data;
+	hjipde->solve(data, stoptau, extraOuts, data0, tau, schemeData, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 	beacls::FloatVec TTR;
 	std::vector<beacls::FloatVec > P, derivL, derivR;
 
@@ -150,11 +151,7 @@ int main(int argc, char *argv[])
 		std::string DubinsCar_RS_RS_filename("DubinsCar_RS_RS.mat");
 		beacls::MatFStream* DubinsCar_RS_RS_fs = beacls::openMatFStream(DubinsCar_RS_RS_filename, beacls::MatOpenMode_Write);
 		g->save_grid(std::string("g"), DubinsCar_RS_RS_fs);
-		if(!keepLast) {
-			std::vector<beacls::FloatVec > data;
-			hjipde->get_datas(data, tau, schemeData);
-			if (!data.empty()) save_vector_of_vectors(data, std::string("data"), Ns, false, DubinsCar_RS_RS_fs);
-		}
+		if (!data.empty()) save_vector_of_vectors(data, std::string("data"), Ns, false, DubinsCar_RS_RS_fs);
 		if(!TTR.empty()) save_vector(TTR, std::string("TTR"), Ns, false, DubinsCar_RS_RS_fs);
 		if (!tau.empty()) save_vector(tau, std::string("tau"), beacls::IntegerVec(), false, DubinsCar_RS_RS_fs);
 		if (!P.empty()) save_vector_of_vectors(P, std::string("P"), Ns, false, DubinsCar_RS_RS_fs);
