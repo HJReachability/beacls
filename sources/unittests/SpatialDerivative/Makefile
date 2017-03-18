@@ -18,7 +18,6 @@ NUM_OF_THREADS = 0
 NUM_OF_GPUS = 0
 SMALL_DIFF = 0
 NVCC = /usr/bin/nvcc
-HOSTCC = g++
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 INSTALL_DIR = $(PWD)/../../../builds
@@ -27,6 +26,13 @@ MATIO_LIB_DIR = $(MATIO_DIR)/$(ARCH)/lib
 MATIO_INC_DIR = $(MATIO_DIR)/include
 
 UNAME = $(shell uname)
+ifeq ($(UNAME),Darwin)
+	HOSTCC_DIR = /usr/local/opt/llvm
+	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
+else
+	HOSTCC  = g++
+endif
+
 
 BEACLS_DIR = $(INSTALL_DIR)
 BEACLS_INC_DIR = $(BEACLS_DIR)/include
@@ -139,9 +145,11 @@ endif
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)
-	CFLAGS += -Xclang -fopenmp
-	CFLAGS += -I/usr/local/include/libiomp
+	CFLAGS += -fopenmp
+	CFLAGS	+= -I$(HOSTCC_DIR)/include
+	LDFLAGS += -L$(HOSTCC_DIR)/lib
 	LDFLAGS += -liomp5
+	LLVM_LIBRARY_PATH	= $(HOSTCC_DIR)/lib
 else
 	CFLAGS += -fopenmp
 	LDFLAGS += -lgomp
@@ -202,12 +210,12 @@ $(TARGET): $(OBJECTS) $(LIBS)
 all: $(TARGET)
 
 test: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
 
 google-prof: $(GOOGLE-PROFILE-LOG)
 
 $(GOOGLE-PROFILE-LOG): $(TARGET)
-	env LD_PRELOAD=$(GOOGLE_PERF_LIB):$(LD_PRELOAD) CPUPROFILE=./$(GOOGLE-PROFILE-LOG) CPUPROFILE_FREQUENCY=$(CPUPROFILE_FREQUENCY) $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(CHUNK_SIZE)  $(SMALL_DIFF)
+	env LD_PRELOAD=$(GOOGLE_PERF_LIB):$(LD_PRELOAD) CPUPROFILE=./$(GOOGLE-PROFILE-LOG) CPUPROFILE_FREQUENCY=$(CPUPROFILE_FREQUENCY) $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(CHUNK_SIZE)  $(SMALL_DIFF)
 
 show-google-prof: $(TARGET) $(GOOGLE-PROFILE-LOG)
 	google-pprof $(TARGET) $(GOOGLE-PROFILE-LOG) --text
@@ -217,7 +225,7 @@ kcachegrind-google-prof: $(GOOGLE-PROFILE-LOG)	$(TARGET)
 	kcachegrind $(GOOGLE-PROFILE-LOG).cg &
 
 time: $(TARGET)
-	$(TIME) env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
+	$(TIME) env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
 
 iprofiler: $(TARGET)
 	cp -rp $(OPENCV_LIB_DIR):$(MODULE_DIR)/liblevelset.so .
@@ -225,14 +233,14 @@ iprofiler: $(TARGET)
 #	rm -rf liblevelset.so
 
 valgrind: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --leak-check=full --show-reachable=yes --track-origins=yes --error-limit=no ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --leak-check=full --show-reachable=yes --track-origins=yes --error-limit=no ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
 
 
 massif: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=massif ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=massif ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
 
 helgrind: $(TARGET)
-	env $(TEST_ENV_NAME)=$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=helgrind --histroy-level=approx ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
+	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=helgrind --histroy-level=approx ./$(TARGET) $(SMALL_DIFF) $(NUM_OF_THREADS) $(NUM_OF_GPUS)
 
 clean:
 	rm -rf $(OBJDIR)
