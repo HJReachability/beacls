@@ -26,7 +26,7 @@ using namespace std::rel_ops;
 	e.g. a.platoon.leader = b (passes b by reference, does not create a copy)
 	Also see constructor
 */
-class MyPlane : public DynSys {
+class MyPlane : public helperOC::DynSys {
 public:
 protected:
 	FLOAT_TYPE wMax;	//!< Angular control bounds
@@ -86,7 +86,7 @@ public:
 		const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 		const beacls::IntegerVec& y_sizes,
 		const beacls::IntegerVec& deriv_sizes,
-		const DynSys_UMode_Type uMode
+		const helperOC::DynSys_UMode_Type uMode
 	) const;
 	/*
 	@brief disturbance of Dubins Car
@@ -102,7 +102,7 @@ public:
 		const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 		const beacls::IntegerVec& y_sizes,
 		const beacls::IntegerVec& deriv_sizes,
-		const DynSys_DMode_Type dMode
+		const helperOC::DynSys_DMode_Type dMode
 	) const;
 	/*
 	@brief Dynamics of the Dubins Car

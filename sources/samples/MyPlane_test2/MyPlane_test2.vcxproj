@@ -116,6 +116,9 @@
     <PostBuildEvent>
       <Command>del *.mat</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <Defines>_MAKE_VC_DLL;CUDA_MACRO</Defines>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -146,6 +149,9 @@
     <PostBuildEvent>
       <Command>del *.mat</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <Defines>_MAKE_VC_DLL;CUDA_MACRO</Defines>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -181,6 +187,9 @@
     <PostBuildEvent>
       <Command>del *.mat</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <Defines>_MAKE_VC_DLL;CUDA_MACRO</Defines>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -220,6 +229,9 @@
     <PostBuildEvent>
       <Command>del *.mat</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <Defines>_MAKE_VC_DLL;CUDA_MACRO</Defines>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MyPlane.cpp" />

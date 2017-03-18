@@ -73,7 +73,7 @@ bool MyPlane::optCtrl(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec& y_sizes,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_UMode_Type uMode
+	const helperOC::DynSys_UMode_Type uMode
 ) const {
 	/* 
 	To Be filled 
@@ -87,7 +87,7 @@ bool MyPlane::optDstb(
 	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
 	const beacls::IntegerVec&,
 	const beacls::IntegerVec& deriv_sizes,
-	const DynSys_DMode_Type dMode
+	const helperOC::DynSys_DMode_Type dMode
 ) const {
 	/* 
 	To Be filled 
