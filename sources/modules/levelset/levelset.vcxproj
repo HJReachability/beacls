@@ -124,7 +124,7 @@ popd</Command>
     <CudaCompile>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
-      <Defines>_MAKE_VC_DLL</Defines>
+      <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
       <PtxAsOptionV>true</PtxAsOptionV>
       <CodeGeneration>compute_50,sm_50</CodeGeneration>
       <MaxRegCount>64</MaxRegCount>
@@ -163,7 +163,7 @@ popd</Command>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
-      <Defines>_MAKE_VC_DLL</Defines>
+      <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
       <PtxAsOptionV>true</PtxAsOptionV>
       <CodeGeneration>compute_50,sm_50</CodeGeneration>
       <MaxRegCount>64</MaxRegCount>
@@ -206,7 +206,7 @@ popd</Command>
     <CudaCompile>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
-      <Defines>_MAKE_VC_DLL</Defines>
+      <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
       <PtxAsOptionV>true</PtxAsOptionV>
       <CodeGeneration>compute_50,sm_50</CodeGeneration>
       <MaxRegCount>64</MaxRegCount>
@@ -255,7 +255,7 @@ popd</Command>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
-      <Defines>_MAKE_VC_DLL</Defines>
+      <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
       <PtxAsOptionV>true</PtxAsOptionV>
       <CodeGeneration>compute_50,sm_50</CodeGeneration>
       <MaxRegCount>64</MaxRegCount>
