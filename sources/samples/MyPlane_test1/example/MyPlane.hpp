@@ -57,20 +57,7 @@ public:
 		const beacls::FloatVec& dMax = beacls::FloatVec{0,0}
 	);
 	PREFIX_VC_DLL
-		MyPlane(
-			beacls::MatFStream* fs,
-			beacls::MatVariable* variable_ptr = NULL
-		);
-	PREFIX_VC_DLL
 		virtual ~MyPlane();
-	PREFIX_VC_DLL
-		virtual bool save(
-			beacls::MatFStream* fs,
-			beacls::MatVariable* variable_ptr = NULL);
-	PREFIX_VC_DLL
-		virtual bool operator==(const MyPlane& rhs) const;
-	PREFIX_VC_DLL
-		virtual bool operator==(const DynSys& rhs) const;
 
 	virtual MyPlane* clone() const {
 		return new MyPlane(*this);
@@ -122,57 +109,7 @@ public:
 		const beacls::IntegerVec& x_sizes,
 		const size_t dst_target_dim
 	) const;
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU)
-	/*
-	@brief Control of Dubins Car
-	*/
-	PREFIX_VC_DLL
-	bool optCtrl_cuda(
-		std::vector<beacls::UVec>& u_uvecs,
-		const FLOAT_TYPE t,
-		const std::vector<beacls::UVec>& x_uvecs,
-		const std::vector<beacls::UVec>& deriv_uvecs,
-		const DynSys_UMode_Type uMode
-	) const;
-	/*
-	@brief disturbance of Dubins Car
-	\dot{x}_1 = v * cos(x_3) + d_1
-	\dot{x}_2 = v * sin(x_3) + d_2
-	\dot{x}_3 = u
-	*/
-	PREFIX_VC_DLL
-	bool optDstb_cuda(
-		std::vector<beacls::UVec>& d_uvecs,
-		const FLOAT_TYPE t,
-		const std::vector<beacls::UVec>& x_uvecs,
-		const std::vector<beacls::UVec>& deriv_uvecs,
-		const DynSys_DMode_Type dMode
-	) const;
-	/*
-	@brief Dynamics of the Dubins Car
-	\dot{x}_1 = v * cos(x_3)
-	\dot{x}_2 = v * sin(x_3)
-	\dot{x}_3 = w
-	Control: u = w;
-	@author Mo Chen, 2016-06-08
-	*/
-	PREFIX_VC_DLL
-	bool dynamics_cuda(
-		std::vector<beacls::UVec>& dx_uvecs,
-		const FLOAT_TYPE t,
-		const std::vector<beacls::UVec>& x_uvecs,
-		const std::vector<beacls::UVec>& u_uvecs,
-		const std::vector<beacls::UVec>& d_uvecs,
-		const size_t dst_target_dim
-	) const;
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU) */
 
-	PREFIX_VC_DLL
-		FLOAT_TYPE get_wMax() const;
-	PREFIX_VC_DLL
-		const beacls::FloatVec& get_vrange() const;
-	PREFIX_VC_DLL
-		const beacls::FloatVec& get_dMax() const;
 protected:
 	/** @overload
 	Disable copy constructor

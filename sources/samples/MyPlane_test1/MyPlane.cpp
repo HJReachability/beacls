@@ -26,45 +26,7 @@ MyPlane::MyPlane(
 	DynSys::push_back_xhist(x);
 
 }
-MyPlane::MyPlane(
-	beacls::MatFStream* fs,
-	beacls::MatVariable* variable_ptr
-) :
-	DynSys(fs, variable_ptr),
-	wMax(0),
-	vrange(beacls::FloatVec()),
-	dMax(beacls::FloatVec())
-{
-	beacls::IntegerVec dummy;
-	load_value(wMax, std::string("wMax"), true, fs, variable_ptr);
-	load_vector(vrange, std::string("vrange"), dummy, true, fs, variable_ptr);
-	load_vector(dMax, std::string("dMax"), dummy, true, fs, variable_ptr);
-}
 MyPlane::~MyPlane() {
-}
-bool MyPlane::operator==(const MyPlane& rhs) const {
-	if (this == &rhs) return true;
-	else if (!DynSys::operator==(rhs)) return false;
-	else if (wMax != rhs.wMax) return false;	//!< Angular control bounds
-	else if ((vrange.size() != rhs.vrange.size()) || !std::equal(vrange.cbegin(), vrange.cend(), rhs.vrange.cbegin())) return false;	//!< Speed control bounds
-	else if ((dMax.size() != rhs.dMax.size()) || !std::equal(dMax.cbegin(), dMax.cend(), rhs.dMax.cbegin())) return false;	//!< Disturbance
-	else return true;
-}
-bool MyPlane::operator==(const DynSys& rhs) const {
-	if (this == &rhs) return true;
-	else if (typeid(*this) != typeid(rhs)) return false;
-	else return operator==(dynamic_cast<const MyPlane&>(rhs));
-}
-bool MyPlane::save(
-	beacls::MatFStream* fs,
-	beacls::MatVariable* variable_ptr
-) {
-	bool result = DynSys::save(fs, variable_ptr);
-
-	result &= save_value(wMax, std::string("wMax"), true, fs, variable_ptr);
-	if (!vrange.empty()) result &= save_vector(vrange, std::string("vrange"), beacls::IntegerVec(), true, fs, variable_ptr);
-	if (!dMax.empty()) result &= save_vector(dMax, std::string("dMax"), beacls::IntegerVec(), true, fs, variable_ptr);
-	return result;
 }
 bool MyPlane::optCtrl(
 	std::vector<beacls::FloatVec >& uOpts,
@@ -130,7 +92,7 @@ bool MyPlane::dynamics_cell_helper(
 		}
 		break;
 	default:
-		std::cerr << "Only dimension 1-4 are defined for dynamics of MyPlane!" << std::endl;
+		std::cerr << "Only dimension 0-2 are defined for dynamics of MyPlane!" << std::endl;
 		result = false;
 		break;
 	}
@@ -163,14 +125,4 @@ bool MyPlane::dynamics(
 			std::cerr << "Invalid target dimension for dynamics: " << dst_target_dim << std::endl;
 	}
 	return true;
-}
-
-FLOAT_TYPE MyPlane::get_wMax() const {
-	return wMax;
-}
-const beacls::FloatVec& MyPlane::get_vrange() const {
-	return vrange;
-}
-const beacls::FloatVec& MyPlane::get_dMax() const {
-	return dMax;
 }

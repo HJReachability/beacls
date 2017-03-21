@@ -26,45 +26,7 @@ MyPlane::MyPlane(
 	DynSys::push_back_xhist(x);
 
 }
-MyPlane::MyPlane(
-	beacls::MatFStream* fs,
-	beacls::MatVariable* variable_ptr
-) :
-	DynSys(fs, variable_ptr),
-	wMax(0),
-	vrange(beacls::FloatVec()),
-	dMax(beacls::FloatVec())
-{
-	beacls::IntegerVec dummy;
-	load_value(wMax, std::string("wMax"), true, fs, variable_ptr);
-	load_vector(vrange, std::string("vrange"), dummy, true, fs, variable_ptr);
-	load_vector(dMax, std::string("dMax"), dummy, true, fs, variable_ptr);
-}
 MyPlane::~MyPlane() {
-}
-bool MyPlane::operator==(const MyPlane& rhs) const {
-	if (this == &rhs) return true;
-	else if (!DynSys::operator==(rhs)) return false;
-	else if (wMax != rhs.wMax) return false;	//!< Angular control bounds
-	else if ((vrange.size() != rhs.vrange.size()) || !std::equal(vrange.cbegin(), vrange.cend(), rhs.vrange.cbegin())) return false;	//!< Speed control bounds
-	else if ((dMax.size() != rhs.dMax.size()) || !std::equal(dMax.cbegin(), dMax.cend(), rhs.dMax.cbegin())) return false;	//!< Disturbance
-	else return true;
-}
-bool MyPlane::operator==(const DynSys& rhs) const {
-	if (this == &rhs) return true;
-	else if (typeid(*this) != typeid(rhs)) return false;
-	else return operator==(dynamic_cast<const MyPlane&>(rhs));
-}
-bool MyPlane::save(
-	beacls::MatFStream* fs,
-	beacls::MatVariable* variable_ptr
-) {
-	bool result = DynSys::save(fs, variable_ptr);
-
-	result &= save_value(wMax, std::string("wMax"), true, fs, variable_ptr);
-	if (!vrange.empty()) result &= save_vector(vrange, std::string("vrange"), beacls::IntegerVec(), true, fs, variable_ptr);
-	if (!dMax.empty()) result &= save_vector(dMax, std::string("dMax"), beacls::IntegerVec(), true, fs, variable_ptr);
-	return result;
 }
 bool MyPlane::optCtrl(
 	std::vector<beacls::FloatVec >& uOpts,
@@ -227,7 +189,7 @@ bool MyPlane::dynamics_cell_helper(
 		}
 		break;
 	default:
-		std::cerr << "Only dimension 1-4 are defined for dynamics of MyPlane!" << std::endl;
+		std::cerr << "Only dimension 0-2 are defined for dynamics of MyPlane!" << std::endl;
 		result = false;
 		break;
 	}
@@ -271,66 +233,3 @@ const beacls::FloatVec& MyPlane::get_vrange() const {
 const beacls::FloatVec& MyPlane::get_dMax() const {
 	return dMax;
 }
-
-
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU)
-bool MyPlane::optCtrl_cuda(
-	std::vector<beacls::UVec>& u_uvecs,
-	const FLOAT_TYPE,
-	const std::vector<beacls::UVec>& x_uvecs,
-	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_UMode_Type uMode
-) const {
-	if (x_uvecs.size() < 3 || x_uvecs[2].empty() || deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
-	const auto vrange_minmax = beacls::minmax_value<FLOAT_TYPE>(vrange.cbegin(), vrange.cend());
-	const FLOAT_TYPE vrange_min = vrange_minmax.first;
-	const FLOAT_TYPE vrange_max = vrange_minmax.second;
-	return MyPlane_CUDA::optCtrl_execute_cuda(u_uvecs, x_uvecs, deriv_uvecs, wMax, vrange_max, vrange_min, modified_uMode);
-}
-bool MyPlane::optDstb_cuda(
-	std::vector<beacls::UVec>& d_uvecs,
-	const FLOAT_TYPE,
-	const std::vector<beacls::UVec>& x_uvecs,
-	const std::vector<beacls::UVec>& deriv_uvecs,
-	const DynSys_DMode_Type dMode
-) const {
-	if (deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
-	return MyPlane_CUDA::optDstb_execute_cuda(d_uvecs, x_uvecs, deriv_uvecs, dMax, modified_dMode);
-}
-bool MyPlane::dynamics_cuda(
-	std::vector<beacls::UVec>& dx_uvecs,
-	const FLOAT_TYPE,
-	const std::vector<beacls::UVec>& x_uvecs,
-	const std::vector<beacls::UVec>& u_uvecs,
-	const std::vector<beacls::UVec>& d_uvecs,
-	const size_t dst_target_dim
-) const {
-	beacls::FloatVec dummy_d_vec{ 0 };
-	std::vector<beacls::UVec> dummy_d_uvecs;
-	if (d_uvecs.empty()) {
-		dummy_d_uvecs.resize(get_nd());
-		std::for_each(dummy_d_uvecs.begin(), dummy_d_uvecs.end(), [&dummy_d_vec](auto& rhs) {
-			rhs = beacls::UVec(dummy_d_vec, beacls::UVecType_Vector, false);
-		});
-	}
-	const std::vector<beacls::UVec>& modified_d_uvecs = (d_uvecs.empty()) ? dummy_d_uvecs : d_uvecs;
-	bool result = true;
-	if (dst_target_dim == std::numeric_limits<size_t>::max()) {
-		result &= MyPlane_CUDA::dynamics_cell_helper_execute_cuda_dimAll(dx_uvecs, x_uvecs, u_uvecs, modified_d_uvecs);
-	}
-	else
-	{
-		if (dst_target_dim < x_uvecs.size()) {
-			MyPlane_CUDA::dynamics_cell_helper_execute_cuda(dx_uvecs[dst_target_dim], x_uvecs, u_uvecs, modified_d_uvecs, dst_target_dim);
-		}
-		else {
-			std::cerr << "Invalid target dimension for dynamics: " << dst_target_dim << std::endl;
-			result = false;
-		}
-	}
-	return result;
-}
-
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU) */

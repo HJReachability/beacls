@@ -202,8 +202,6 @@ endif
 
 DEPENDS  = $(OBJECTS:.o=.d)
 
-GOOGLE-PROFILE-LOG = $(TARGET).prof
-
 $(TARGET): $(OBJECTS) $(LIBS)
 	$(LINKER) -o $@ $(OBJECTS) $(ALL_LDFLAGS)
 
@@ -218,56 +216,20 @@ all: $(TARGET)
 test: $(TARGET)
 	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
 
-google-prof: $(GOOGLE-PROFILE-LOG)
-
-$(GOOGLE-PROFILE-LOG): $(TARGET)
-	env LD_PRELOAD=$(GOOGLE_PERF_LIB):$(LD_PRELOAD) CPUPROFILE=./$(GOOGLE-PROFILE-LOG) CPUPROFILE_FREQUENCY=$(CPUPROFILE_FREQUENCY) $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
-
-show-google-prof: $(TARGET) $(GOOGLE-PROFILE-LOG)
-	google-pprof $(TARGET) $(GOOGLE-PROFILE-LOG) --text
-
-kcachegrind-google-prof: $(GOOGLE-PROFILE-LOG)	$(TARGET)
-	google-pprof $(TARGET) --callgrind $(GOOGLE-PROFILE-LOG) > $(GOOGLE-PROFILE-LOG).cg
-	kcachegrind $(GOOGLE-PROFILE-LOG).cg &
-
 time: $(TARGET)
 	$(TIME) env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) ./$(TARGET) $(FILE_DUMP)
 
-iprofiler: $(TARGET)
-	cp -rp $(OPENCV_LIB_DIR):$(MODULE_DIR)/liblevelset.so .
-	cp -rp $(OPENCV_LIB_DIR):$(MODULE_DIR)/libhelperOC.so .
-	iprofiler -T 0 -$(TIME)profiler ./$(TARGET) $(FILE_DUMP)
-#	rm -rf liblevelset.so
-#	rm -rf libhelperOC.so
+nvprof: $(TARGET)
+	$(TIME) env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) nvprof -o nvprof.dat ./$(TARGET) $(FILE_DUMP)
 
-
-valgrind: $(TARGET)
-	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --leak-check=full --show-reachable=yes --track-origins=yes --error-limit=no ./$(TARGET) $(FILE_DUMP)
-
-
-massif: $(TARGET)
-	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=massif ./$(TARGET) $(FILE_DUMP)
-
-helgrind: $(TARGET)
-	env $(TEST_ENV_NAME)=$(LLVM_LIBRARY_PATH):$(OPENCV_LIB_DIR):$(MODULE_DIR):$($(TEST_ENV_NAME)) valgrind --tool=helgrind --histroy-level=approx ./$(TARGET) $(FILE_DUMP)
-
-
-check:
-	python checker.py ref_all_loop.csv   all_loop.csv
-	python checker.py ref_short_loop.csv short_loop.csv
-	python checker.py ref_mid_loop.csv   mid_loop.csv
-
-clean:
+clean: cleanlog
 	rm -rf $(OBJDIR)
 	rm -f $(OBJECTS)
-	rm -f gmon.out
 	rm -f $(TARGET)
-	rm -f *.mat
-	rm -rf $(GOOGLE-PROFILE-LOG) $(GOOGLE-PROFILE-LOG).cg
 
 cleanlog:
 	rm -f gmon.out
 	rm -f *.mat
-	rm -rf $(GOOGLE-PROFILE-LOG) $(GOOGLE-PROFILE-LOG).cg
+	rm -f *.png
 
 -include $(DEPENDS)

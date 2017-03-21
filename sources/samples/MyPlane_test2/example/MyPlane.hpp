@@ -57,20 +57,7 @@ public:
 		const beacls::FloatVec& dMax = beacls::FloatVec{0,0}
 	);
 	PREFIX_VC_DLL
-		MyPlane(
-			beacls::MatFStream* fs,
-			beacls::MatVariable* variable_ptr = NULL
-		);
-	PREFIX_VC_DLL
 		virtual ~MyPlane();
-	PREFIX_VC_DLL
-		virtual bool save(
-			beacls::MatFStream* fs,
-			beacls::MatVariable* variable_ptr = NULL);
-	PREFIX_VC_DLL
-		virtual bool operator==(const MyPlane& rhs) const;
-	PREFIX_VC_DLL
-		virtual bool operator==(const DynSys& rhs) const;
 
 	virtual MyPlane* clone() const {
 		return new MyPlane(*this);
@@ -166,13 +153,6 @@ public:
 		const size_t dst_target_dim
 	) const;
 #endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU) */
-
-	PREFIX_VC_DLL
-		FLOAT_TYPE get_wMax() const;
-	PREFIX_VC_DLL
-		const beacls::FloatVec& get_vrange() const;
-	PREFIX_VC_DLL
-		const beacls::FloatVec& get_dMax() const;
 protected:
 	/** @overload
 	Disable copy constructor
