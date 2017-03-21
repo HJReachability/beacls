@@ -4,11 +4,12 @@ doc:
 	env BEACLS_VERSION=$(BEACLS_VERSION) doxygen Doxyfile.in
 	
 install:
-	git add ../../doc/$(BEACLS_VERSION)
-	git commit -m "Updated documents." ../../doc/$(BEACLS_VERSION)
+	cd ../../docs; \
+	git add $(BEACLS_VERSION); \
+	git commit -m "Updated documents." $(BEACLS_VERSION)
 
 clean:
 	
 cleanall:
-	git rm -r ../../doc/$(BEACLS_VERSION)
-	rm -rf -r ../../doc/$(BEACLS_VERSION) 
+	git rm -r ../../docs/$(BEACLS_VERSION)
+	rm -rf -r ../../docs/$(BEACLS_VERSION) 
