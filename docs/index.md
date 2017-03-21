@@ -10,6 +10,9 @@ Berkeley Efficient API in C++ for Level Set methods
 
 ## Installation Guide
 
+- [Local computer (Mac/Ubuntu Linux/Windows)](slides/master/BEACLS_Installation_Guide.pdf)
+- [Amazon Web Service](slides/master/BEACLSonAWS.pdf)
+
 ## Tutorials
 
 ## Developer site
