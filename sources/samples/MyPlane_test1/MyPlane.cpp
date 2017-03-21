@@ -4,10 +4,6 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
-#include <utility>
-#include <array>
-#include <typeinfo>
-#include <random>
 #include "MyPlane.hpp"
 MyPlane::MyPlane(
 	const beacls::FloatVec &x,

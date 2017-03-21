@@ -5,9 +5,6 @@
 #include <numeric>
 #include <functional>
 #include <cfloat>
-#include <sstream>
-#include <fstream>
-#include <iomanip>
 #include <cstring>
 #include "MyPlane.hpp"
 
@@ -22,20 +19,20 @@ int main(int argc, char *argv[])
 	}
 
 	//!< Plane parameters
-	const beacls::FloatVec initState{ (FLOAT_TYPE)100, (FLOAT_TYPE)75, (FLOAT_TYPE)(220 * M_PI / 180) };
-	const FLOAT_TYPE wMax = (FLOAT_TYPE)1.2;
-	const beacls::FloatVec vrange{ (FLOAT_TYPE)1.1, (FLOAT_TYPE)1.3 };
-	const beacls::FloatVec dMax{ (FLOAT_TYPE)0, (FLOAT_TYPE)0 };
+	const beacls::FloatVec initState{ 100, 75, (220 * M_PI / 180) };
+	const FLOAT_TYPE wMax = 1.2;
+	const beacls::FloatVec vrange{ 1.1, 1.3 };
+	const beacls::FloatVec dMax{ 0, 0 };
 	MyPlane* pl = new MyPlane(initState, wMax, vrange, dMax);
 
 	const FLOAT_TYPE inf = std::numeric_limits<FLOAT_TYPE>::infinity();
 	//!< Target and obstacle
 	levelset::HJI_Grid* g = helperOC::createGrid(
-		beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 
-		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
+		beacls::FloatVec{0, 0, 0}, 
+		beacls::FloatVec{150, 150, (2*M_PI)}, 
 		beacls::IntegerVec{41,41,11});
 	std::vector<beacls::FloatVec > targets(1);
-	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
+	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75, 50, 0 }, 10).execute(g, targets[0]);
 	beacls::FloatVec obs1, obs2;
 	levelset::ShapeRectangleByCorner(beacls::FloatVec{ 300, 250, -inf }, beacls::FloatVec{ 350, 300, inf }).execute(g, obs1);
 	levelset::ShapeRectangleByCorner(beacls::FloatVec{ 5, 5, -inf }, beacls::FloatVec{ 145, 145, inf }).execute(g, obs2);

@@ -4,10 +4,6 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
-#include <utility>
-#include <array>
-#include <typeinfo>
-#include <random>
 #include "MyPlane.hpp"
 MyPlane::MyPlane(
 	const beacls::FloatVec &x,
@@ -222,14 +218,4 @@ bool MyPlane::dynamics(
 			std::cerr << "Invalid target dimension for dynamics: " << dst_target_dim << std::endl;
 	}
 	return true;
-}
-
-FLOAT_TYPE MyPlane::get_wMax() const {
-	return wMax;
-}
-const beacls::FloatVec& MyPlane::get_vrange() const {
-	return vrange;
-}
-const beacls::FloatVec& MyPlane::get_dMax() const {
-	return dMax;
 }

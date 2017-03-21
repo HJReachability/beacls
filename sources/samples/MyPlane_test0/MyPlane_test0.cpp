@@ -5,9 +5,6 @@
 #include <numeric>
 #include <functional>
 #include <cfloat>
-#include <sstream>
-#include <fstream>
-#include <iomanip>
 #include <cstring>
 #include <helperOC/DynSys/Plane/Plane.hpp>
 
