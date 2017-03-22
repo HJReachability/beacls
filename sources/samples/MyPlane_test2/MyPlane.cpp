@@ -221,7 +221,7 @@ bool MyPlane::dynamics(
 	return true;
 }
 
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU)
+#if defined(WIGH_GPU)
 bool MyPlane::optCtrl_cuda(
 	std::vector<beacls::UVec>& u_uvecs,
 	const FLOAT_TYPE,
@@ -281,4 +281,4 @@ bool MyPlane::dynamics_cuda(
 	return result;
 }
 
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU) */
+#endif /* defined(WIGH_GPU) */

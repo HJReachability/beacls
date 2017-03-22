@@ -7,7 +7,7 @@
 #include <helperOC/DynSys/DynSys/DynSysTypeDef.hpp>
 #include <Core/UVec.hpp>
 
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC)
+#if defined(WITH_GPU)
 namespace MyPlane_CUDA {
 	bool optCtrl_execute_cuda(
 		std::vector<beacls::UVec>& u_uvecs,
@@ -39,5 +39,4 @@ namespace MyPlane_CUDA {
 		const size_t dim
 	);
 };
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) */
 #endif /*__Plane_cuda_hpp__*/

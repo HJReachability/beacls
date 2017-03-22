@@ -109,7 +109,7 @@ public:
 		const beacls::IntegerVec& x_sizes,
 		const size_t dst_target_dim
 	) const;
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU)
+#if defined(WIGH_GPU)
 	/*
 	@brief Control of Dubins Car
 	*/
@@ -152,7 +152,7 @@ public:
 		const std::vector<beacls::UVec>& d_uvecs,
 		const size_t dst_target_dim
 	) const;
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU) */
+#endif /* defined(WIGH_GPU) */
 protected:
 	/** @overload
 	Disable copy constructor

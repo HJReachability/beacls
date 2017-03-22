@@ -221,7 +221,7 @@ bool MyPlane::dynamics(
 	return true;
 }
 
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU)
+#if defined(WIGH_GPU)
 bool MyPlane::optCtrl_cuda(
 	std::vector<beacls::UVec>& u_uvecs,
 	const FLOAT_TYPE,
@@ -230,7 +230,7 @@ bool MyPlane::optCtrl_cuda(
 	const DynSys_UMode_Type uMode
 ) const {
 	if (x_uvecs.size() < 3 || x_uvecs[2].empty() || deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
-	const DynSys_UMode_Type modified_uMode = (uMode == DynSys_UMode_Default) ? DynSys_UMode_Max : uMode;
+	const DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
 	const auto vrange_minmax = beacls::minmax_value<FLOAT_TYPE>(vrange.cbegin(), vrange.cend());
 	const FLOAT_TYPE vrange_min = vrange_minmax.first;
 	const FLOAT_TYPE vrange_max = vrange_minmax.second;
@@ -244,7 +244,7 @@ bool MyPlane::optDstb_cuda(
 	const DynSys_DMode_Type dMode
 ) const {
 	if (deriv_uvecs.size() < 3 || deriv_uvecs[0].empty() || deriv_uvecs[1].empty() || deriv_uvecs[2].empty()) return false;
-	const DynSys_DMode_Type modified_dMode = (dMode == DynSys_DMode_Default) ? DynSys_DMode_Min : dMode;
+	const DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
 	return MyPlane_CUDA::optDstb_execute_cuda(d_uvecs, x_uvecs, deriv_uvecs, dMax, modified_dMode);
 }
 bool MyPlane::dynamics_cuda(
@@ -281,4 +281,4 @@ bool MyPlane::dynamics_cuda(
 	return result;
 }
 
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) && defined(WIGH_GPU) */
+#endif /* defined(WIGH_GPU) */

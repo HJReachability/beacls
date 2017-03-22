@@ -16,7 +16,6 @@
 #include <Core/UVec.hpp>
 
 #if defined(WITH_GPU) 
-#if defined(USER_DEFINED_GPU_DYNSYS_FUNC)
 namespace MyPlane_CUDA {
 
 	struct Get_optCtrl_D {
@@ -365,5 +364,4 @@ namespace MyPlane_CUDA {
 		return result;
 	}
 };
-#endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) */
 #endif /* defined(WITH_GPU) */
