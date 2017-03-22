@@ -179,7 +179,7 @@ endif
 vpath %.cpp .
 
 INCLUDE  = -I$(BEACLS_INC_DIR) -I$(INSTALL_DIR)/includes
-TARGET   = MyPlane_test1
+TARGET   = MyPlane_test0
 OBJDIR   = ./obj
 ifeq "$(strip $(OBJDIR))" ""
   OBJDIR = .
