@@ -39,4 +39,5 @@ namespace MyPlane_CUDA {
 		const size_t dim
 	);
 };
+#endif /* defined(WITH_GPU) */
 #endif /*__Plane_cuda_hpp__*/
