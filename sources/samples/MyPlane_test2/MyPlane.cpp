@@ -266,7 +266,9 @@ bool MyPlane::dynamics_cuda(
 	const std::vector<beacls::UVec>& modified_d_uvecs = (d_uvecs.empty()) ? dummy_d_uvecs : d_uvecs;
 	bool result = true;
 	if (dst_target_dim == std::numeric_limits<size_t>::max()) {
-		result &= MyPlane_CUDA::dynamics_cell_helper_execute_cuda_dimAll(dx_uvecs, x_uvecs, u_uvecs, modified_d_uvecs);
+		result &= MyPlane_CUDA::dynamics_cell_helper_execute_cuda(dx_uvecs[0], x_uvecs, u_uvecs, modified_d_uvecs, 0);
+		result &= MyPlane_CUDA::dynamics_cell_helper_execute_cuda(dx_uvecs[1], x_uvecs, u_uvecs, modified_d_uvecs, 1);
+		result &= MyPlane_CUDA::dynamics_cell_helper_execute_cuda(dx_uvecs[2], x_uvecs, u_uvecs, modified_d_uvecs, 2);
 	}
 	else
 	{
