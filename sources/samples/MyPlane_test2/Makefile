@@ -2,7 +2,6 @@ GPU_ON = N
 VISUALIZE_ON = Y
 GUI_ON = Y
 FILESYSTEM_ON = N
-OPENMP_ON = Y
 STATIC_ON = N
 PROFILE_ON = N
 FMA_ON = Y
@@ -23,10 +22,12 @@ MATIO_INC_DIR = $(MATIO_DIR)/include
 
 UNAME = $(shell uname)
 ifeq ($(UNAME),Darwin)
-	HOSTCC_DIR = /usr/local/opt/llvm
+	HOSTCC_DIR = /usr
 	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
+	OPENMP_ON = N
 else
 	HOSTCC  = g++
+	OPENMP_ON = Y
 endif
 
 

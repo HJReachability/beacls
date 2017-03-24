@@ -3,7 +3,6 @@ VISUALIZE_ON = Y
 GUI_ON = Y
 FILESYSTEM_ON = N
 VERBOSE_ON = N
-OPENMP_ON = Y
 STATIC_ON = N
 PROFILE_ON = N
 FMA_ON = Y
@@ -11,7 +10,6 @@ USER_DEFINED_GPU_DYNSYS_FUNC_ON = Y
 OPTIMIZE = 3
 WARNING_ON = Y
 SINGLE_PRECISION_ON = Y
-MAKE_TABLE_ON = N
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 NVCC = /usr/bin/nvcc
@@ -22,10 +20,12 @@ MATIO_INC_DIR = $(MATIO_DIR)/include
 
 UNAME = $(shell uname)
 ifeq ($(UNAME),Darwin)
-	HOSTCC_DIR = /usr/local/opt/llvm
+	HOSTCC_DIR = /usr
 	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
+	OPENMP_ON = N
 else
 	HOSTCC  = g++
+	OPENMP_ON = Y
 endif
 
 
