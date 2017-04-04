@@ -1,8 +1,8 @@
 @echo off
-set HDF5_DIR_X64=C:\Program Files\HDF_Group\HDF5\1.8.17
-set HDF5_DIR_X86=C:\Program Files (x86)\HDF_Group\HDF5\1.8.17
+set HDF5_DIR_X64=C:\Program Files\HDF_Group\HDF5\1.8.18
+set HDF5_DIR_X86=C:\Program Files (x86)\HDF_Group\HDF5\1.8.18
 set MATIO_DIR=%~dp03rdparty\matio\visual_studio
-set BOOST_DIR=C:\Boost\boost_1_62_0
+set BOOST_DIR=C:\Boost\boost_1_63_0
 set OPENCV_DIR=C:\OpenCV3\opencv3.2.0\opencv\build
 set OPENCV_VER=320
 set OPENCV_VC_TOOLSET=vc14
