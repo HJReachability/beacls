@@ -141,7 +141,7 @@ endif
 	CFLAGS	+= -DVISUALIZE_BY_OPENCV
 	CFLAGS 	+= $(shell pkg-config --cflags opencv)
 	LDFLAGS += $(shell pkg-config --libs opencv)
-	OPENCV_LIB_DIR	+= $(shell pkg-config --libs-only-L opencv | sed s/"-L"/""/ )
+	OPENCV_LIB_DIR	+= $(shell pkg-config --libs opencv | sed s/"-lopencv_.*"/""/g | sed s/"libopencv.*"/""/g )
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)
