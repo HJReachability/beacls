@@ -207,43 +207,43 @@ bool STS::optCtrl(
     }
 
 
-bool STS::optDstb(
-	std::vector<beacls::FloatVec >& dOpts,
-	const FLOAT_TYPE,
-	const std::vector<beacls::FloatVec::const_iterator >&,
-	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
-	const beacls::IntegerVec&,
-	const beacls::IntegerVec& deriv_sizes,
-	const helperOC::DynSys_DMode_Type dMode
-) const {
-	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
-	const size_t src_target_dim_index = find_val(dims, 2);
-	if (src_target_dim_index == dims.size()) return false;
-	const FLOAT_TYPE* deriv = deriv_ptrs[src_target_dim_index];
-	const size_t length = deriv_sizes[src_target_dim_index];
-	if (length == 0 || deriv == NULL) return false;
-	const size_t nd = get_nd();
-	for (size_t dim = 0; dim < nd; ++dim) {
-		if (find_val(dims, dim) != dims.size()) {
-			beacls::FloatVec& dOpt = dOpts[dim];
-			const FLOAT_TYPE dMax_d = dMax[dim];
-			dOpt.resize(length);
-			switch (modified_dMode) {
-			case helperOC::DynSys_DMode_Max:
-				std::transform(deriv, deriv + length, dOpt.begin(), [dMax_d](const auto& rhs) { return (rhs >= 0) ? dMax_d : -dMax_d;  });
-				break;
-			case helperOC::DynSys_DMode_Min:
-				std::transform(deriv, deriv + length, dOpt.begin(), [dMax_d](const auto& rhs) { return (rhs >= 0) ? -dMax_d : dMax_d;  });
-				break;
-			case helperOC::DynSys_UMode_Invalid:
-			default:
-				std::cerr << "Unknown dMode!: " << modified_dMode << std::endl;
-				return false;
-			}
-		}
-	}
-	return true;
-}
+//bool STS::optDstb(
+//	std::vector<beacls::FloatVec >& dOpts,
+//	const FLOAT_TYPE,
+//	const std::vector<beacls::FloatVec::const_iterator >&,
+//	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
+//	const beacls::IntegerVec&,
+//	const beacls::IntegerVec& deriv_sizes,
+//	const helperOC::DynSys_DMode_Type dMode
+//) const {
+//	const helperOC::DynSys_DMode_Type modified_dMode = (dMode == helperOC::DynSys_DMode_Default) ? helperOC::DynSys_DMode_Min : dMode;
+//	const size_t src_target_dim_index = find_val(dims, 2);
+//	if (src_target_dim_index == dims.size()) return false;
+//	const FLOAT_TYPE* deriv = deriv_ptrs[src_target_dim_index];
+//	const size_t length = deriv_sizes[src_target_dim_index];
+//	if (length == 0 || deriv == NULL) return false;
+//	const size_t nd = get_nd();
+//	for (size_t dim = 0; dim < nd; ++dim) {
+//		if (find_val(dims, dim) != dims.size()) {
+//			beacls::FloatVec& dOpt = dOpts[dim];
+//			const FLOAT_TYPE dMax_d = dMax[dim];
+//			dOpt.resize(length);
+//			switch (modified_dMode) {
+//			case helperOC::DynSys_DMode_Max:
+//				std::transform(deriv, deriv + length, dOpt.begin(), [dMax_d](const auto& rhs) { return (rhs >= 0) ? dMax_d : -dMax_d;  });
+//				break;
+//			case helperOC::DynSys_DMode_Min:
+//				std::transform(deriv, deriv + length, dOpt.begin(), [dMax_d](const auto& rhs) { return (rhs >= 0) ? -dMax_d : dMax_d;  });
+//				break;
+//			case helperOC::DynSys_UMode_Invalid:
+//			default:
+//				std::cerr << "Unknown dMode!: " << modified_dMode << std::endl;
+//				return false;
+//			}
+//		}
+//	}
+//	return true;
+//}
 
 bool STS::dynamics_cell_helper(
 	std::vector<beacls::FloatVec >& dxs,
@@ -253,23 +253,24 @@ bool STS::dynamics_cell_helper(
 	const size_t x_size,
 	const size_t dim
 ) const {
-	beacls::FloatVec& dx_dim = dxs[dim];
-	const size_t dx_dim_size = (dim == 2) ? us[0].size() : x_size;
+	beacls::FloatVec& dx_dim = dxs[dim]; //modify size of output
+	//const size_t dx_dim_size = (dim == 2) ? us[0].size() : x_size; //if doing 3rd dimension, make dx just the size of the control. Otherwise make it the size of x
+    const size_t dx_dim_size = x_size;
 	dx_dim.resize(dx_dim_size);
 	bool result = true;
 	switch (dim) {
 	case 0:
 		{
-			const beacls::FloatVec& ds_0 = ds[0];
-			if (ds[0].size() == x_size) {
-				std::transform(x_ite, x_ite + x_size, ds_0.cbegin(), dx_dim.begin(), [this](const auto& lhs, const auto& rhs) {
-					return  speed * std::cos(lhs) + rhs;
+			const beacls::FloatVec& ds_0 = ds[0]; //dist is first disturbance
+			if (ds[0].size() == x_size) { //if dist is size of output then do this
+				std::transform(x_ite[1], x_ite[1] + x_size[1], ds_0.cbegin(), dx_dim.begin(), [this](const auto& lhs, const auto& rhs) {
+					return  lhs + rhs;
 				});
 			}
 			else {	//!< ds_0_size != length
-				const FLOAT_TYPE d0 = ds_0[0];
-				std::transform(x_ite, x_ite + x_size, dx_dim.begin(), [this, d0](const auto& rhs) {
-					return  speed * std::cos(rhs) + d0;
+				const FLOAT_TYPE d0 = ds_0[0]; //if the disturbance is scalar, do this with a scalar
+				std::transform(x_ite[1], x_ite[1] + x_size[1], dx_dim.begin(), [this, d0](const auto& rhs) {
+					return  rhs + d0;
 				});
 			}
 		}
@@ -278,8 +279,15 @@ bool STS::dynamics_cell_helper(
 		{
 			const beacls::FloatVec& ds_1 = ds[1];
 			if (ds[1].size() == x_size) {
-				std::transform(x_ite, x_ite + x_size, ds_1.cbegin(), dx_dim.begin(), [this](const auto& lhs, const auto& rhs) {
-					return  speed * std::sin(lhs) + rhs;
+				//std::transform(x_ite, x_ite + x_size, ds_1.cbegin(), dx_dim.begin(), [this](const auto& lhs, const auto& rhs) {
+				//	return  speed * std::sin(lhs) + rhs;
+                    const FLOAT_TYPE angCos = std::cos(x_ite[0]-x_ite[2]);
+                const FLOAT_TYPE angSin = std::sin(x_ite[0]-x_ite[2]);
+                    const FLOAT_TYPE denom1 = M1 * pow(R1,4.0) + pow(L1,2.0)*M2*pow(R1,2.0) - pow(L1,2.0)*M2*pow(R2,2.0)*pow(ang,2.0);
+                    const FLOAT_TYPE tau1num1 = pow(R1,2.0);
+                    const FLOAT_TYPE tau2num1 = -ang*L1*R2;
+                const FLOAT_TYPE num2 = -M2*angCos*angSin*pow(L1,2.0)*pow(R2,2.0)*pow(x_ite[1],2)-M2*angSin*L1*pow(R1,2)*R2*pow(x[3],2) - M2*grav*std::sin(x+ite_[2])*angCos*L1*pow(R2,2) - M1*grav*std::sin(x_ite[0])*pow(R1,3);
+            
 				});
 			}
 			else {	//!< ds_1_size != length
@@ -323,7 +331,7 @@ bool STS::dynamics_cell_helper(
 	return result;
 }
 bool STS::dynamics(
-	std::vector<beacls::FloatVec >& dxs,
+	std::vector<beacls::FloatVec >& dxs, //changing the dx for each dimension
 	const FLOAT_TYPE,
 	const std::vector<beacls::FloatVec::const_iterator >& x_ites,
 	const std::vector<beacls::FloatVec >& us,
@@ -331,19 +339,20 @@ bool STS::dynamics(
 	const beacls::IntegerVec& x_sizes,
 	const size_t dst_target_dim
 ) const {
-	static const std::vector<beacls::FloatVec >& dummy_ds{ beacls::FloatVec{0},beacls::FloatVec{0},beacls::FloatVec{0} };
-	const std::vector<beacls::FloatVec >& modified_ds = (ds.empty()) ? dummy_ds : ds;
-	const size_t src_x_dim = find_val(dims, 2);
-	const beacls::FloatVec::const_iterator& x_ites_target_dim = x_ites[src_x_dim];
-	if (dst_target_dim == std::numeric_limits<size_t>::max()) {
-		for (size_t dim = 0; dim < dims.size(); ++dim) {
-			dynamics_cell_helper(dxs, x_ites_target_dim, us, modified_ds, x_sizes[src_x_dim], dims[dim]);
+	static const std::vector<beacls::FloatVec >& dummy_ds{ beacls::FloatVec{0},beacls::FloatVec{0},beacls::FloatVec{0},beacls::FloatVec{0} };
+	const std::vector<beacls::FloatVec >& modified_ds = (ds.empty()) ? dummy_ds : ds; //if no disturbance, make disturbance vector 0
+	//const size_t src_x_dim = find_val(dims, 2); // takes in the states that are used in the dynamics calculations
+    const beacls::FloatVec::const_iterator& x_ites_target_dim = x_ites;//[src_x_dim];
+	if (dst_target_dim == std::numeric_limits<size_t>::max()) { //if function asks for one dimension just use that; otherwise solve for all dimensions
+		for (size_t dim = 0; dim < dims.size(); ++dim) { //for each dimension
+			dynamics_cell_helper(dxs, x_ites_target_dim, us, modified_ds, x_sizes, dims[dim]);
+            // x_sizes[src_x_dim] only takes in the states that are used for calculating dynamics. in tihs case just take in all
 		}
 	}
 	else
 	{
-		if (find_val(dims,dst_target_dim) != dims.size())
-			dynamics_cell_helper(dxs, x_ites_target_dim, us, modified_ds, x_sizes[src_x_dim], dst_target_dim);
+		if (find_val(dims,dst_target_dim) != dims.size()) //if called from partial func
+			dynamics_cell_helper(dxs, x_ites_target_dim, us, modified_ds, x_sizes, dst_target_dim);
 		else
 			std::cerr << "Invalid target dimension for dynamics: " << dst_target_dim << std::endl;
 	}
