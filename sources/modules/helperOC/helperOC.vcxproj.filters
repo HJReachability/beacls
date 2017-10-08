@@ -298,11 +298,8 @@
     <CudaCompile Include="DynSys\KinVehicleND\KinVehicleND_cuda.cu">
       <Filter>ソース ファイル</Filter>
     </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-    <None Include="DynSys\Quad4D\Quad4D_cuda.cu">
+    <CudaCompile Include="DynSys\Quad4D\Quad4D_cuda.cu">
       <Filter>ソース ファイル</Filter>
-    </None>
+    </CudaCompile>
   </ItemGroup>
 </Project>
