@@ -98,7 +98,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
@@ -111,7 +111,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CUDA_LIBS);libmatiod.lib;$(OPENCV_DEBUG_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -137,7 +137,7 @@ popd</Command>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
@@ -149,7 +149,7 @@ popd</Command>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CUDA_LIBS);libmatiod.lib;$(OPENCV_DEBUG_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -178,7 +178,7 @@ popd</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
@@ -193,7 +193,7 @@ popd</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
-      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x86\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CUDA_LIBS);libmatio.lib;$(OPENCV_RELEASE_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -221,7 +221,7 @@ popd</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CUDA_PATH_V8_0)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(OPENCV_DIR)\include;$(MATIO_DIR)\..\src;$(MATIO_DIR);$(SolutionDir)..\builds\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
@@ -237,7 +237,7 @@ popd</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
-      <AdditionalLibraryDirectories>$(CUDA_PATH_V8_0)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(MATIO_DIR)\$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\$(OPENCV_VC_TOOLSET)\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CUDA_LIBS);libmatio.lib;$(OPENCV_RELEASE_LIBS);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
