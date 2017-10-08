@@ -392,4 +392,7 @@
       <Filter>ソース ファイル</Filter>
     </CudaCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
 </Project>
