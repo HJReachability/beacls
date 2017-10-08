@@ -10,6 +10,7 @@ set OPENCV_DEBUG_LIBS=opencv_world%OPENCV_VER%d.lib
 set OPENCV_RELEASE_LIBS=opencv_world%OPENCV_VER%.lib
 set OPENCV_DEBUG_BINS=opencv_world%OPENCV_VER%d.dll
 set OPENCV_RELEASE_BINS=opencv_world%OPENCV_VER%.dll
+set CUDA_PATH=$(CUDA_PATH_V8_0)
 set CUDA_LIBS=cudart.lib
 set CUDA_MACRO=WITH_GPU
 
