@@ -242,7 +242,9 @@
     <ClInclude Include="MyPlane_cuda.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyPlane_cuda.cu" />
+    <CudaCompile Include="MyPlane_cuda.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
