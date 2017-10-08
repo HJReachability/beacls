@@ -119,7 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
-    <None Include="DynSys\Quad4D\Quad4D_cuda.cu" />
+    <CudaCompile Include="DynSys\Quad4D\Quad4D_cuda.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7C9F9249-AA19-412E-974B-40CCD2C6AB3F}</ProjectGuid>
