@@ -908,7 +908,7 @@ bool dynamics_cell_helper_execute_cuda(
 			FLOAT_TYPE dx1;
 			FLOAT_TYPE dx2;
 			get_dxs(dx0, dx1, dx2, y2, deriv0, deriv1, deriv2, wMax, vrange_min, vrange_max, dMax_0, dMax_1);
-			return  - (deriv0 * dx0 + deriv1 * dx1 + deriv2 * dx2);
+			return  (deriv0 * dx0 + deriv1 * dx1 + deriv2 * dx2);
 		}
 	};
 
