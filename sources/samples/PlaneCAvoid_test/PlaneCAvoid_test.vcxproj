@@ -115,10 +115,10 @@
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>del *.mat
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatiod.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER)d.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOCd.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatiod.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER)d.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\helperOCd.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -149,10 +149,10 @@ xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir)
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>del *.mat
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatiod.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER)d.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOCd.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatiod.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER)d.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\helperOCd.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -188,10 +188,10 @@ xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir)
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>del *.mat
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -231,10 +231,10 @@ xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) 
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>del *.mat
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

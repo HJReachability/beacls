@@ -114,7 +114,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -147,7 +151,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -185,7 +193,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -227,7 +239,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
