@@ -174,9 +174,9 @@ xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelsetd.dll $(P
     </Link>
     <PostBuildEvent>
       <Command>del *.mat
-xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatiod.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER)d.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -212,9 +212,9 @@ xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelsetd.dll $(P
     </Bscmake>
     <PostBuildEvent>
       <Command>del *.mat
-xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatiod.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER)d.dll $(ProjectDir) /D/E/C/I/H/Y
-xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelsetd.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(SolutionDir)..\builds\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

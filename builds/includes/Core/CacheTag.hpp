@@ -31,6 +31,7 @@ namespace levelset
 			~CacheTag();
 		void set_tag(const FLOAT_TYPE new_t, const size_t new_bi, const size_t new_l);
 		bool check_tag(const FLOAT_TYPE new_t, const size_t new_bi, const size_t new_l) const;
+		bool check_tag(const size_t new_bi, const size_t new_l) const;
 	private:
 		/** @overload
 		Disable operator=

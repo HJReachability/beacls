@@ -292,6 +292,39 @@ T get_actual_length(
 		return 0;
 }
 
+
+static inline
+unsigned int nextPow2(unsigned int x)
+{
+	--x;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return ++x;
+}
+
+template<typename T>
+static inline
+void get_cuda_thread_size_1d(
+	T& num_of_threads_x,
+	T& num_of_blocks_x,
+	const T loop_length,
+	const T maximum_num_of_thread = 1024
+) {
+	const T maximum_num_of_threads_x = 1024 < maximum_num_of_thread ? 1024 : maximum_num_of_thread;
+	const T maximum_num_of_blocks_x = 65535;
+
+	num_of_threads_x = (loop_length < maximum_num_of_threads_x) ? nextPow2(loop_length) : maximum_num_of_threads_x;
+	num_of_blocks_x = (loop_length + num_of_threads_x - 1) / num_of_threads_x;
+	if (num_of_blocks_x > maximum_num_of_blocks_x)
+	{
+		num_of_blocks_x /= 2;
+		num_of_threads_x *= 2;
+	}
+}
+
 template<typename T>
 static inline
 void get_cuda_thread_size(

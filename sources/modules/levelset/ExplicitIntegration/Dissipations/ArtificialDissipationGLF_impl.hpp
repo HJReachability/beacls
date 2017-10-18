@@ -12,6 +12,12 @@ namespace levelset {
 	private:
 		std::vector<beacls::UVec> alphas_cpu_uvecs;
 		std::vector<beacls::UVec> alphas_cuda_uvecs;
+		std::vector<beacls::UVec> tmp_min_cuda_uvecs;
+		std::vector<beacls::UVec> tmp_max_cuda_uvecs;
+		std::vector<beacls::UVec> tmp_max_alpha_cuda_uvecs;
+		std::vector<beacls::UVec> tmp_min_cpu_uvecs;
+		std::vector<beacls::UVec> tmp_max_cpu_uvecs;
+		std::vector<beacls::UVec> tmp_max_alpha_cpu_uvecs;
 	public:
 		ArtificialDissipationGLF_impl(
 		);
@@ -21,6 +27,7 @@ namespace levelset {
 			beacls::FloatVec& step_bound_invs,
 			std::vector<beacls::UVec>& derivMins,
 			std::vector<beacls::UVec>& derivMaxs,
+			bool& getReductionLater,
 			const FLOAT_TYPE t,
 			const beacls::UVec& data,
 			const std::vector<beacls::UVec>& x_uvecs,
@@ -29,6 +36,14 @@ namespace levelset {
 			const SchemeData *schemeData,
 			const size_t begin_index,
 			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax
+		);
+		bool get_reduction(
+			beacls::FloatVec& step_bound_invs,
+			std::vector<beacls::UVec>& derivMins,
+			std::vector<beacls::UVec>& derivMaxs,
+			const beacls::UVec& diss,
+			const SchemeData *schemeData,
 			const bool updateDerivMinMax
 		);
 		bool calculateRangeOfGradient(
