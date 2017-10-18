@@ -249,6 +249,18 @@ void cudaAverage(beacls::UVec& dst_uvec, const beacls::UVec& src1, const beacls:
 		break;
 	}
 }
+size_t get_minimum_global_memory_in_devices_impl() {
+	int device_count = get_num_of_gpus_impl();
+	size_t minimum_global_memory_in_devices = std::numeric_limits<size_t>::max();
+	for (size_t id = 0; id < device_count; ++id) {
+		struct cudaDeviceProp prop;
+		cudaError_t err;
+		err = cudaGetDeviceProperties(&prop, id);
+		if (err) return 0;
+		if (minimum_global_memory_in_devices > prop.totalGlobalMem) minimum_global_memory_in_devices = prop.totalGlobalMem;
+	}
+	return minimum_global_memory_in_devices;
+}
 int get_num_of_gpus_impl() {
 	int device_count=0;
 	cudaError_t err;
