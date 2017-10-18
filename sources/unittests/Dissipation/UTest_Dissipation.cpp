@@ -319,11 +319,17 @@ bool run_UTest_Dissipation(
 				std::transform(derivMaxs.cbegin(), derivMaxs.cend(), deriv_max_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 				std::transform(derivMins.cbegin(), derivMins.cend(), deriv_min_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 
+				bool getReductionLater = false;
 				if (loop_local_dissipation->execute(
 					diss_line_uvec, new_step_bound_invs, deriv_min_uvecs, deriv_max_uvecs,
+					getReductionLater,
 					t, src_data_uvec, src_deriv_l_uvecs, src_deriv_r_uvecs,  x_uvecs,
 					thread_local_schemeData, expected_result_offset, enable_user_defined_dynamics_on_gpu)) {
 					beacls::UVec tmp_diss;
+
+					if (getReductionLater) {
+						dissipation->get_reduction(new_step_bound_invs, deriv_min_uvecs, deriv_max_uvecs, diss_line_uvec, schemeData, true);
+					}
 
 					if (diss_line_uvec.type() == beacls::UVecType_Cuda) diss_line_uvec.convertTo(tmp_diss, beacls::UVecType_Vector);
 					else tmp_diss = diss_line_uvec;

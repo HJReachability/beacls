@@ -19,33 +19,9 @@ helperOC::ComputeGradients::ComputeGradients(
 ) : 
 	commandQueue(new helperOC::ComputeGradients_CommandQueue),
 	type(type) {
-	const levelset::SpatialDerivative* derivFunc;
-	//! accuracy
-	switch (accuracy) {
-	case helperOC::ApproximationAccuracy_low:
-		derivFunc = new levelset::UpwindFirstFirst(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_medium:
-		derivFunc = new levelset::UpwindFirstENO2(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_veryHigh:
-		derivFunc = new levelset::UpwindFirstWENO5(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_Invalid:
-	default:
-		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
-		derivFunc = NULL;
-		break;
-	}
-	if (derivFunc) {
-		helperOC::ComputeGradients_Worker* worker = new helperOC::ComputeGradients_Worker(commandQueue, derivFunc, 0);
-		workers.push_back(worker);
-		worker->run();
-	}
-	delete derivFunc;
+	helperOC::ComputeGradients_Worker* worker = new helperOC::ComputeGradients_Worker(commandQueue, grid, accuracy, type, 0);
+	workers.push_back(worker);
+	worker->run();
 }
 helperOC::ComputeGradients::~ComputeGradients() {
 	std::for_each(workers.begin(), workers.end(), [](auto& rhs) {

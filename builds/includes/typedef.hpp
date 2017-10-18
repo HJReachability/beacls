@@ -2,7 +2,7 @@
 #define __typedef_hpp__
 #include <vector>
 #include <cstddef>
-//#define SINGLE_PRECISION
+#define SINGLE_PRECISION
 #if defined(SINGLE_PRECISION)
 #define FLOAT_TYPE_32F
 #else	/* defined(SINGLE_PRECISION) */

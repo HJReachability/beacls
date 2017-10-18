@@ -4,6 +4,7 @@
 #include <mutex>
 #include <cstddef>
 #include <thread>
+#include <helperOC/helperOC_type.hpp>
 #include <Core/UVec.hpp>
 namespace levelset {
 	class SpatialDerivative;
@@ -17,7 +18,7 @@ namespace helperOC {
 		std::thread th;
 		int gpu_id;
 		bool exitFlag;
-		levelset::SpatialDerivative* spatialDerivative;
+		const levelset::SpatialDerivative* spatialDerivative;
 		beacls::UVec original_data_line_uvec;
 		std::vector<beacls::UVec> deriv_c_line_uvecs;
 		std::vector<beacls::UVec> deriv_l_line_uvecs;
@@ -35,6 +36,13 @@ namespace helperOC {
 		ComputeGradients_Worker_impl(
 			ComputeGradients_CommandQueue* commandQueue,
 			const levelset::SpatialDerivative* spatialDerivative,
+			const int gpu_id
+		);
+		ComputeGradients_Worker_impl(
+			ComputeGradients_CommandQueue* commandQueue,
+			const levelset::HJI_Grid* grid,
+			const helperOC::ApproximationAccuracy_Type accuracy,
+			const beacls::UVecType type,
 			const int gpu_id
 		);
 		~ComputeGradients_Worker_impl();
