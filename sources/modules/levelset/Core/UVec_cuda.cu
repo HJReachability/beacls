@@ -1,6 +1,4 @@
 #include <cuda_runtime.h>
-#include <thrust/system/cuda/execution_policy.h>
-#include <thrust/transform.h>
 #include <typedef.hpp>
 #if defined(WITH_GPU)
 typedef unsigned char uint8_t;
@@ -14,8 +12,7 @@ typedef	unsigned int uint32_t;
 #include <Core/UVec.hpp>
 #include <Core/CudaStream.hpp>
 #include "UVec_impl_cuda.hpp"
-#include <thrust/device_ptr.h>
-#include <thrust/transform.h>
+#include <cuda_macro.hpp>
 
 namespace beacls
 {
@@ -44,6 +41,7 @@ void copyCudaHostToDevice(void* dst, const void* src, size_t s)
 }
 beacls::CudaStream_impl::CudaStream_impl() {
 	cudaStreamCreate(&stream);
+//	cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking);
 }
 beacls::CudaStream_impl::~CudaStream_impl() {
 	if (stream) {
@@ -96,11 +94,37 @@ void synchronizeCuda(beacls::CudaStream* cudaStream) {
 		cudaStreamSynchronize(stream);
 	}
 }
+template<typename T>
+__global__ static
+void kernel_FillCudaMemory(
+	T* dst_ptr,
+	const T val,
+	const size_t loop_length
+) {
+	const size_t tid = threadIdx.x;
+	size_t index = (blockIdx.x * blockDim.x + tid);
+	const size_t gridSize = blockDim.x * gridDim.x;
+	while (index < loop_length) {
+		dst_ptr[index] = val;
+		index += gridSize;
+	}
+}
+
 
 template <typename T>
 void fillCudaMemory_template(T* dst_raw_ptr, const T val, size_t length) {
-	thrust::device_ptr<T> dst_dev_ptr = thrust::device_pointer_cast((T*)dst_raw_ptr);
-	thrust::fill(dst_dev_ptr, dst_dev_ptr + length, val);
+	size_t num_of_threads_x;
+	size_t num_of_blocks_x;
+	get_cuda_thread_size_1d<size_t>(
+		num_of_threads_x,
+		num_of_blocks_x,
+		length
+		);
+	dim3 num_of_blocks(num_of_blocks_x, 1);
+	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	kernel_FillCudaMemory<T> << <num_of_blocks, num_of_threads, 0 >> >(
+		dst_raw_ptr, val, length
+		);
 }
 void fillCudaMemory(uint8_t* dst, const uint8_t val, size_t s)
 {
@@ -145,21 +169,38 @@ void fillCudaMemory(float* dst, const float val, size_t s)
 }
 
 template<typename T>
-struct AverageFunctor : public thrust::binary_function<const T, const T, T> {
-	__host__ __device__
-	T operator()(const T& rhs, const T& lhs) const
-	{
-		return (rhs + lhs) / 2;
+__global__ static
+void kernel_Average(
+	T* dst_ptr,
+	const T* lhs_ptr,
+	const T* rhs_ptr,
+	const size_t loop_length
+) {
+	const size_t tid = threadIdx.x;
+	size_t index = (blockIdx.x * blockDim.x + tid);
+	const size_t gridSize = blockDim.x * gridDim.x;
+	while (index < loop_length) {
+		const T lhs = lhs_ptr[index];
+		const T rhs = rhs_ptr[index];
+		dst_ptr[index] = (rhs + lhs) / 2;
+		index += gridSize;
 	}
-};
+}
 
 template <typename T>
 void average_template(void* dst_raw_ptr, const void* src1_raw_ptr, const void* src2_raw_ptr, const size_t length, cudaStream_t stream) {
-	thrust::device_ptr<T> dst_dev_ptr = thrust::device_pointer_cast((T*)dst_raw_ptr);
-	thrust::device_ptr<const T> src1_dev_ptr = thrust::device_pointer_cast((const T*)src1_raw_ptr);
-	thrust::device_ptr<const T> src2_dev_ptr = thrust::device_pointer_cast((const T*)src2_raw_ptr);
-	thrust::transform(thrust::cuda::par.on(stream),
-		src1_dev_ptr, src1_dev_ptr + length, src2_dev_ptr, dst_dev_ptr, AverageFunctor<T>());
+	size_t num_of_threads_x;
+	size_t num_of_blocks_x;
+	get_cuda_thread_size_1d<size_t>(
+		num_of_threads_x,
+		num_of_blocks_x,
+		length
+		);
+	dim3 num_of_blocks(num_of_blocks_x, 1);
+	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	kernel_Average<T><<<num_of_blocks, num_of_threads, 0, stream>>>(
+		(T*)dst_raw_ptr, (const T*)src1_raw_ptr, (const T*)src2_raw_ptr, length
+		);
 }
 void cudaAverage(beacls::UVec& dst_uvec, const beacls::UVec& src1, const beacls::UVec& src2) {
 	const size_t length = src1.size();

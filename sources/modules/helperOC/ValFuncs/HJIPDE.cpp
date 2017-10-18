@@ -17,9 +17,11 @@ using namespace helperOC;
 
 HJIPDE_impl::HJIPDE_impl(
 	const std::string& tmp_filename
-) : tmp_filename(tmp_filename) {
+) : tmp_filename(tmp_filename), 
+	numericalFuncs(NULL) {
 }
 HJIPDE_impl::~HJIPDE_impl() {
+	if (numericalFuncs) delete numericalFuncs;
 }
 
 bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
@@ -34,13 +36,37 @@ bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
 	else return true;
 }
 
-
-bool HJIPDE_impl::getNumericalFuncs(
-	levelset::Dissipation*& dissFunc,
-	levelset::Integrator*& integratorFunc,
-	levelset::SpatialDerivative*& derivFunc,
+bool HJIPED_NumericalFuncs::equal(
 	const levelset::HJI_Grid* grid,
-	const levelset::Term* schemeFunc,
+	const levelset::SchemeData* schemeData,
+	const helperOC::Dissipation_Type dissType,
+	const helperOC::ApproximationAccuracy_Type accuracy,
+	const FLOAT_TYPE factorCFL,
+	const bool stats,
+	const bool single_step,
+	const beacls::UVecType type) {
+	if (this->grid != grid) return false;
+	else if (this->schemeData != schemeData) return false;
+	else if (this->dissType != dissType) return false;
+	else if (this->accuracy != accuracy) return false;
+	else if (this->factorCFL != factorCFL) return false;
+	else if (this->stats != stats) return false;
+	else if (this->single_step != single_step) return false;
+	else if (this->type != type) return false;
+	return true;
+
+}
+HJIPED_NumericalFuncs::~HJIPED_NumericalFuncs() {
+	if (dissFunc) delete dissFunc;
+	if (integratorFunc) delete integratorFunc;
+	if (derivFunc) delete derivFunc;
+	if (schemeFunc) delete schemeFunc;
+}
+
+
+HJIPED_NumericalFuncs* HJIPDE_impl::getNumericalFuncs(
+	const levelset::HJI_Grid* grid,
+	const levelset::SchemeData* schemeData,
 	const helperOC::Dissipation_Type dissType,
 	const helperOC::ApproximationAccuracy_Type accuracy,
 	const FLOAT_TYPE factorCFL,
@@ -48,7 +74,10 @@ bool HJIPDE_impl::getNumericalFuncs(
 	const bool single_step,
 	const beacls::UVecType type
 ) const {
+	levelset::Term* schemeFunc  = new levelset::TermLaxFriedrichs(schemeData, type);
+
 	//! Dissipation
+	levelset::Dissipation* dissFunc;
 	switch (dissType) {
 	case helperOC::Dissipation_global:
 		dissFunc = new levelset::ArtificialDissipationGLF();
@@ -84,6 +113,8 @@ bool HJIPDE_impl::getNumericalFuncs(
 	std::vector<levelset::PostTimestep_Exec_Type* > postTimestep_Execs;
 
 	//! accuracy
+	levelset::Integrator* integratorFunc;
+	levelset::SpatialDerivative* derivFunc;
 	switch (accuracy) {
 	case helperOC::ApproximationAccuracy_low:
 		derivFunc = new levelset::UpwindFirstFirst(grid, type);
@@ -108,7 +139,7 @@ bool HJIPDE_impl::getNumericalFuncs(
 		integratorFunc = NULL;
 		return false;
 	}
-	return true;
+	return new HJIPED_NumericalFuncs(dissFunc, integratorFunc, derivFunc, schemeFunc, grid, schemeData, dissType, accuracy, factorCFL, stats, single_step, type);
 }
 static bool calcChange(
 	FLOAT_TYPE& change,
@@ -383,8 +414,6 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 	bool stopConverge = extraArgs.stopConverge;
 	FLOAT_TYPE convergeThreshold = extraArgs.convergeThreshold;
 
-	//// SchemeFunc and SchemeData
-	levelset::Term* schemeFunc = new levelset::TermLaxFriedrichs(schemeData, execType);
 	// Extract accuracy parameter o/w set default accuracy
 	helperOC::ApproximationAccuracy_Type accuracy = helperOC::ApproximationAccuracy_veryHigh;
 	if (schemeData->accuracy != helperOC::ApproximationAccuracy_Invalid) {
@@ -400,10 +429,17 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 
 	// Numerical approximation functions
 	helperOC::Dissipation_Type dissType = helperOC::Dissipation_global;
-	levelset::Dissipation* dissFunc;
-	levelset::Integrator* integratorFunc;
-	levelset::SpatialDerivative* derivFunc;
-	getNumericalFuncs(dissFunc, integratorFunc, derivFunc, grid, schemeFunc, dissType, accuracy, factor_cfl, stats, single_step, execType);
+	if (!numericalFuncs || 
+		!numericalFuncs->equal(grid, schemeData, dissType, accuracy, factor_cfl, stats, single_step, execType)
+		) {
+		if (numericalFuncs) delete numericalFuncs;
+		numericalFuncs = getNumericalFuncs(grid, schemeData, dissType, accuracy, factor_cfl, stats, single_step, execType);
+	}
+	levelset::Dissipation* dissFunc = numericalFuncs->dissFunc;
+	levelset::Integrator* integratorFunc = numericalFuncs->integratorFunc;
+	levelset::SpatialDerivative* derivFunc = numericalFuncs->derivFunc;
+	//// SchemeFunc and SchemeData
+	levelset::Term* schemeFunc = numericalFuncs->schemeFunc;
 	modified_schemeData->set_spatialDerivative(derivFunc);
 	modified_schemeData->set_dissipation(dissFunc);
 
@@ -857,11 +893,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 	y.swap(last_data);
 	y.clear();
 	//!< Load dst_datas from file.
-	if (derivFunc) delete derivFunc;
-	if (integratorFunc) delete integratorFunc;
-	if (dissFunc) delete dissFunc;
 	if (modified_schemeData) delete modified_schemeData;
-	if (schemeFunc) delete schemeFunc;
 
 	auto endTime = std::chrono::system_clock::now();
 	if (!quiet) {

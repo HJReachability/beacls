@@ -23,6 +23,7 @@ bool ArtificialDissipationGLF_impl::execute(
 	beacls::FloatVec& step_bound_invs,
 	std::vector<beacls::UVec>& derivMins,
 	std::vector<beacls::UVec>& derivMaxs,
+	bool& getReductionLater,
 	const FLOAT_TYPE t,
 	const beacls::UVec& data,
 	const std::vector<beacls::UVec>& x_uvecs,
@@ -46,11 +47,27 @@ bool ArtificialDissipationGLF_impl::execute(
 	bool result = true;
 	alphas_cpu_uvecs.resize(num_of_dimensions);
 	alphas_cuda_uvecs.resize(num_of_dimensions);
+	tmp_min_cuda_uvecs.resize(num_of_dimensions);
+	tmp_max_cuda_uvecs.resize(num_of_dimensions);
+	tmp_max_alpha_cuda_uvecs.resize(num_of_dimensions);
+	tmp_min_cpu_uvecs.resize(num_of_dimensions);
+	tmp_max_cpu_uvecs.resize(num_of_dimensions);
+	tmp_max_alpha_cpu_uvecs.resize(num_of_dimensions);
+
+	bool launched_cuda = false;
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 		//!< Call partial function without global deriv min/max at first.
 		bool partialFunc_result = false;
 		if (enable_user_defined_dynamics_on_gpu
-			&& (beacls::is_cuda(deriv_ls[0]))
+			&& (beacls::is_cuda(deriv_ls[0]))) {
+			alphas_cuda_uvecs[dimension].set_cudaStream(x_uvecs[dimension].get_cudaStream());
+		}
+	}
+
+	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
+		//!< Call partial function without global deriv min/max at first.
+		bool partialFunc_result = false;
+		if (enable_user_defined_dynamics_on_gpu
 			&& schemeData->partialFunc_cuda(alphas_cuda_uvecs[dimension], t, data, x_uvecs, derivMins, derivMaxs, dimension, begin_index, loop_size)) {
 			partialFunc_result = true;
 		} else {
@@ -70,15 +87,40 @@ bool ArtificialDissipationGLF_impl::execute(
 		}
 		else {
 			if (deriv_ls[dimension].type() == beacls::UVecType_Cuda) {
+				launched_cuda = true;
 				ArtificialDissipationGLF_execute_cuda(
 					diss,
-					step_bound_invs[dimension],
 					alphas_cuda_uvecs[dimension],
 					deriv_ls[dimension],
-					deriv_rs[dimension],
+					deriv_rs[dimension], 
+					tmp_min_cuda_uvecs[dimension], 
+					tmp_max_cuda_uvecs[dimension],
+					tmp_max_alpha_cuda_uvecs[dimension],
+					dimension,
+					loop_size,
+					updateDerivMinMax);
+#if 0
+				beacls::FloatVec& derivMin = *(beacls::UVec_<FLOAT_TYPE>(derivMins[dimension]).vec());
+				beacls::FloatVec& derivMax = *(beacls::UVec_<FLOAT_TYPE>(derivMaxs[dimension]).vec());
+				if (derivMin.size() != 1)derivMin.resize(1);
+				if (derivMax.size() != 1)derivMax.resize(1);
+				ArtificialDissipationGLF_reduce_cuda(
+					diss,
+					step_bound_invs[dimension],
+					derivMin[0],
+					derivMax[0], 
+					alphas_cuda_uvecs[dimension],
+					tmp_min_cuda_uvecs[dimension],
+					tmp_max_cuda_uvecs[dimension],
+					tmp_max_alpha_cuda_uvecs[dimension],
+					tmp_min_cpu_uvecs[dimension],
+					tmp_max_cpu_uvecs[dimension],
+					tmp_max_alpha_cpu_uvecs[dimension],
 					hji_grid->get_dxInv(dimension),
 					dimension,
-					loop_size);
+					loop_size,
+					updateDerivMinMax);
+#endif
 			}
 			else
 			{
@@ -138,27 +180,62 @@ bool ArtificialDissipationGLF_impl::execute(
 			}
 		}
 	}
-	if (updateDerivMinMax) {
-		for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
-			//!< If partial function requires global deriv min/max and it returns false,
-			// calculate partial mins/maxs of deriv, and fall back to integrator.
-			// integrator should reduce partial mins/maxs to global one, then come back to this function.
-			beacls::FloatVec& derivMin = *(beacls::UVec_<FLOAT_TYPE>(derivMins[dimension]).vec());
-			beacls::FloatVec& derivMax = *(beacls::UVec_<FLOAT_TYPE>(derivMaxs[dimension]).vec());
-			if (derivMin.size() != 1)derivMin.resize(1);
-			if (derivMax.size() != 1)derivMax.resize(1);
-			if (beacls::is_cuda(deriv_ls[dimension])) {
-				CalculateRangeOfGradient_execute_cuda(derivMin[0], derivMax[0], deriv_ls[dimension], deriv_rs[dimension]);
-			}
-			else
-			{
-				calculateRangeOfGradient(derivMin[0], derivMax[0], deriv_ls[dimension], deriv_rs[dimension]);
+	if (launched_cuda) {
+		getReductionLater = true;
+	}
+	else {
+		if (updateDerivMinMax) {
+			for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
+				//!< If partial function requires global deriv min/max and it returns false,
+				// calculate partial mins/maxs of deriv, and fall back to integrator.
+				// integrator should reduce partial mins/maxs to global one, then come back to this function.
+				beacls::FloatVec& derivMin = *(beacls::UVec_<FLOAT_TYPE>(derivMins[dimension]).vec());
+				beacls::FloatVec& derivMax = *(beacls::UVec_<FLOAT_TYPE>(derivMaxs[dimension]).vec());
+				if (derivMin.size() != 1)derivMin.resize(1);
+				if (derivMax.size() != 1)derivMax.resize(1);
+				if (!beacls::is_cuda(deriv_ls[dimension])) {
+					calculateRangeOfGradient(derivMin[0], derivMax[0], deriv_ls[dimension], deriv_rs[dimension]);
+				}
 			}
 		}
 	}
-
 	return result;
 }
+bool ArtificialDissipationGLF_impl::get_reduction(
+	beacls::FloatVec& step_bound_invs,
+	std::vector<beacls::UVec>& derivMins,
+	std::vector<beacls::UVec>& derivMaxs,
+	const beacls::UVec& diss,
+	const SchemeData *schemeData,
+	const bool updateDerivMinMax
+) {
+	const HJI_Grid* hji_grid = schemeData->get_grid();
+	if (!hji_grid) return false;
+	beacls::synchronizeUVec(diss);
+	const size_t num_of_dimensions = derivMins.size();
+	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
+		beacls::FloatVec& derivMin = *(beacls::UVec_<FLOAT_TYPE>(derivMins[dimension]).vec());
+		beacls::FloatVec& derivMax = *(beacls::UVec_<FLOAT_TYPE>(derivMaxs[dimension]).vec());
+		if (derivMin.size() != 1)derivMin.resize(1);
+		if (derivMax.size() != 1)derivMax.resize(1);
+		ArtificialDissipationGLF_reduce_cuda(
+			step_bound_invs[dimension],
+			derivMin[0],
+			derivMax[0],
+			alphas_cuda_uvecs[dimension],
+			tmp_min_cuda_uvecs[dimension],
+			tmp_max_cuda_uvecs[dimension],
+			tmp_max_alpha_cuda_uvecs[dimension],
+			tmp_min_cpu_uvecs[dimension],
+			tmp_max_cpu_uvecs[dimension],
+			tmp_max_alpha_cpu_uvecs[dimension],
+			hji_grid->get_dxInv(dimension),
+			updateDerivMinMax);
+	}
+	return true;
+
+}
+
 bool ArtificialDissipationGLF_impl::calculateRangeOfGradient(
 	FLOAT_TYPE& derivMin,
 	FLOAT_TYPE& derivMax,
@@ -185,6 +262,7 @@ bool ArtificialDissipationGLF::execute(
 	beacls::FloatVec& step_bound_invs,
 	std::vector<beacls::UVec>& derivMins,
 	std::vector<beacls::UVec>& derivMaxs,
+	bool& getReductionLater,
 	const FLOAT_TYPE t,
 	const beacls::UVec& data,
 	const std::vector<beacls::UVec>& x_uvecs,
@@ -196,8 +274,20 @@ bool ArtificialDissipationGLF::execute(
 	const bool updateDerivMinMax
 
 ) {
-	if (pimpl) return pimpl->execute(diss, step_bound_invs, derivMins, derivMaxs, t, data, x_uvecs, deriv_ls, deriv_rs,schemeData, begin_index, enable_user_defined_dynamics_on_gpu, updateDerivMinMax);
+	if (pimpl) return pimpl->execute(diss, step_bound_invs, derivMins, derivMaxs, getReductionLater, t, data, x_uvecs, deriv_ls, deriv_rs,schemeData, begin_index, enable_user_defined_dynamics_on_gpu, updateDerivMinMax);
 	else return false;
+}
+bool ArtificialDissipationGLF::get_reduction(
+	beacls::FloatVec& step_bound_invs,
+	std::vector<beacls::UVec>& derivMins,
+	std::vector<beacls::UVec>& derivMaxs,
+	const beacls::UVec& diss,
+	const SchemeData *schemeData,
+	const bool updateDerivMinMax
+) {
+	if (pimpl) return pimpl->get_reduction(step_bound_invs, derivMins, derivMaxs, diss, schemeData, updateDerivMinMax);
+	else return false;
+
 }
 bool ArtificialDissipationGLF::operator==(const ArtificialDissipationGLF& rhs) const {
 	if (this == &rhs) return true;

@@ -93,7 +93,8 @@ void levelset::OdeCFL_OneSlice_impl::execute(
 		}
 		++loop_local_index;
 	}
-	term->synchronize(schemeData);
+	if (!executeAgain)
+		term->synchronize(schemeData);
 }
 void levelset::OdeCFL_OneSlice::execute(
 	const Term* term,

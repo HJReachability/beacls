@@ -10,7 +10,7 @@
 #include "UVec_impl_cuda.hpp"
 
 #include <macro.hpp>
-
+static const size_t allocate_ratio = 2;
 namespace beacls
 {
 
@@ -194,17 +194,19 @@ namespace beacls
 		case UVecType_Cuda:
 		{
 			size_t byte = depth_to_byte(rhs.depth());
-			void* new_ptr = allocateCudaMem(rhs.size() * byte);
+			void* new_ptr = allocateCudaMem(rhs.size() * byte * allocate_ratio);
 			if (rhs.data_cuda) {
 				size_t copy_size = (rhs.size() > s) ? s : rhs.size();
 				copyCudaDeviceToDevice(new_ptr, rhs.data_cuda, copy_size * byte);
 			}
-			buf_b = rhs.size() * byte;
+			buf_b = rhs.size() * byte * allocate_ratio;
 			data_cuda = new_ptr;
+#if defined(SET_CUDA_STREAM_FOR_UVEC)
 			if (!cudaStream) {
 				cudaStream = new CudaStream();
 				cudaStreamDeclare_outside = false;
 			}
+#endif
 		}
 		break;
 		}
@@ -263,14 +265,16 @@ namespace beacls
 		{
 			size_t byte = depth_to_byte(rhs.depth());
 			if (buf_b < (rhs.size() * byte)) {
-				void* new_ptr = allocateCudaMem(rhs.size() * byte);
+				void* new_ptr = allocateCudaMem(rhs.size() * byte * allocate_ratio);
 				if (data_cuda) freeCudaMem(data_cuda);
-				buf_b = rhs.size() * byte;
+				buf_b = rhs.size() * byte * allocate_ratio;
 				data_cuda = new_ptr;
+#if defined(SET_CUDA_STREAM_FOR_UVEC)
 				if (!cudaStream) {
 					cudaStream = new CudaStream();
 					cudaStreamDeclare_outside = false;
 				}
+#endif
 			}
 			if (rhs.data_cuda) {
 				size_t copy_size = rhs.size();
@@ -371,16 +375,18 @@ namespace beacls
 		{
 			size_t byte = depth_to_byte(d);
 			if (buf_b < (_Newsize * byte)) {
-				void* new_ptr = allocateCudaMem(_Newsize * byte);
+				void* new_ptr = allocateCudaMem(_Newsize * byte * allocate_ratio);
 				if (data_cuda) {
 					freeCudaMem(data_cuda);
 				}
-				buf_b = _Newsize * byte;
+				buf_b = _Newsize * byte * allocate_ratio;
 				data_cuda = new_ptr;
+#if defined(SET_CUDA_STREAM_FOR_UVEC)
 				if (!cudaStream) {
 					cudaStream = new CudaStream();
 					cudaStreamDeclare_outside = false;
 				}
+#endif
 			}
 		}
 		break;
@@ -420,19 +426,21 @@ namespace beacls
 				{
 					size_t byte = depth_to_byte(d);
 					if (buf_b < (_Newsize * byte)) {
-						void* new_ptr = allocateCudaMem(_Newsize * byte);
+						void* new_ptr = allocateCudaMem(_Newsize * byte * allocate_ratio);
 						if (data_cuda) {
-							size_t copy_size = (_Newsize > s) ? s : _Newsize;
+							size_t copy_size = (_Newsize * allocate_ratio > s) ? s : _Newsize * allocate_ratio;
 							copyCudaDeviceToDevice(new_ptr, data_cuda, copy_size * byte);
 							freeCudaMem(data_cuda);
 						}
 						fillCudaMemory((T*)new_ptr + s, value, _Newsize - s);
-						buf_b = _Newsize * byte;
+						buf_b = _Newsize * byte * allocate_ratio;
 						data_cuda = new_ptr;
+#if defined(SET_CUDA_STREAM_FOR_UVEC)
 						if (!cudaStream) {
 							cudaStream = new CudaStream();
 							cudaStreamDeclare_outside = false;
 						}
+#endif
 					}
 				}
 				break;
@@ -690,8 +698,8 @@ namespace beacls
 			dst_pimpl->data_cuda = NULL;
 		}
 		else {
-			new_ptr = allocateCudaMem(tmp_pimpl->size() * byte);
-			dst_pimpl->set_buf_bytes(tmp_pimpl->size() * byte);
+			new_ptr = allocateCudaMem(tmp_pimpl->size() * byte * allocate_ratio);
+			dst_pimpl->set_buf_bytes(tmp_pimpl->size() * byte * allocate_ratio);
 		}
 		switch (tmp_pimpl->depth()) {
 		case UVecDepth_Invalid:
@@ -734,10 +742,12 @@ namespace beacls
 			freeCudaMem(dst_pimpl->data_cuda);
 		}
 		dst_pimpl->data_cuda = new_ptr;
+#if defined(SET_CUDA_STREAM_FOR_UVEC)
 		if (!dst_pimpl->cudaStream) {
 			dst_pimpl->cudaStream = new CudaStream();
 			dst_pimpl->set_cudaStreamDeclare_outside(false);
 		}
+#endif
 	}
 	void convertDeviceToHost(
 		UVec_impl* dst_pimpl, const UVec_impl* src_pimpl,
@@ -848,8 +858,8 @@ namespace beacls
 			dst_pimpl->data_cuda = NULL;
 		}
 		else {
-			new_ptr = allocateCudaMem(tmp2_pimpl->size() * byte);
-			dst_pimpl->set_buf_bytes(tmp2_pimpl->size() * byte);
+			new_ptr = allocateCudaMem(tmp2_pimpl->size() * byte * allocate_ratio);
+			dst_pimpl->set_buf_bytes(tmp2_pimpl->size() * byte * allocate_ratio);
 		}
 		switch (tmp2_pimpl->depth()) {
 		case UVecDepth_Invalid:
@@ -892,10 +902,12 @@ namespace beacls
 			freeCudaMem(dst_pimpl->data_cuda);
 		}
 		dst_pimpl->data_cuda = new_ptr;
+#if defined(SET_CUDA_STREAM_FOR_UVEC)
 		if (!dst_pimpl->cudaStream) {
 			dst_pimpl->cudaStream = new CudaStream();
 			dst_pimpl->set_cudaStreamDeclare_outside(false);
 		}
+#endif
 	}
 	void UVec::convertTo(
 		UVec& dst, UVecDepth depth,

@@ -9,6 +9,7 @@
 #include <levelset/SpatialDerivative/SpatialDerivative.hpp>
 #include <levelset/ExplicitIntegration/Dissipations/Dissipation.hpp>
 #include <Core/CacheTag.hpp>
+#include <Core/CudaStream.hpp>
 using namespace levelset;
 
 TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(
@@ -21,10 +22,12 @@ TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(
 	deriv_r_uvecs(num_of_dimensions),
 	deriv_c_uvecs(num_of_dimensions),
 	type(type),
-	cacheTag(new levelset::CacheTag())
-	{
+	cacheTag(new levelset::CacheTag()),
+	cudaStream(new beacls::CudaStream())
+{
 }
 TermLaxFriedrichs_impl::~TermLaxFriedrichs_impl() {
+	if (cudaStream) delete cudaStream;
 	if (cacheTag) delete cacheTag;
 }
 
@@ -32,7 +35,8 @@ TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(const TermLaxFriedrichs_impl& rhs
 	first_dimension_loop_size(rhs.first_dimension_loop_size),
 	num_of_dimensions(rhs.num_of_dimensions),
 	type(rhs.type),
-	cacheTag(new levelset::CacheTag())
+	cacheTag(new levelset::CacheTag()),
+	cudaStream(new beacls::CudaStream())
 {
 	deriv_l_uvecs.resize(rhs.deriv_l_uvecs.size());
 	deriv_r_uvecs.resize(rhs.deriv_r_uvecs.size());
@@ -73,6 +77,11 @@ bool TermLaxFriedrichs_impl::execute(
 	if (deriv_l_uvecs.size() != num_of_dimensions) deriv_l_uvecs.resize(num_of_dimensions);
 	if (deriv_r_uvecs.size() != num_of_dimensions) deriv_r_uvecs.resize(num_of_dimensions);
 	if (deriv_c_uvecs.size() != num_of_dimensions) deriv_c_uvecs.resize(num_of_dimensions);
+	if (enable_user_defined_dynamics_on_gpu && type == beacls::UVecType_Cuda) {
+		ham_uvec.set_cudaStream(cudaStream);
+		diss_uvec.set_cudaStream(cudaStream);
+		ydot_cuda_uvec.set_cudaStream(cudaStream);
+	}
 
 	step_bound_invs.assign(num_of_dimensions,0.0);
 
@@ -90,8 +99,8 @@ bool TermLaxFriedrichs_impl::execute(
 	}));
 
 	size_t src_index_term = loop_begin * f_d_l_size;
-	if (!cacheTag->check_tag(t, loop_begin, slice_length*num_of_slices)) {
-		//!< Copy xs to Cuda memory asynchronously in spatial derivative functions
+	//!< Copy time independent xs to Cuda memory asynchronously in spatial derivative functions
+	if (!cacheTag->check_tag(loop_begin, slice_length*num_of_slices)) {
 		x_uvecs.resize(num_of_dimensions);
 		if (enable_user_defined_dynamics_on_gpu && (type == beacls::UVecType_Cuda)) {
 			for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
@@ -99,6 +108,16 @@ bool TermLaxFriedrichs_impl::execute(
 				else x_uvecs[dimension].resize(grid_length);
 			}
 		}
+		for (size_t index = 0; index < num_of_dimensions; ++index) {
+			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
+			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
+			const beacls::FloatVec& xs = grid->get_xs(dimension);
+			x_uvecs[dimension].set_cudaStream(cudaStream);
+			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
+		}
+	}
+
+	if (!cacheTag->check_tag(t, loop_begin, slice_length*num_of_slices)) {
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
 			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
 			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
@@ -116,14 +135,15 @@ bool TermLaxFriedrichs_impl::execute(
 				slice_length,
 				num_of_slices);
 			const beacls::FloatVec& xs = grid->get_xs(dimension);
-			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
 			beacls::UVec& deriv_c_uvec = deriv_c_uvecs[dimension];
 			beacls::average(deriv_l_uvec, deriv_r_uvec, deriv_c_uvec);
 		}
+#if 0
 		for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 			beacls::UVec& x_uvecs_dim = x_uvecs[dimension];
 			synchronizeUVec(x_uvecs_dim);
 		}
+#endif
 		cacheTag->set_tag(t, loop_begin, slice_length*num_of_slices);
 	}
 
@@ -157,11 +177,13 @@ bool TermLaxFriedrichs_impl::execute(
 			src_index_term, grid_length);
 	}
 	beacls::FloatVec new_step_bound_invs(num_of_dimensions);
+	bool getReductionLater = false;
 	if (!dissipation->execute(
 		diss_uvec,
 		new_step_bound_invs,
 		deriv_min_uvecs,
 		deriv_max_uvecs,
+		getReductionLater,
 		t,
 		y_uvec,
 		x_uvecs,
@@ -181,7 +203,7 @@ bool TermLaxFriedrichs_impl::execute(
 
 	if (beacls::is_cuda(diss_uvec) && beacls::is_cuda(ham_uvec)) {
 		//!< Synchronize copy from Device to Host of last call.
-		beacls::synchronizeUVec(ydot_cuda_uvec);
+//		beacls::synchronizeUVec(ydot_cuda_uvec);
 		beacls::reallocateAsSrc(ydot_cuda_uvec, ham_uvec);
 		TermLaxFriedrichs_execute_cuda(ydot_cuda_uvec, diss_uvec, ham_uvec);
 		copyUVecToHostAsync(&ydot_ite[0], ydot_cuda_uvec);
@@ -199,6 +221,9 @@ bool TermLaxFriedrichs_impl::execute(
 		const beacls::FloatVec* diss_vec_ptr = beacls::UVec_<FLOAT_TYPE>(diss_cpu_uvec).vec();
 		const beacls::FloatVec* ham_vec_ptr = beacls::UVec_<FLOAT_TYPE>(ham_cpu_uvec).vec();
 		std::transform(diss_vec_ptr->cbegin(), diss_vec_ptr->cend(), ham_vec_ptr->cbegin(), ydot_ite, std::minus<FLOAT_TYPE>());
+	}
+	if (getReductionLater) {
+		dissipation->get_reduction(step_bound_invs, deriv_min_uvecs, deriv_max_uvecs, diss_uvec, schemeData, updateDerivMinMax);
 	}
 	return true;
 }

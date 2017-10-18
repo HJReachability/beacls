@@ -66,17 +66,18 @@ void helperOC::ComputeGradients_OneSlice_impl::execute(
 			else deriv_r_line_uvec.resize(slices_result_size);
 			if (deriv_c_line_uvec.type() != type) deriv_c_line_uvec = beacls::UVec(depth, type, slices_result_size);
 			else deriv_c_line_uvec.resize(slices_result_size);
-
+			deriv_l_line_uvec.set_cudaStream(deriv_r_line_uvec.get_cudaStream());
+			deriv_c_line_uvec.set_cudaStream(deriv_r_line_uvec.get_cudaStream());
 			spatialDerivative->execute(
 				deriv_l_line_uvec, deriv_r_line_uvec,
 				grid, modified_data.data() + time_offset,
 				dim, false, line_begin, chunk_result_size, actual_num_of_slices);
 		}
 		for (size_t dim = 0; dim < num_of_dimensions; ++dim) {
-			spatialDerivative->synchronize(dim);
+//			spatialDerivative->synchronize(dim);
 			beacls::average(deriv_l_line_uvecs[dim], deriv_r_line_uvecs[dim], deriv_c_line_uvecs[dim]);
 			if (dim == 0) {
-				beacls::synchronizeUVec(original_data_line_uvec);
+//				beacls::synchronizeUVec(original_data_line_uvec);
 			}
 			if (type == beacls::UVecType_Cuda) {
 				copyBackInfNan_cuda(
@@ -95,17 +96,27 @@ void helperOC::ComputeGradients_OneSlice_impl::execute(
 			}
 		}
 		for (size_t dim = 0; dim < num_of_dimensions; ++dim) {
-			beacls::synchronizeUVec(deriv_c_line_uvecs[dim]);
-			beacls::synchronizeUVec(deriv_l_line_uvecs[dim]);
-			beacls::synchronizeUVec(deriv_r_line_uvecs[dim]);
+//			beacls::synchronizeUVec(deriv_c_line_uvecs[dim]);
+//			beacls::synchronizeUVec(deriv_l_line_uvecs[dim]);
+//			beacls::synchronizeUVec(deriv_r_line_uvecs[dim]);
 			beacls::copyUVecToHostAsync(derivC[dim].data() + expected_result_offset, deriv_c_line_uvecs[dim]);
+		}
+		for (size_t dim = 0; dim < num_of_dimensions; ++dim) {
+			//			beacls::synchronizeUVec(deriv_c_line_uvecs[dim]);
+			//			beacls::synchronizeUVec(deriv_l_line_uvecs[dim]);
+			//			beacls::synchronizeUVec(deriv_r_line_uvecs[dim]);
 			beacls::copyUVecToHostAsync(derivL[dim].data() + expected_result_offset, deriv_l_line_uvecs[dim]);
+		}
+		for (size_t dim = 0; dim < num_of_dimensions; ++dim) {
+			//			beacls::synchronizeUVec(deriv_c_line_uvecs[dim]);
+			//			beacls::synchronizeUVec(deriv_l_line_uvecs[dim]);
+			//			beacls::synchronizeUVec(deriv_r_line_uvecs[dim]);
 			beacls::copyUVecToHostAsync(derivR[dim].data() + expected_result_offset, deriv_r_line_uvecs[dim]);
 		}
 		for (size_t dim = 0; dim < num_of_dimensions; ++dim) {
 			beacls::synchronizeUVec(deriv_c_line_uvecs[dim]);
-			beacls::synchronizeUVec(deriv_l_line_uvecs[dim]);
-			beacls::synchronizeUVec(deriv_r_line_uvecs[dim]);
+//			beacls::synchronizeUVec(deriv_l_line_uvecs[dim]);
+//			beacls::synchronizeUVec(deriv_r_line_uvecs[dim]);
 		}
 	}
 }
