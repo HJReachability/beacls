@@ -1365,7 +1365,9 @@ namespace beacls
 			synchronizeCuda(src.pimpl->cudaStream);
 		}
 	}
-
+	size_t get_minimum_global_memory_in_devices() {
+		return get_minimum_global_memory_in_devices_impl();
+	}
 	int get_num_of_gpus() {
 		return get_num_of_gpus_impl();
 	}
