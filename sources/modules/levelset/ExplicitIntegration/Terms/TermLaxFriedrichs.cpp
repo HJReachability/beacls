@@ -80,7 +80,7 @@ bool TermLaxFriedrichs_impl::execute(
 	if (enable_user_defined_dynamics_on_gpu && type == beacls::UVecType_Cuda) {
 		ham_uvec.set_cudaStream(cudaStream);
 		diss_uvec.set_cudaStream(cudaStream);
-		ydot_cuda_uvec.set_cudaStream(cudaStream);
+//		ydot_cuda_uvec.set_cudaStream(cudaStream);
 	}
 
 	step_bound_invs.assign(num_of_dimensions,0.0);
@@ -99,23 +99,6 @@ bool TermLaxFriedrichs_impl::execute(
 	}));
 
 	size_t src_index_term = loop_begin * f_d_l_size;
-	//!< Copy time independent xs to Cuda memory asynchronously in spatial derivative functions
-	if (!cacheTag->check_tag(loop_begin, slice_length*num_of_slices)) {
-		x_uvecs.resize(num_of_dimensions);
-		if (enable_user_defined_dynamics_on_gpu && (type == beacls::UVecType_Cuda)) {
-			for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
-				if (x_uvecs[dimension].type() != beacls::UVecType_Cuda) x_uvecs[dimension] = beacls::UVec(depth, beacls::UVecType_Cuda, grid_length);
-				else x_uvecs[dimension].resize(grid_length);
-			}
-		}
-		for (size_t index = 0; index < num_of_dimensions; ++index) {
-			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
-			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
-			const beacls::FloatVec& xs = grid->get_xs(dimension);
-			x_uvecs[dimension].set_cudaStream(cudaStream);
-			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
-		}
-	}
 
 	if (!cacheTag->check_tag(t, loop_begin, slice_length*num_of_slices)) {
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
@@ -134,7 +117,6 @@ bool TermLaxFriedrichs_impl::execute(
 				loop_begin,
 				slice_length,
 				num_of_slices);
-			const beacls::FloatVec& xs = grid->get_xs(dimension);
 			beacls::UVec& deriv_c_uvec = deriv_c_uvecs[dimension];
 			beacls::average(deriv_l_uvec, deriv_r_uvec, deriv_c_uvec);
 		}
@@ -144,6 +126,25 @@ bool TermLaxFriedrichs_impl::execute(
 			synchronizeUVec(x_uvecs_dim);
 		}
 #endif
+	}
+	//!< Copy time independent xs to Cuda memory asynchronously in spatial derivative functions
+	if (!cacheTag->check_tag(loop_begin, slice_length*num_of_slices)) {
+		x_uvecs.resize(num_of_dimensions);
+		if (enable_user_defined_dynamics_on_gpu && (type == beacls::UVecType_Cuda)) {
+			for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
+				if (x_uvecs[dimension].type() != beacls::UVecType_Cuda) x_uvecs[dimension] = beacls::UVec(depth, beacls::UVecType_Cuda, grid_length);
+				else x_uvecs[dimension].resize(grid_length);
+			}
+		}
+		for (size_t index = 0; index < num_of_dimensions; ++index) {
+			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
+			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
+			const beacls::FloatVec& xs = grid->get_xs(dimension);
+			x_uvecs[dimension].set_cudaStream(cudaStream);
+			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
+		}
+	}
+	if (!cacheTag->check_tag(t, loop_begin, slice_length*num_of_slices)) {
 		cacheTag->set_tag(t, loop_begin, slice_length*num_of_slices);
 	}
 
@@ -204,9 +205,9 @@ bool TermLaxFriedrichs_impl::execute(
 	if (beacls::is_cuda(diss_uvec) && beacls::is_cuda(ham_uvec)) {
 		//!< Synchronize copy from Device to Host of last call.
 //		beacls::synchronizeUVec(ydot_cuda_uvec);
-		beacls::reallocateAsSrc(ydot_cuda_uvec, ham_uvec);
-		TermLaxFriedrichs_execute_cuda(ydot_cuda_uvec, diss_uvec, ham_uvec);
-		copyUVecToHostAsync(&ydot_ite[0], ydot_cuda_uvec);
+//		beacls::reallocateAsSrc(ydot_cuda_uvec, ham_uvec);
+		TermLaxFriedrichs_execute_cuda(ham_uvec, diss_uvec, ham_uvec);
+		copyUVecToHostAsync(&ydot_ite[0], ham_uvec);
 	}
 	else
 	{
