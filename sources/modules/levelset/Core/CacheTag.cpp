@@ -18,3 +18,7 @@ bool levelset::CacheTag::check_tag(const FLOAT_TYPE new_t, const size_t new_bi, 
 	if (pimpl) return pimpl->check_tag(new_t, new_bi, new_l);
 	else return false;
 }
+bool levelset::CacheTag::check_tag(const size_t new_bi, const size_t new_l) const {
+	if (pimpl) return pimpl->check_tag(new_bi, new_l);
+	else return false;
+}

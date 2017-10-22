@@ -55,6 +55,7 @@ namespace beacls
 	void fillCudaMemory(int64_t* dst, const int64_t val, size_t s);
 	void fillCudaMemory(double* dst, const double val, size_t s);
 	void fillCudaMemory(float* dst, const float val, size_t s);
+	size_t get_minimum_global_memory_in_devices_impl();
 	int get_num_of_gpus_impl();
 	void set_gpu_id_impl(const int id);
 }	// beacls

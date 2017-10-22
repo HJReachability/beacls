@@ -376,9 +376,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
-  <ItemGroup>
     <CudaCompile Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_cuda.cu">
       <Filter>ソース ファイル</Filter>
     </CudaCompile>
@@ -394,5 +391,8 @@
     <CudaCompile Include="Core\UVec_cuda.cu">
       <Filter>ソース ファイル</Filter>
     </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

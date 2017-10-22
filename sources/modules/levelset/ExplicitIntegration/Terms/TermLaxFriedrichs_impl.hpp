@@ -29,6 +29,8 @@ namespace levelset {
 		beacls::UVec diss_uvec;
 		beacls::UVecType type;
 		CacheTag* cacheTag;
+		beacls::CudaStream* cudaStream;
+
 	public:
 		TermLaxFriedrichs_impl(
 			const SchemeData* schemeData,

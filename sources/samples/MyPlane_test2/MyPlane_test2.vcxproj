@@ -91,9 +91,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
@@ -106,15 +106,19 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>helperOCd.lib;levelsetd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);helperOCd.lib;levelsetd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -125,9 +129,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
@@ -139,15 +143,19 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>helperOCd.lib;levelsetd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);helperOCd.lib;levelsetd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -160,9 +168,9 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
@@ -176,8 +184,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>helperOC.lib;levelset.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);helperOC.lib;levelset.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
     <PreBuildEvent>
@@ -185,7 +193,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -198,9 +210,9 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(CUDA_MACRO);USER_DEFINED_GPU_DYNSYS_FUNC;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(BEACLS_DIR)\includes</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <AdditionalOptions>/LD /D "_MAKE_VC_DLL" %(AdditionalOptions)</AdditionalOptions>
       <OpenMPSupport>true</OpenMPSupport>
@@ -215,8 +227,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>helperOC.lib;levelset.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(BEACLS_DIR)\$(Platform)\$(Configuration)\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CUDA_LIBS);helperOC.lib;levelset.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
     <Bscmake>
@@ -227,7 +239,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>del *.mat</Command>
+      <Command>del *.mat
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\libmatio.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\opencv_world$(OPENCV_VER).dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\helperOC.dll $(ProjectDir) /D/E/C/I/H/Y
+xcopy $(BEACLS_DIR)\$(Platform)\$(Configuration)\bin\levelset.dll $(ProjectDir) /D/E/C/I/H/Y</Command>
     </PostBuildEvent>
     <CudaCompile>
       <Defines>_MAKE_VC_DLL;$(CUDA_MACRO)</Defines>
@@ -242,7 +258,9 @@
     <ClInclude Include="MyPlane_cuda.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyPlane_cuda.cu" />
+    <CudaCompile Include="MyPlane_cuda.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

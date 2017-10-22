@@ -287,6 +287,8 @@ UVec_<T>::UVec_(const UVec& rhs) :
 void synchronizeCuda(beacls::CudaStream* cudaStream);
 
 PREFIX_VC_DLL
+size_t get_minimum_global_memory_in_devices();
+PREFIX_VC_DLL
 int get_num_of_gpus();
 PREFIX_VC_DLL
 void set_gpu_id(const int id);

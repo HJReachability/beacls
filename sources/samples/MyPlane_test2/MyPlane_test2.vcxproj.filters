@@ -31,8 +31,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyPlane_cuda.cu">
+    <CudaCompile Include="MyPlane_cuda.cu">
       <Filter>ソース ファイル</Filter>
-    </None>
+    </CudaCompile>
   </ItemGroup>
 </Project>

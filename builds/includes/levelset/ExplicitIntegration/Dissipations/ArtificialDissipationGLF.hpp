@@ -33,6 +33,7 @@ namespace levelset {
 			beacls::FloatVec& step_bound_invs,
 			std::vector<beacls::UVec>& derivMins,
 			std::vector<beacls::UVec>& derivMaxs,
+			bool& getReductionLater,
 			const FLOAT_TYPE t,
 			const beacls::UVec& data,
 			const std::vector<beacls::UVec>& x_uvecs,
@@ -41,6 +42,14 @@ namespace levelset {
 			const SchemeData *schemeData,
 			const size_t begin_index,
 			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax
+		);
+		bool get_reduction(
+			beacls::FloatVec& step_bound_invs,
+			std::vector<beacls::UVec>& derivMins,
+			std::vector<beacls::UVec>& derivMaxs,
+			const beacls::UVec& diss,
+			const SchemeData *schemeData,
 			const bool updateDerivMinMax
 		);
 		bool operator==(const ArtificialDissipationGLF& rhs) const;

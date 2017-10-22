@@ -11,6 +11,80 @@
 #include <helperOC/DynSys/DynSys/DynSysSchemeData.hpp>
 #include <helperOC/ValFuncs/HJIPDE.hpp>
 namespace helperOC {
+	class HJIPED_NumericalFuncs {
+	public:
+		levelset::Dissipation* dissFunc;
+		levelset::Integrator* integratorFunc;
+		levelset::SpatialDerivative* derivFunc;
+		levelset::Term* schemeFunc;
+		const levelset::HJI_Grid* grid;
+		const levelset::SchemeData* schemeData;
+		const helperOC::Dissipation_Type dissType;
+		const helperOC::ApproximationAccuracy_Type accuracy;
+		const FLOAT_TYPE factorCFL;
+		const bool stats;
+		const bool single_step;
+		const beacls::UVecType type;
+	public:
+		HJIPED_NumericalFuncs() :
+			dissFunc(NULL),
+			integratorFunc(NULL),
+			derivFunc(NULL),
+			schemeFunc(NULL),
+			grid(NULL),
+			schemeData(NULL),
+			dissType(helperOC::Dissipation_Invalid),
+			accuracy(helperOC::ApproximationAccuracy_Invalid),
+			factorCFL(0),
+			stats(true),
+			single_step(true),
+			type(beacls::UVecType_Invalid) {}
+		HJIPED_NumericalFuncs(
+			levelset::Dissipation* dissFunc,
+			levelset::Integrator* integratorFunc,
+			levelset::SpatialDerivative* derivFunc,
+			levelset::Term* schemeFunc,
+			const levelset::HJI_Grid* grid,
+			const levelset::SchemeData* schemeData,
+			const helperOC::Dissipation_Type dissType,
+			const helperOC::ApproximationAccuracy_Type accuracy,
+			const FLOAT_TYPE factorCFL,
+			const bool stats,
+			const bool single_step,
+			const beacls::UVecType type) :
+			dissFunc(dissFunc),
+			integratorFunc(integratorFunc),
+			derivFunc(derivFunc),
+			schemeFunc(schemeFunc),
+			grid(grid),
+			schemeData(schemeData),
+			dissType(dissType),
+			accuracy(accuracy),
+			factorCFL(factorCFL),
+			stats(stats),
+			single_step(single_step),
+			type(type) {}
+		~HJIPED_NumericalFuncs();
+		bool equal(
+			const levelset::HJI_Grid* grid,
+			const levelset::SchemeData* schemeData,
+			const helperOC::Dissipation_Type dissType,
+			const helperOC::ApproximationAccuracy_Type accuracy,
+			const FLOAT_TYPE factorCFL,
+			const bool stats,
+			const bool single_step,
+			const beacls::UVecType type);
+
+	private:
+		/** @overload
+		Disable operator=
+		*/
+		HJIPED_NumericalFuncs& operator=(const HJIPED_NumericalFuncs& rhs);
+		/** @overload
+		Disable copy constructor
+		*/
+		HJIPED_NumericalFuncs(const HJIPED_NumericalFuncs& rhs);
+	};
 	class HJIPDE_impl {
 	public:
 	private:
@@ -18,7 +92,7 @@ namespace helperOC {
 		std::deque<beacls::FloatVec > datas;
 		beacls::FloatVec calculatedTTR;
 		beacls::FloatVec last_data;
-
+		HJIPED_NumericalFuncs* numericalFuncs;
 	public:
 		HJIPDE_impl(
 			const std::string& tmp_filename);
@@ -42,12 +116,9 @@ namespace helperOC {
 			const levelset::HJI_Grid* g,
 			const beacls::FloatVec& tau
 		) const;
-		bool getNumericalFuncs(
-			levelset::Dissipation*& dissFunc,
-			levelset::Integrator*& integratorFunc,
-			levelset::SpatialDerivative*& derivFunc,
+		HJIPED_NumericalFuncs* getNumericalFuncs(
 			const levelset::HJI_Grid* grid,
-			const levelset::Term* schemeFunc,
+			const levelset::SchemeData* schemeData,
 			const helperOC::Dissipation_Type dissType,
 			const helperOC::ApproximationAccuracy_Type accuracy,
 			const FLOAT_TYPE factorCFL,

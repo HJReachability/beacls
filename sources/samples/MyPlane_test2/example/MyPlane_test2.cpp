@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
 	}
 
 	//!< Plane parameters
-	const beacls::FloatVec initState{ 100, 75, (220 * M_PI / 180) };
-	const FLOAT_TYPE wMax = 1.2;
-	const beacls::FloatVec vrange{ 1.1, 1.3 };
+	const beacls::FloatVec initState{ 100, 75, (FLOAT_TYPE)(220 * M_PI / 180) };
+	const FLOAT_TYPE wMax = (FLOAT_TYPE)1.2;
+	const beacls::FloatVec vrange{ (FLOAT_TYPE)1.1, (FLOAT_TYPE)1.3 };
 	const beacls::FloatVec dMax{ 0, 0 };
 	MyPlane* pl = new MyPlane(initState, wMax, vrange, dMax);
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	//!< Target and obstacle
 	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{0, 0, 0}, 
-		beacls::FloatVec{150, 150, (2*M_PI)}, 
+		beacls::FloatVec{150, 150, (FLOAT_TYPE)(2*M_PI)},
 		beacls::IntegerVec{41,41,11});
 	std::vector<beacls::FloatVec > targets(1);
 	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75, 50, 0 }, 10).execute(g, targets[0]);

@@ -19,33 +19,9 @@ helperOC::ComputeGradients::ComputeGradients(
 ) : 
 	commandQueue(new helperOC::ComputeGradients_CommandQueue),
 	type(type) {
-	const levelset::SpatialDerivative* derivFunc;
-	//! accuracy
-	switch (accuracy) {
-	case helperOC::ApproximationAccuracy_low:
-		derivFunc = new levelset::UpwindFirstFirst(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_medium:
-		derivFunc = new levelset::UpwindFirstENO2(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_veryHigh:
-		derivFunc = new levelset::UpwindFirstWENO5(grid, type);
-		break;
-	case helperOC::ApproximationAccuracy_Invalid:
-	default:
-		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
-		derivFunc = NULL;
-		break;
-	}
-	if (derivFunc) {
-		helperOC::ComputeGradients_Worker* worker = new helperOC::ComputeGradients_Worker(commandQueue, derivFunc, 0);
-		workers.push_back(worker);
-		worker->run();
-	}
-	delete derivFunc;
+	helperOC::ComputeGradients_Worker* worker = new helperOC::ComputeGradients_Worker(commandQueue, grid, accuracy, type, 0);
+	workers.push_back(worker);
+	worker->run();
 }
 helperOC::ComputeGradients::~ComputeGradients() {
 	std::for_each(workers.begin(), workers.end(), [](auto& rhs) {
@@ -128,9 +104,14 @@ bool helperOC::ComputeGradients::operator()(
 	const size_t parallel_loop_size = (size_t)std::ceil((FLOAT_TYPE)num_of_outer_lines / num_of_parallel_loop_lines);
 	const size_t num_of_inner_lines = (size_t)std::ceil((FLOAT_TYPE)num_of_lines / num_of_outer_lines);
 
-	const size_t prefered_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::ceil((FLOAT_TYPE)num_of_lines / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size);
+	const double gpu_memory_ocupancy_ratio = 1.0 / (2 + 15 * num_of_dimensions) / 2 * 0.8;
+	const size_t minimum_global_memory_in_devices = beacls::get_minimum_global_memory_in_devices();
+	const size_t available_line_length_for_cuda = (size_t)std::floor(minimum_global_memory_in_devices * gpu_memory_ocupancy_ratio / first_dimension_loop_size / sizeof(FLOAT_TYPE));
+	const size_t available_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::floor((FLOAT_TYPE)available_line_length_for_cuda / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size);
+	const size_t prefered_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::ceil((FLOAT_TYPE)num_of_lines / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size) * num_of_activated_gpus;
+	const size_t line_length_of_chunk_for_cuda = available_line_length_of_chunk_for_cuda < prefered_line_length_of_chunk_for_cuda ? available_line_length_of_chunk_for_cuda : prefered_line_length_of_chunk_for_cuda;
 	const size_t prefered_line_length_of_chunk_for_cpu = (size_t)std::ceil((FLOAT_TYPE)1024 / first_dimension_loop_size);
-	const size_t prefered_line_length_of_chunk = (spatialDerivative->get_type() == beacls::UVecType_Cuda) ? prefered_line_length_of_chunk_for_cuda : prefered_line_length_of_chunk_for_cpu;
+	const size_t prefered_line_length_of_chunk = (spatialDerivative->get_type() == beacls::UVecType_Cuda) ? line_length_of_chunk_for_cuda : prefered_line_length_of_chunk_for_cpu;
 
 	const size_t actual_line_length_of_chunk = (line_length_of_chunk == 0) ? prefered_line_length_of_chunk : line_length_of_chunk;	//!< T.B.D.
 
