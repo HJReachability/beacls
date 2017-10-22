@@ -841,6 +841,7 @@ bool dynamics_cell_helper_execute_cuda(
 	}
 	return result;
 }
+#if defined(USE_THRUST)
 	struct HamFunction_Neg {
 	public:
 		const FLOAT_TYPE wMax;
@@ -908,9 +909,46 @@ bool dynamics_cell_helper_execute_cuda(
 			FLOAT_TYPE dx1;
 			FLOAT_TYPE dx2;
 			get_dxs(dx0, dx1, dx2, y2, deriv0, deriv1, deriv2, wMax, vrange_min, vrange_max, dMax_0, dMax_1);
-			return  - (deriv0 * dx0 + deriv1 * dx1 + deriv2 * dx2);
+			return (deriv0 * dx0 + deriv1 * dx1 + deriv2 * dx2);
 		}
 	};
+#else	/* defined(USE_THRUST) */
+
+	template<bool pos>
+	__global__ static
+		void kernel_HamFunction(
+			FLOAT_TYPE* hamValue_ptr,
+			const FLOAT_TYPE* y2_ptr,
+			const FLOAT_TYPE* deriv0_ptr,
+			const FLOAT_TYPE* deriv1_ptr,
+			const FLOAT_TYPE* deriv2_ptr,
+			const FLOAT_TYPE wMax,
+			const FLOAT_TYPE vrange_min,
+			const FLOAT_TYPE vrange_max,
+			const FLOAT_TYPE dMax_0,
+			const FLOAT_TYPE dMax_1,
+			const size_t loop_length
+		) {
+		const size_t tid = threadIdx.x;
+		size_t index = (blockIdx.x * blockDim.x + tid);
+		const size_t gridSize = blockDim.x * gridDim.x;
+		while (index < loop_length) {
+			const FLOAT_TYPE y2 = y2_ptr[index];
+			const FLOAT_TYPE deriv0 = deriv0_ptr[index];
+			const FLOAT_TYPE deriv1 = deriv1_ptr[index];
+			const FLOAT_TYPE deriv2 = deriv2_ptr[index];
+			FLOAT_TYPE dx0;
+			FLOAT_TYPE dx1;
+			FLOAT_TYPE dx2;
+			get_dxs(dx0, dx1, dx2, y2, deriv0, deriv1, deriv2, wMax, vrange_min, vrange_max, dMax_0, dMax_1);
+			if (pos)
+				hamValue_ptr[index] = (deriv0 * dx0 + deriv1 * dx1 + deriv2 * dx2);
+			else
+				hamValue_ptr[index] = -(deriv0 * dx0 + deriv1 * dx1 + deriv2 * dx2);
+			index += gridSize;
+		}
+	}
+#endif	/* defined(USE_THRUST) */
 
 	bool HamFunction_cuda(
 		beacls::UVec& hamValue_uvec,
@@ -944,7 +982,7 @@ bool dynamics_cell_helper_execute_cuda(
 		FLOAT_TYPE* hamValue_ptr = beacls::UVec_<FLOAT_TYPE>(hamValue_uvec).ptr();
 		cudaStream_t hamValue_stream = beacls::get_stream(hamValue_uvec);
 
-		const FLOAT_TYPE* x_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvecs[src_x_dim_index]).ptr();
+#if defined(USE_THRUST)
 		thrust::device_ptr<FLOAT_TYPE> hamValue_dev_ptr = thrust::device_pointer_cast(hamValue_ptr);
 		thrust::device_ptr<const FLOAT_TYPE> y2_dev_ptr = thrust::device_pointer_cast(y2_ptr);
 		thrust::device_ptr<const FLOAT_TYPE> deriv0_dev_ptr = thrust::device_pointer_cast(deriv0_ptr);
@@ -965,8 +1003,35 @@ bool dynamics_cell_helper_execute_cuda(
 				src_dst_Iterator, src_dst_Iterator + x_uvecs[src_x_dim_index].size(), hamValue_dev_ptr,
 				HamFunction_Pos(moded_wMax, moded_vrange_min, moded_vrange_max, moded_dMax_0, moded_dMax_1));
 		}
+#else	/* defined(USE_THRUST) */
+		const size_t loop_length = x_uvecs[src_x_dim_index].size();
+		size_t num_of_threads_x;
+		size_t num_of_blocks_x;
+		get_cuda_thread_size_1d<size_t>(
+			num_of_threads_x,
+			num_of_blocks_x,
+			loop_length
+			);
+		dim3 num_of_blocks(num_of_blocks_x, 1);
+		dim3 num_of_threads(num_of_threads_x, 1, 1);
+		if (negate) {
+			kernel_HamFunction<false> << <num_of_blocks, num_of_threads, 0, hamValue_stream >> > (
+				hamValue_ptr, y2_ptr, deriv0_ptr, deriv1_ptr, deriv2_ptr,
+				moded_wMax, moded_vrange_min, moded_vrange_max, moded_dMax_0, moded_dMax_1,
+				loop_length
+				);
+		}
+		else {
+			kernel_HamFunction<true> << <num_of_blocks, num_of_threads, 0, hamValue_stream >> > (
+				hamValue_ptr, y2_ptr, deriv0_ptr, deriv1_ptr, deriv2_ptr,
+				moded_wMax, moded_vrange_min, moded_vrange_max, moded_dMax_0, moded_dMax_1,
+				loop_length
+				);
+		}
+#endif	/* defined(USE_THRUST) */
 		return result;
 	}
+#if defined(USE_THRUST)
 
 	struct PartialFunction_dim0 {
 	public:
@@ -1042,6 +1107,60 @@ bool dynamics_cell_helper_execute_cuda(
 			return getAlpha(cos_y2, sin_y2, sin_y2, derivMin0, derivMax0, derivMin1, derivMax1, dL1, dU1, vrange_min, vrange_max);
 		}
 	};
+#else	/* defined(USE_THRUST) */
+	__global__ static
+		void kernel_PartialFunction_dim0(
+			FLOAT_TYPE* partialFuncValue_ptr,
+			const FLOAT_TYPE* y2_ptr,
+			const FLOAT_TYPE derivMin0,
+			const FLOAT_TYPE derivMax0,
+			const FLOAT_TYPE derivMin1,
+			const FLOAT_TYPE derivMax1,
+			const FLOAT_TYPE dL0,
+			const FLOAT_TYPE dU0,
+			const FLOAT_TYPE vrange_min,
+			const FLOAT_TYPE vrange_max,
+			const size_t loop_length
+		) {
+		const size_t tid = threadIdx.x;
+		size_t index = (blockIdx.x * blockDim.x + tid);
+		const size_t gridSize = blockDim.x * gridDim.x;
+		while (index < loop_length) {
+			const FLOAT_TYPE y2 = y2_ptr[index];
+			FLOAT_TYPE cos_y2;
+			FLOAT_TYPE sin_y2;
+			sincos_float_type<FLOAT_TYPE>(y2, sin_y2, cos_y2);
+			partialFuncValue_ptr[index] = getAlpha(cos_y2, sin_y2, cos_y2, derivMin0, derivMax0, derivMin1, derivMax1, dL0, dU0, vrange_min, vrange_max);
+			index += gridSize;
+		}
+	}
+	__global__ static
+		void kernel_PartialFunction_dim1(
+			FLOAT_TYPE* partialFuncValue_ptr,
+			const FLOAT_TYPE* y2_ptr,
+			const FLOAT_TYPE derivMin0,
+			const FLOAT_TYPE derivMax0,
+			const FLOAT_TYPE derivMin1,
+			const FLOAT_TYPE derivMax1,
+			const FLOAT_TYPE dL1,
+			const FLOAT_TYPE dU1,
+			const FLOAT_TYPE vrange_min,
+			const FLOAT_TYPE vrange_max,
+			const size_t loop_length
+		) {
+		const size_t tid = threadIdx.x;
+		size_t index = (blockIdx.x * blockDim.x + tid);
+		const size_t gridSize = blockDim.x * gridDim.x;
+		while (index < loop_length) {
+			const FLOAT_TYPE y2 = y2_ptr[index];
+			FLOAT_TYPE cos_y2;
+			FLOAT_TYPE sin_y2;
+			sincos_float_type<FLOAT_TYPE>(y2, sin_y2, cos_y2);
+			partialFuncValue_ptr[index] = getAlpha(cos_y2, sin_y2, sin_y2, derivMin0, derivMax0, derivMin1, derivMax1, dL1, dU1, vrange_min, vrange_max);
+			index += gridSize;
+		}
+	}
+#endif	/* defined(USE_THRUST) */
 	bool PartialFunction_cuda(
 		beacls::UVec& alpha_uvec,
 		const std::vector<beacls::UVec>& x_uvecs,
@@ -1075,6 +1194,7 @@ bool dynamics_cell_helper_execute_cuda(
 		const FLOAT_TYPE* derivMin2_ptr = beacls::UVec_<FLOAT_TYPE>(derivMin_uvecs[2]).ptr();
 
 		bool result = true;
+#if defined(USE_THRUST)
 		switch (dim) {
 		case 0:
 		{
@@ -1142,6 +1262,84 @@ bool dynamics_cell_helper_execute_cuda(
 			result = false;
 			break;
 		}
+#else	/* defined(USE_THRUST) */
+		const size_t loop_length = x_uvecs[src_x_dim_index].size();
+		size_t num_of_threads_x;
+		size_t num_of_blocks_x;
+		get_cuda_thread_size_1d<size_t>(
+			num_of_threads_x,
+			num_of_blocks_x,
+			loop_length
+			);
+		dim3 num_of_blocks(num_of_blocks_x, 1);
+		dim3 num_of_threads(num_of_threads_x, 1, 1);
+		switch (dim) {
+		case 0:
+		{
+			beacls::reallocateAsSrc(alpha_uvec, x_uvecs[src_x_dim_index]);
+			cudaStream_t alpha_stream = beacls::get_stream(alpha_uvec);
+			FLOAT_TYPE* alpha_ptr = beacls::UVec_<FLOAT_TYPE>(alpha_uvec).ptr();
+			const FLOAT_TYPE derivMax0 = derivMax0_ptr[0];
+			const FLOAT_TYPE derivMax1 = derivMax1_ptr[0];
+			const FLOAT_TYPE derivMin0 = derivMin0_ptr[0];
+			const FLOAT_TYPE derivMin1 = derivMin1_ptr[0];
+			const FLOAT_TYPE normDerivMax = sqrt_float_type(derivMax0 * derivMax0 + derivMax1 * derivMax1);
+			const FLOAT_TYPE normDerivMin = sqrt_float_type(derivMin0 * derivMin0 + derivMin1 * derivMin1);
+			const FLOAT_TYPE dU0 = (normDerivMax == 0) ? 0 : moded_dMax_0 * derivMax0 / normDerivMax;
+			const FLOAT_TYPE dL0 = (normDerivMin == 0) ? 0 : moded_dMax_0 * derivMin0 / normDerivMin;
+			kernel_PartialFunction_dim0<<<num_of_blocks, num_of_threads, 0, alpha_stream >>>(
+				alpha_ptr, y2_ptr,
+				derivMin0, derivMax0, derivMin1, derivMax1, dL0, dU0, moded_vrange_min, moded_vrange_max,
+				loop_length
+				);
+		}
+		break;
+		case 1:
+		{
+			beacls::reallocateAsSrc(alpha_uvec, x_uvecs[src_x_dim_index]);
+			cudaStream_t alpha_stream = beacls::get_stream(alpha_uvec);
+			FLOAT_TYPE* alpha_ptr = beacls::UVec_<FLOAT_TYPE>(alpha_uvec).ptr();
+			const FLOAT_TYPE derivMax0 = derivMax0_ptr[0];
+			const FLOAT_TYPE derivMax1 = derivMax1_ptr[0];
+			const FLOAT_TYPE derivMin0 = derivMin0_ptr[0];
+			const FLOAT_TYPE derivMin1 = derivMin1_ptr[0];
+			const FLOAT_TYPE normDerivMax = sqrt_float_type(derivMax0 * derivMax0 + derivMax1 * derivMax1);
+			const FLOAT_TYPE normDerivMin = sqrt_float_type(derivMin0 * derivMin0 + derivMin1 * derivMin1);
+			const FLOAT_TYPE dU1 = (normDerivMax == 0) ? 0 : moded_dMax_0 * derivMax1 / normDerivMax;
+			const FLOAT_TYPE dL1 = (normDerivMin == 0) ? 0 : moded_dMax_0 * derivMin1 / normDerivMin;
+			kernel_PartialFunction_dim1<<<num_of_blocks, num_of_threads, 0, alpha_stream>>>(
+				alpha_ptr, y2_ptr,
+				derivMin0, derivMax0, derivMin1, derivMax1, dL1, dU1, moded_vrange_min, moded_vrange_max,
+				loop_length
+				);
+		}
+		break;
+		case 2:
+		{
+			beacls::reallocateAsSrc(alpha_uvec, derivMax_uvecs[0]);
+			FLOAT_TYPE* alpha_ptr = beacls::UVec_<FLOAT_TYPE>(alpha_uvec).ptr();
+			const FLOAT_TYPE derivMax2 = derivMax2_ptr[0];
+			const FLOAT_TYPE derivMin2 = derivMin2_ptr[0];
+			const FLOAT_TYPE uU1 = (derivMax2 >= 0) ? moded_wMax : -moded_wMax;
+			const FLOAT_TYPE dU2 = (derivMax2 >= 0) ? moded_dMax_1 : -moded_dMax_1;
+			const FLOAT_TYPE uL1 = (derivMin2 >= 0) ? moded_wMax : -moded_wMax;
+			const FLOAT_TYPE dL2 = (derivMin2 >= 0) ? moded_dMax_1 : -moded_dMax_1;
+			const FLOAT_TYPE dxUU = uU1 + dU2;
+			const FLOAT_TYPE dxUL = uU1 + dL2;
+			const FLOAT_TYPE dxLU = uL1 + dU2;
+			const FLOAT_TYPE dxLL = uL1 + dL2;
+			const FLOAT_TYPE max0 = max_float_type<FLOAT_TYPE>(abs_float_type<FLOAT_TYPE>(dxUU), abs_float_type<FLOAT_TYPE>(dxUL));
+			const FLOAT_TYPE max1 = max_float_type<FLOAT_TYPE>(abs_float_type<FLOAT_TYPE>(dxLL), abs_float_type<FLOAT_TYPE>(dxLU));
+			alpha_ptr[0] = max_float_type<FLOAT_TYPE>(max0, max1);
+		}
+		break;
+		default:
+			std::cerr << "Only dimension 1-4 are defined for dynamics of Plane!" << std::endl;
+			result = false;
+			break;
+		}
+
+#endif	/* defined(USE_THRUST) */
 
 		return result;
 	}

@@ -2,18 +2,50 @@
 #include "ComputeGradients_Worker_impl.hpp"
 #include "ComputeGradients_OneSlice.hpp"
 #include "ComputeGradients_CommandQueue.hpp"
+#include <helperOC/helperOC_type.hpp>
 #include <levelset/SpatialDerivative/SpatialDerivative.hpp>
+#include <levelset/levelset.hpp>
 
+helperOC::ComputeGradients_Worker_impl::ComputeGradients_Worker_impl(
+	ComputeGradients_CommandQueue* commandQueue,
+	const levelset::HJI_Grid* grid,
+	const helperOC::ApproximationAccuracy_Type accuracy,
+	const beacls::UVecType type,
+	const int gpu_id
+) : commandQueue(commandQueue),
+	gpu_id(gpu_id),
+	exitFlag(true) {
+	//! accuracy
+	switch (accuracy) {
+	case helperOC::ApproximationAccuracy_low:
+		spatialDerivative = new levelset::UpwindFirstFirst(grid, type);
+		break;
+	case helperOC::ApproximationAccuracy_medium:
+		spatialDerivative = new levelset::UpwindFirstENO2(grid, type);
+		break;
+	case helperOC::ApproximationAccuracy_high:
+		spatialDerivative = new levelset::UpwindFirstENO3(grid, type);
+		break;
+	case helperOC::ApproximationAccuracy_veryHigh:
+		spatialDerivative = new levelset::UpwindFirstWENO5(grid, type);
+		break;
+	case helperOC::ApproximationAccuracy_Invalid:
+	default:
+		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
+		spatialDerivative = NULL;
+		break;
+	}
+}
 helperOC::ComputeGradients_Worker_impl::ComputeGradients_Worker_impl(
 	ComputeGradients_CommandQueue* commandQueue,
 	const levelset::SpatialDerivative* spatialDerivative,
 	const int gpu_id
-) : commandQueue(commandQueue),
+) :
+	commandQueue(commandQueue),
+	spatialDerivative(spatialDerivative),
 	gpu_id(gpu_id),
-	exitFlag(true),
-	spatialDerivative(spatialDerivative->clone()) {
+	exitFlag(true) {
 }
-
 void helperOC::ComputeGradients_Worker_impl::ComputeGradients_Worker_proc() {
 	bool nextExitFlag;
 	mtx.lock();
@@ -97,9 +129,19 @@ helperOC::ComputeGradients_Worker* helperOC::ComputeGradients_Worker::clone() co
 }
 helperOC::ComputeGradients_Worker::ComputeGradients_Worker(
 	ComputeGradients_CommandQueue* commandQueue, 
-	const levelset::SpatialDerivative* derivFunc,
+	const levelset::HJI_Grid* grid,
+	const helperOC::ApproximationAccuracy_Type accuracy,
+	const beacls::UVecType type,
 	const int gpu_id) {
-	pimpl = new ComputeGradients_Worker_impl(commandQueue, derivFunc, gpu_id);
+	pimpl = new ComputeGradients_Worker_impl(commandQueue, grid, accuracy, type, gpu_id);
+}
+helperOC::ComputeGradients_Worker::ComputeGradients_Worker(
+	ComputeGradients_CommandQueue* commandQueue,
+	const levelset::SpatialDerivative* spatialDerivative,
+	const int gpu_id
+) {
+	pimpl = new ComputeGradients_Worker_impl(commandQueue, spatialDerivative, gpu_id);
+
 }
 helperOC::ComputeGradients_Worker::~ComputeGradients_Worker() {
 	if (pimpl) delete pimpl;

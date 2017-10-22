@@ -219,9 +219,14 @@ bool run_UTest_Dissipation(
 	const size_t parallel_loop_size = (size_t)std::ceil((FLOAT_TYPE)num_of_outer_lines / num_of_parallel_loop_lines);
 	const size_t num_of_inner_lines = (size_t)std::ceil((FLOAT_TYPE)num_of_lines / num_of_outer_lines);
 
-	const size_t prefered_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::ceil((FLOAT_TYPE)num_of_lines / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size);
+	const double gpu_memory_ocupancy_ratio = 1.0 / (2 + 15 * num_of_dimensions) / 2 * 0.8;
+	const size_t minimum_global_memory_in_devices = beacls::get_minimum_global_memory_in_devices();
+	const size_t available_line_length_for_cuda = (size_t)std::floor(minimum_global_memory_in_devices * gpu_memory_ocupancy_ratio / first_dimension_loop_size / sizeof(FLOAT_TYPE));
+	const size_t available_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::floor((FLOAT_TYPE)available_line_length_for_cuda / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size);
+	const size_t prefered_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::ceil((FLOAT_TYPE)num_of_lines / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size) * num_of_activated_gpus;
+	const size_t line_length_of_chunk_for_cuda = available_line_length_of_chunk_for_cuda < prefered_line_length_of_chunk_for_cuda ? available_line_length_of_chunk_for_cuda : prefered_line_length_of_chunk_for_cuda;
 	const size_t prefered_line_length_of_chunk_for_cpu = (size_t)std::ceil((FLOAT_TYPE)1024 / first_dimension_loop_size);
-	const size_t prefered_line_length_of_chunk = (type == beacls::UVecType_Cuda) ? prefered_line_length_of_chunk_for_cuda : prefered_line_length_of_chunk_for_cpu;
+	const size_t prefered_line_length_of_chunk = (type == beacls::UVecType_Cuda) ? line_length_of_chunk_for_cuda : prefered_line_length_of_chunk_for_cpu;
 
 	const size_t actual_line_length_of_chunk = (line_length_of_chunk == 0) ? prefered_line_length_of_chunk : line_length_of_chunk;	//!< T.B.D.
 
@@ -319,11 +324,17 @@ bool run_UTest_Dissipation(
 				std::transform(derivMaxs.cbegin(), derivMaxs.cend(), deriv_max_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 				std::transform(derivMins.cbegin(), derivMins.cend(), deriv_min_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 
+				bool getReductionLater = false;
 				if (loop_local_dissipation->execute(
 					diss_line_uvec, new_step_bound_invs, deriv_min_uvecs, deriv_max_uvecs,
+					getReductionLater,
 					t, src_data_uvec, src_deriv_l_uvecs, src_deriv_r_uvecs,  x_uvecs,
 					thread_local_schemeData, expected_result_offset, enable_user_defined_dynamics_on_gpu)) {
 					beacls::UVec tmp_diss;
+
+					if (getReductionLater) {
+						dissipation->get_reduction(new_step_bound_invs, deriv_min_uvecs, deriv_max_uvecs, diss_line_uvec, schemeData, true);
+					}
 
 					if (diss_line_uvec.type() == beacls::UVecType_Cuda) diss_line_uvec.convertTo(tmp_diss, beacls::UVecType_Vector);
 					else tmp_diss = diss_line_uvec;

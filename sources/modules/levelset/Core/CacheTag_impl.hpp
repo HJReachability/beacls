@@ -29,6 +29,10 @@ public:
 		if ((t == new_t) && (begin_index == new_bi) && (length == new_l))return true;
 		else return false;
 	}
+	bool check_tag(const size_t new_bi, const size_t new_l) const {
+		if ((begin_index == new_bi) && (length == new_l))return true;
+		else return false;
+	}
 private:
 	/** @overload
 	Disable operator=

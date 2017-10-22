@@ -49,7 +49,7 @@ namespace levelset {
 		beacls::IntegerVec inner_dimensions_loop_sizes;
 		beacls::IntegerVec first_dimension_loop_sizes;
 		beacls::IntegerVec src_target_dimension_loop_sizes;
-		beacls::UVec bounded_first_dimension_line_cache_uvec;
+//		beacls::UVec bounded_first_dimension_line_cache_uvec;
 
 		const size_t stencil;
 		std::vector<beacls::UVec > tmpBoundedSrc_uvecs;
