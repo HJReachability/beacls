@@ -384,11 +384,13 @@ bool UpwindFirstENO3aHelper_impl::execute_dim0(
 	if (dst_dL.size() != num_of_dsts) dst_dL.resize(num_of_dsts);
 	if (dst_dR.size() != num_of_dsts) dst_dR.resize(num_of_dsts);
 	beacls::UVecDepth depth = beacls::type_to_depth<FLOAT_TYPE>();
+#if 0
 	if (bounded_first_dimension_line_cache_uvec.type() == beacls::UVecType_Invalid) {
 		bounded_first_dimension_line_cache_uvec = beacls::UVec(depth, type, first_dimension_loop_size + 2 * stencil);
 	} else if (bounded_first_dimension_line_cache_uvec.size() < (first_dimension_loop_size + 2 * stencil)) {
 		bounded_first_dimension_line_cache_uvec.resize(first_dimension_loop_size + 2 * stencil);
 	}
+#endif
 	for_each(dst_dL.begin(), dst_dL.end(), ([total_slices_length, depth, this](auto &rhs) {
 		if (rhs.type() == beacls::UVecType_Invalid) rhs = beacls::UVec(depth, type, total_slices_length);
 		else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
