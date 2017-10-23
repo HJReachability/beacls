@@ -1,6 +1,5 @@
 // CUDA runtime
 #include <cuda_runtime.h>
-
 #include <typedef.hpp>
 #include <cuda_macro.hpp>
 #include <Core/UVec.hpp>
@@ -8,35 +7,7 @@
 #include "ArtificialDissipationGLF_cuda.hpp"
 #if defined(WITH_GPU)
 
-template<typename T>
-inline
-__device__
-void dev_minmax(T& dst_min, T& dst_max, const T& lhs, const T& rhs) {
-	if (lhs < rhs) {
-		dst_min = lhs;
-		dst_max = rhs;
-	}
-	else {
-		dst_min = rhs;
-		dst_max = lhs;
-	}
-}
-template<typename T>
-inline
-__device__
-void dev_min(T& dst_min, const T& lhs) {
-	if (lhs < dst_min) {
-		dst_min = lhs;
-	}
-}
-template<typename T>
-inline
-__device__
-void dev_max(T& dst_max, const T& lhs) {
-	if (lhs > dst_max) {
-		dst_max = lhs;
-	}
-}
+
 
 template<size_t blockSize, bool vector_alpha, bool dim0, bool updateDerivMinMax>
 __global__
@@ -386,7 +357,7 @@ void ArtificialDissipationGLF_reduce_cuda
 	const beacls::UVec& alpha_uvec,
 	const beacls::UVec &tmp_min_cuda_uvec,
 	const beacls::UVec &tmp_max_cuda_uvec,
-	const beacls::UVec &tmp_max_cuda_alpha_uvec,
+	const beacls::UVec &tmp_max_alpha_cuda_uvec,
 	beacls::UVec &tmp_min_cpu_uvec,
 	beacls::UVec &tmp_max_cpu_uvec,
 	beacls::UVec &tmp_max_alpha_cpu_uvec,
@@ -394,11 +365,10 @@ void ArtificialDissipationGLF_reduce_cuda
 	const bool updateDerivMinMax
 ) {
 	beacls::UVecType type = beacls::UVecType_Vector;
-	beacls::UVecDepth depth = tmp_min_cuda_uvec.depth();
 	const size_t num_of_blocks_x = tmp_min_cpu_uvec.size();
 	if (updateDerivMinMax) {
-		tmp_min_cuda_uvec.convertTo(tmp_min_cpu_uvec, beacls::UVecType_Vector);
-		tmp_max_cuda_uvec.convertTo(tmp_max_cpu_uvec, beacls::UVecType_Vector);
+		tmp_min_cuda_uvec.convertTo(tmp_min_cpu_uvec, type);
+		tmp_max_cuda_uvec.convertTo(tmp_max_cpu_uvec, type);
 		derivMin = std::numeric_limits<FLOAT_TYPE>::max();
 		derivMax = -std::numeric_limits<FLOAT_TYPE>::max();
 		const beacls::FloatVec& tmp_min_cpu_vec = *(beacls::UVec_<FLOAT_TYPE>(tmp_min_cpu_uvec).vec());
@@ -409,6 +379,7 @@ void ArtificialDissipationGLF_reduce_cuda
 		}
 	}
 	if (beacls::is_cuda(alpha_uvec)) {
+		tmp_max_alpha_cuda_uvec.convertTo(tmp_max_alpha_cpu_uvec, type);
 		const beacls::FloatVec& tmp_max_alpha_cpu_vec = *(beacls::UVec_<FLOAT_TYPE>(tmp_max_alpha_cpu_uvec).vec());
 		FLOAT_TYPE max_value = -std::numeric_limits<FLOAT_TYPE>::max();
 		for (size_t index = 0; index < tmp_min_cpu_uvec.size(); ++index) {

@@ -26,7 +26,6 @@ UpwindFirstENO3aHelper_impl::UpwindFirstENO3aHelper_impl(
 	dxInv_3s.resize(num_of_dimensions);
 	dx_squares.resize(num_of_dimensions);
 
-	outer_dimensions_loop_sizes.resize(num_of_dimensions);
 	target_dimension_loop_sizes.resize(num_of_dimensions);
 	inner_dimensions_loop_sizes.resize(num_of_dimensions);
 	first_dimension_loop_sizes.resize(num_of_dimensions);
@@ -71,8 +70,6 @@ bool UpwindFirstENO3aHelper_impl::operator==(const UpwindFirstENO3aHelper_impl& 
 	else if ((dxInvs.size() != rhs.dxInvs.size()) || !std::equal(dxInvs.cbegin(), dxInvs.cend(), rhs.dxInvs.cbegin())) return false;
 	else if ((dxInv_2s.size() != rhs.dxInv_2s.size()) || !std::equal(dxInv_2s.cbegin(), dxInv_2s.cend(), rhs.dxInv_2s.cbegin())) return false;
 	else if ((dxInv_3s.size() != rhs.dxInv_3s.size()) || !std::equal(dxInv_3s.cbegin(), dxInv_3s.cend(), rhs.dxInv_3s.cbegin())) return false;
-
-	else if ((outer_dimensions_loop_sizes.size() != rhs.outer_dimensions_loop_sizes.size()) || !std::equal(outer_dimensions_loop_sizes.cbegin(), outer_dimensions_loop_sizes.cend(), rhs.outer_dimensions_loop_sizes.cbegin())) return false;
 	else if ((target_dimension_loop_sizes.size() != rhs.target_dimension_loop_sizes.size()) || !std::equal(target_dimension_loop_sizes.cbegin(), target_dimension_loop_sizes.cend(), rhs.target_dimension_loop_sizes.cbegin())) return false;
 	else if ((inner_dimensions_loop_sizes.size() != rhs.inner_dimensions_loop_sizes.size()) || !std::equal(inner_dimensions_loop_sizes.cbegin(), inner_dimensions_loop_sizes.cend(), rhs.inner_dimensions_loop_sizes.cbegin())) return false;
 	else if ((first_dimension_loop_sizes.size() != rhs.first_dimension_loop_sizes.size()) || !std::equal(first_dimension_loop_sizes.cbegin(), first_dimension_loop_sizes.cend(), rhs.first_dimension_loop_sizes.cbegin())) return false;
@@ -171,191 +168,6 @@ void UpwindFirstENO3aHelper_impl::getCachePointers(
 						d3s_ms[i - 2] = beacls::UVec_<FLOAT_TYPE>(dst_DD[2]).ptr() + dst_dd_base + dst_DD2_slice_offset;
 						if ((i - 2) == 0) d3_m0_writeToCache = false;
 					}
-				}
-			}
-		}
-	}
-}
-
-template<typename T, typename S, typename U> inline
-void calc_D1toD3andDD_dimLET2(
-	T* dst_dL0_ptr,
-	T* dst_dL1_ptr,
-	T* dst_dL2_ptr,
-	T* dst_dL3_ptr,
-	T* dst_dR0_ptr,
-	T* dst_dR1_ptr,
-	T* dst_dR2_ptr,
-	T* dst_dR3_ptr,
-	std::vector<T*>& dst_DD0_ptrs,
-	std::vector<T*>& dst_DD1_ptrs,
-	std::vector<T*>& dst_DD2_ptrs,
-	std::vector<std::vector<T> >& d2ss,
-	std::vector<std::vector<T> >& d3ss,
-	const std::vector<std::vector<std::vector<const T*> > >& dst_ptrsss,
-	const T dxInv,
-	const T dxInv_2,
-	const T dxInv_3,
-	const T dx,
-	const T x2_dx_square,
-	const T dx_square,
-	const size_t loop_length,
-	const size_t first_dimension_loop_size,
-	const size_t num_of_buffer_lines,
-	const size_t slice_length,
-	const size_t num_of_slices,
-	const size_t num_of_strides,
-	const size_t num_of_dLdR_in_slice,
-	S approx4 = S(),
-	U stripDD = U())
-{
-	for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
-		size_t dst_slice_offset = slice_index * loop_length * first_dimension_loop_size;
-		for (size_t loop_index = 0; loop_index < loop_length; ++loop_index) {
-			size_t dst_loop_offset = loop_index * first_dimension_loop_size + dst_slice_offset;
-			const std::vector<const T*>& tmpBoundedSrc_ptrs = dst_ptrsss[slice_index][loop_index];
-			//! Prologue
-			{
-				size_t pre_loop = 0;
-				size_t buffer_index = pre_loop + 1;
-				size_t m0_index = ((buffer_index + 3) % num_of_buffer_lines);
-				const T* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptrs[0 + pre_loop];
-				const T* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptrs[1 + pre_loop];
-				const T* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptrs[2 + pre_loop];
-				std::vector<T>& d2ss_m0 = d2ss[m0_index];
-				for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
-					T d0_m0 = tmpBoundedSrc_ptrs2[first_dimension_loop_index];
-					T d0_m1 = tmpBoundedSrc_ptrs1[first_dimension_loop_index];
-					T d0_m2 = tmpBoundedSrc_ptrs0[first_dimension_loop_index];
-					T d1_m0 = dxInv * (d0_m0 - d0_m1);
-					T d1_m1 = dxInv * (d0_m1 - d0_m2);
-					T d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
-					d2ss_m0[first_dimension_loop_index] = d2_m0;
-				}
-			}
-			for (size_t stride_index = 0; stride_index < num_of_strides; ++stride_index) {
-				const size_t dst_stride_offset = stride_index * loop_length * num_of_slices * first_dimension_loop_size;
-				const size_t buffer_index = stride_index + num_of_buffer_lines - 1;
-				const size_t m0_index = ((buffer_index + 3) % num_of_buffer_lines);
-				const size_t m1_index = ((buffer_index + 2) % num_of_buffer_lines);
-				const size_t m2_index = ((buffer_index + 1) % num_of_buffer_lines);
-
-				const T* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptrs[0 + stride_index + num_of_buffer_lines - 3];
-				const T* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptrs[0 + stride_index + num_of_buffer_lines - 2];
-				const T* tmpBoundedSrc_ptrs3 = tmpBoundedSrc_ptrs[0 + stride_index + num_of_buffer_lines - 1];
-				const T* tmpBoundedSrc_ptrs4 = tmpBoundedSrc_ptrs[0 + stride_index + num_of_buffer_lines];
-				std::vector<T>& d2ss_m0 = d2ss[m0_index];
-				const std::vector<T>& d2ss_m1 = d2ss[m1_index];
-				const std::vector<T>& d2ss_m2 = d2ss[m2_index];
-				std::vector<T>& d3ss_m0 = d3ss[m0_index];
-				const std::vector<T>& d3ss_m1 = d3ss[m1_index];
-				const std::vector<T>& d3ss_m2 = d3ss[m2_index];
-				if ((stride_index >= 3) && (stride_index <= 3 + num_of_dLdR_in_slice - 1)) {
-					const size_t dst_dLdR_slice_offset = (stride_index - 3) * slice_length;
-
-					const T* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptrs[0 + stride_index + num_of_buffer_lines - 4];
-					for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
-						size_t dst_dLdR_index = first_dimension_loop_index + dst_loop_offset + dst_dLdR_slice_offset;
-						size_t dst_DD_index = first_dimension_loop_index + dst_loop_offset + dst_stride_offset;
-						T d0_m0, d0_m1, d0_m2, d0_m3, d0_m4, d1_m0, d1_m1, d1_m2, d1_m3;
-						calc_d0_dimLET2(d0_m4, tmpBoundedSrc_ptrs0, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m4, d0_m3, d1_m3, tmpBoundedSrc_ptrs1, dxInv, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m3, d0_m2, d1_m2, tmpBoundedSrc_ptrs2, dxInv, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m2, d0_m1, d1_m1, tmpBoundedSrc_ptrs3, dxInv, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m1, d0_m0, d1_m0, tmpBoundedSrc_ptrs4, dxInv, first_dimension_loop_index);
-						T d2_m1 = d2ss_m1[first_dimension_loop_index];
-						T d2_m2 = d2ss_m2[first_dimension_loop_index];
-						T d2_m3 = d2ss_m0[first_dimension_loop_index];
-						T d3_m1 = d3ss_m1[first_dimension_loop_index];
-						T d3_m2 = d3ss_m2[first_dimension_loop_index];
-						T d3_m3 = d3ss_m0[first_dimension_loop_index];
-						T d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
-						T d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
-						calcApprox1to3<FLOAT_TYPE>(dst_dL0_ptr, dst_dL1_ptr, dst_dL2_ptr, dst_dR0_ptr, dst_dR1_ptr, dst_dR2_ptr,
-							d1_m2, d1_m3, d2_m1, d2_m2, d2_m3, d3_m0, d3_m1, d3_m2, d3_m3, dx, x2_dx_square, dx_square, dst_dLdR_index);
-						calcApprox4s<FLOAT_TYPE>(dst_dL3_ptr, dst_dR3_ptr, d1_m3, d1_m2, d2_m2, d2_m1, d3_m2, d3_m1, dx, dx_square, x2_dx_square, dst_dLdR_index, approx4);
-						T* dst_DD0_ptr = dst_DD0_ptrs[0];
-						T* dst_DD1_ptr = dst_DD1_ptrs[0];
-						T* dst_DD2_ptr = dst_DD2_ptrs[0];
-						storeDD(dst_DD0_ptr, d1_m0, d1_m2, dst_DD_index, stripDD);
-						storeDD(dst_DD1_ptr, d2_m0, d2_m1, dst_DD_index, stripDD);
-						storeDD(dst_DD2_ptr, d3_m0, d3_m0, dst_DD_index, stripDD);
-						d3ss_m0[first_dimension_loop_index] = d3_m0;
-						d2ss_m0[first_dimension_loop_index] = d2_m0;
-					}
-				}
-				else {
-					for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
-						size_t dst_DD_index = first_dimension_loop_index + dst_loop_offset + dst_stride_offset;
-						T d0_m0, d0_m1, d0_m2, d0_m3, d1_m0, d1_m1, d1_m2;
-						calc_d0_dimLET2<FLOAT_TYPE>(d0_m3, tmpBoundedSrc_ptrs1, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m3, d0_m2, d1_m2, tmpBoundedSrc_ptrs2, dxInv, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m2, d0_m1, d1_m1, tmpBoundedSrc_ptrs3, dxInv, first_dimension_loop_index);
-						calc_d0d1_dimLET2<FLOAT_TYPE>(d0_m1, d0_m0, d1_m0, tmpBoundedSrc_ptrs4, dxInv, first_dimension_loop_index);
-						T d2_m1 = d2ss_m1[first_dimension_loop_index];
-						T d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
-						T d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
-						T* dst_DD0_ptr = dst_DD0_ptrs[0];
-						T* dst_DD1_ptr = dst_DD1_ptrs[0];
-						T* dst_DD2_ptr = dst_DD2_ptrs[0];
-						storeDD(dst_DD0_ptr, d1_m0, d1_m2, dst_DD_index, stripDD);
-						storeDD(dst_DD1_ptr, d2_m0, d2_m1, dst_DD_index, stripDD);
-						storeDD(dst_DD2_ptr, d3_m0, d3_m0, dst_DD_index, stripDD);
-						d3ss_m0[first_dimension_loop_index] = d3_m0;
-						d2ss_m0[first_dimension_loop_index] = d2_m0;
-					}
-				}
-			}
-		}
-	}
-}
-
-template<typename T,typename S> inline
-void calc_D1toD3_dimLET2(
-	T* dst_dL0_ptr,
-	T* dst_dL1_ptr,
-	T* dst_dL2_ptr,
-	T* dst_dL3_ptr,
-	T* dst_dR0_ptr,
-	T* dst_dR1_ptr,
-	T* dst_dR2_ptr,
-	T* dst_dR3_ptr,
-	const std::vector<std::vector<std::vector<const T*> > >& tmpBoundedSrc_ptrsss,
-	const T dxInv,
-	const T dxInv_2,
-	const T dxInv_3,
-	const T dx,
-	const T x2_dx_square,
-	const T dx_square,
-	const size_t loop_length,
-	const size_t first_dimension_loop_size,
-	const size_t slice_length,
-	const size_t num_of_slices,
-	S approx4 = S()) {
-	for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
-		const size_t slice_offset = slice_index * slice_length;
-		for (size_t loop_index = 0; loop_index < loop_length; ++loop_index) {
-			size_t dst_dLdR_offset = loop_index * first_dimension_loop_size + slice_offset;
-			const std::vector<const T*>& tmpBoundedSrc_ptrs = tmpBoundedSrc_ptrsss[slice_index][loop_index];
-			{
-				size_t plane = 0;
-				const T* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptrs[0 + plane];
-				const T* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptrs[1 + plane];
-				const T* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptrs[2 + plane];
-				const T* tmpBoundedSrc_ptrs3 = tmpBoundedSrc_ptrs[3 + plane];
-				const T* tmpBoundedSrc_ptrs4 = tmpBoundedSrc_ptrs[4 + plane];
-				const T* tmpBoundedSrc_ptrs5 = tmpBoundedSrc_ptrs[5 + plane];
-				const T* tmpBoundedSrc_ptrs6 = tmpBoundedSrc_ptrs[6 + plane];
-				for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
-					T d0_0, d0_1, d0_2, d0_3, d0_4, d0_5, d0_6, d1_0, d1_1, d1_2, d1_3, d1_4, d1_5, d2_0, d2_1, d2_2, d2_3, d2_4, d3_0, d3_1, d3_2, d3_3;
-					calcD1toD3_dimLET2<FLOAT_TYPE>(
-						d0_0, d0_1, d0_2, d0_3, d0_4, d0_5, d0_6, d1_0, d1_1, d1_2, d1_3, d1_4, d1_5, d2_0, d2_1, d2_2, d2_3, d2_4, d3_0, d3_1, d3_2, d3_3,
-						tmpBoundedSrc_ptrs0, tmpBoundedSrc_ptrs1, tmpBoundedSrc_ptrs2, tmpBoundedSrc_ptrs3, tmpBoundedSrc_ptrs4, tmpBoundedSrc_ptrs5, tmpBoundedSrc_ptrs6,
-						dxInv, dxInv_2, dxInv_3, first_dimension_loop_index
-						);
-					size_t dst_index = first_dimension_loop_index + dst_dLdR_offset;
-					calcApprox1to3<FLOAT_TYPE>(dst_dL0_ptr, dst_dL1_ptr, dst_dL2_ptr, dst_dR0_ptr, dst_dR1_ptr, dst_dR2_ptr, d1_3, d1_2, d2_3, d2_2, d2_1, d3_3, d3_2, d3_1, d3_0, dx, x2_dx_square, dx_square, dst_index);
-					calcApprox4s<FLOAT_TYPE>(dst_dL3_ptr, dst_dR3_ptr, d1_2, d1_3, d2_2, d2_3, d3_1, d3_2, dx, dx_square, x2_dx_square, dst_index, approx4);
 				}
 			}
 		}
