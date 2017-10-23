@@ -223,7 +223,7 @@ void cudaAverage(beacls::UVec& dst_uvec, const beacls::UVec& src1, const beacls:
 	}
 }
 size_t get_minimum_global_memory_in_devices_impl() {
-	return 1024*1024*1024*4;
+	return (size_t)1024*1024*1024*4;
 }
 int get_num_of_gpus_impl() {
 	return 1;

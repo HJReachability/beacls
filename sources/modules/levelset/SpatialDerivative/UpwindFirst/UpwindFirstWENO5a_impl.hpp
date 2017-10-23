@@ -11,28 +11,62 @@ namespace levelset {
 	class UpwindFirstENO3aHelper;
 	class UpwindFirstWENO5a_Cache {
 	public:
-		std::vector<beacls::FloatVec > cachedBoundedSrcs;
 		std::vector<beacls::FloatVec > last_d1ss;
-		beacls::FloatVec last_d2s;
-		beacls::FloatVec last_d2s_fabs;
-		beacls::FloatVec last_dx_d2_effs;
+		std::vector<beacls::FloatVec > last_d2ss;
+		std::vector<beacls::FloatVec > last_d3ss;
+		//		beacls::FloatVec last_d2s;
+		//beacls::FloatVec last_d2s_fabs;
+		//beacls::FloatVec last_dx_d2_effs;
 		std::vector<const FLOAT_TYPE*> boundedSrc_ptrs;
-		UpwindFirstWENO5a_Cache() : cachedBoundedSrcs(2), boundedSrc_ptrs(2) {}
+		UpwindFirstWENO5a_Cache() : boundedSrc_ptrs(2) {}
+		/** @overload
+		Disable copy constructor
+		*/
+		UpwindFirstWENO5a_Cache(const UpwindFirstWENO5a_Cache& rhs) :
+			last_d1ss(rhs.last_d1ss),
+			last_d2ss(rhs.last_d2ss),
+			last_d3ss(rhs.last_d3ss) {
+			boundedSrc_ptrs.resize(rhs.boundedSrc_ptrs.size(), NULL);
+		}
 	};
 
 	class UpwindFirstWENO5a_impl {
 	private:
 		beacls::UVecType type;
-		beacls::IntegerVec first_dimension_loop_sizes;
+		std::vector<beacls::UVec> tmpBoundedSrc_uvec_vectors;
+		beacls::FloatVec dxs;
+		beacls::FloatVec dx_squares;
+		beacls::FloatVec dxInvs;
+		beacls::FloatVec dxInv_2s;
+		beacls::FloatVec dxInv_3s;
+
+		beacls::IntegerVec target_dimension_loop_sizes;
 		beacls::IntegerVec inner_dimensions_loop_sizes;
+		beacls::IntegerVec first_dimension_loop_sizes;
 		beacls::IntegerVec src_target_dimension_loop_sizes;
 
+
 		const size_t stencil;
+		std::vector<beacls::UVec > tmpBoundedSrc_uvecs;
+		std::vector<std::vector<std::vector<std::vector<const FLOAT_TYPE*> > > > tmpBoundedSrc_ptrssss;
+		std::vector<FLOAT_TYPE*> tmp_d1s_ms_ites;
+		std::vector<FLOAT_TYPE*> tmp_d2s_ms_ites;
+		std::vector<FLOAT_TYPE*> tmp_d3s_ms_ites;
+
+		std::vector<FLOAT_TYPE*> tmp_d1s_ms_ites2;
+		std::vector<FLOAT_TYPE*> tmp_d2s_ms_ites2;
+		std::vector<FLOAT_TYPE*> tmp_d3s_ms_ites2;
 		size_t num_of_strides;
 
 		std::vector<std::vector<beacls::UVec > > dL_uvecs;
 		std::vector<std::vector<beacls::UVec > > dR_uvecs;
 		std::vector<std::vector<beacls::UVec > > DD_uvecs;
+
+		std::vector<beacls::FloatVec > d1ss;
+		std::vector<beacls::FloatVec > d2ss;
+		std::vector<beacls::FloatVec > d3ss;
+
+		beacls::IntegerVec tmp_cache_indexes;
 
 		std::vector<std::vector<beacls::FloatVec > > tmpSmooths_m1s;
 		std::vector<beacls::FloatVec > tmpSmooths;
@@ -43,6 +77,7 @@ namespace levelset {
 		levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type;
 		UpwindFirstENO3aHelper* upwindFirstENO3aHelper;
 		std::vector<beacls::CudaStream*> cudaStreams;
+		UpwindFirstWENO5a_Cache *cache;
 	public:
 		UpwindFirstWENO5a_impl(
 			const HJI_Grid *hji_grid,
@@ -100,6 +135,24 @@ namespace levelset {
 			return type;
 		};
 	private:
+		void getCachePointers(
+			std::vector<FLOAT_TYPE*> &d1s_ms,
+			std::vector<FLOAT_TYPE*> &d2s_ms,
+			std::vector<FLOAT_TYPE*> &d3s_ms,
+			std::vector<beacls::UVec > &dst_DD,
+			bool &d1_m0_writeToCache,
+			bool &d2_m0_writeToCache,
+			bool &d3_m0_writeToCache,
+			const size_t slice_index,
+			const size_t shifted_target_dimension_loop_index,
+			const size_t first_dimension_loop_size,
+			const size_t dst_loop_offset,
+			const size_t num_of_slices,
+			const size_t num_of_cache_lines,
+			const bool stepHead);
+		void createCaches(
+			const size_t first_dimension_loop_size,
+			const size_t num_of_cache_lines);
 
 
 		/** @overload

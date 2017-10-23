@@ -14,6 +14,7 @@
 #define __global__
 #define __host__ 
 #endif	/* !defined(WITH_GPU) */
+static const size_t max_num_of_threads = 1024;
 
 namespace beacls {
 	class UseTupleArg
@@ -292,9 +293,13 @@ T get_actual_length(
 		return 0;
 }
 
+template<typename T>
+inline
+T nextPow2(T x);
 
-static inline
-unsigned int nextPow2(unsigned int x)
+template<>
+inline
+uint32_t nextPow2(uint32_t x)
 {
 	--x;
 	x |= x >> 1;
@@ -302,6 +307,19 @@ unsigned int nextPow2(unsigned int x)
 	x |= x >> 4;
 	x |= x >> 8;
 	x |= x >> 16;
+	return ++x;
+}
+
+template<>
+inline
+uint64_t nextPow2(uint64_t x)
+{
+	--x;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 32;
 	return ++x;
 }
 

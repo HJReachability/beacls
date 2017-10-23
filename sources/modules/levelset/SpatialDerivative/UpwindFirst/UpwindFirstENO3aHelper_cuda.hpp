@@ -4,9 +4,6 @@
 #include <cuda_macro.hpp>
 #include <cstddef>
 #include <cmath>
-#include <cuda_macro.hpp>
-
-static const size_t max_num_of_threads = 1024;
 
 namespace beacls {
 	class CudaStream;

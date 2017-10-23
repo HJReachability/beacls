@@ -57,7 +57,6 @@ bool ArtificialDissipationGLF_impl::execute(
 	bool launched_cuda = false;
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 		//!< Call partial function without global deriv min/max at first.
-		bool partialFunc_result = false;
 		if (enable_user_defined_dynamics_on_gpu
 			&& (beacls::is_cuda(deriv_ls[0]))) {
 			alphas_cuda_uvecs[dimension].set_cudaStream(x_uvecs[dimension].get_cudaStream());
