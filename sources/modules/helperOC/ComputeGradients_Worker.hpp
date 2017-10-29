@@ -30,12 +30,13 @@ namespace helperOC {
 			const int gpu_id
 		);
 		int get_gpu_id() const;
+		void set_gpu_id(const int gpu_id);
 		const levelset::SpatialDerivative* get_spatialDerivative() const;
 		~ComputeGradients_Worker();
 		ComputeGradients_Worker* clone() const;
+		ComputeGradients_Worker(const ComputeGradients_Worker& rhs);
 	private:
 		ComputeGradients_Worker();
-		ComputeGradients_Worker(const ComputeGradients_Worker& rhs);
 		ComputeGradients_Worker& operator=(const ComputeGradients_Worker& rhs);
 	};
 };

@@ -124,7 +124,9 @@ bool helperOC::ComputeGradients::operator()(
 		helperOC::ComputeGradients_Worker* worker = *ite;
 		if (worker == NULL) {
 			const int thread_id = (int)std::distance(workers.begin(), ite);
-			worker = new helperOC::ComputeGradients_Worker(commandQueue, worker0->get_spatialDerivative(), (num_of_activated_gpus>1) ? thread_id % num_of_activated_gpus : 0);
+//			worker = new helperOC::ComputeGradients_Worker(commandQueue, worker0->get_spatialDerivative(), (num_of_activated_gpus>1) ? thread_id % num_of_activated_gpus : 0);
+			worker = new helperOC::ComputeGradients_Worker(*worker0);
+			worker->set_gpu_id((num_of_activated_gpus > 1) ? thread_id % num_of_activated_gpus : 0);
 			worker->run();
 			*ite = worker;
 		}
