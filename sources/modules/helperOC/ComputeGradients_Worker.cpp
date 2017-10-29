@@ -109,6 +109,9 @@ int helperOC::ComputeGradients_Worker::get_gpu_id() const {
 	if (pimpl) return pimpl->get_gpu_id();
 	else return 0;
 }
+void helperOC::ComputeGradients_Worker::set_gpu_id(const int id) {
+	if (pimpl) pimpl->set_gpu_id(id);
+}
 
 void helperOC::ComputeGradients_Worker::run() {
 	if (pimpl) pimpl->run();

@@ -33,6 +33,9 @@ namespace helperOC {
 		int get_gpu_id() const {
 			return gpu_id;
 		}
+		void set_gpu_id(const int id) {
+			gpu_id = id;
+		}
 		ComputeGradients_Worker_impl(
 			ComputeGradients_CommandQueue* commandQueue,
 			const levelset::SpatialDerivative* spatialDerivative,
@@ -49,9 +52,9 @@ namespace helperOC {
 		ComputeGradients_Worker_impl* clone() const {
 			return new ComputeGradients_Worker_impl(*this);
 		}
+	ComputeGradients_Worker_impl(const ComputeGradients_Worker_impl& rhs);
 	private:
 		ComputeGradients_Worker_impl();
-		ComputeGradients_Worker_impl(const ComputeGradients_Worker_impl& rhs);
 		ComputeGradients_Worker_impl& operator=(const ComputeGradients_Worker_impl& rhs);
 	};
 };
