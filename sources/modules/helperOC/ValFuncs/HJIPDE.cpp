@@ -37,22 +37,22 @@ bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
 }
 
 bool HJIPED_NumericalFuncs::equal(
-	const levelset::HJI_Grid* grid,
-	const levelset::SchemeData* schemeData,
-	const helperOC::Dissipation_Type dissType,
-	const helperOC::ApproximationAccuracy_Type accuracy,
-	const FLOAT_TYPE factorCFL,
-	const bool stats,
-	const bool single_step,
-	const beacls::UVecType type) {
-	if (this->grid != grid) return false;
-	else if (this->schemeData != schemeData) return false;
-	else if (this->dissType != dissType) return false;
-	else if (this->accuracy != accuracy) return false;
-	else if (this->factorCFL != factorCFL) return false;
-	else if (this->stats != stats) return false;
-	else if (this->single_step != single_step) return false;
-	else if (this->type != type) return false;
+	const levelset::HJI_Grid* g,
+	const levelset::SchemeData* sD,
+	const helperOC::Dissipation_Type dT,
+	const helperOC::ApproximationAccuracy_Type a,
+	const FLOAT_TYPE f,
+	const bool s,
+	const bool ss,
+	const beacls::UVecType t) {
+	if (this->grid != g) return false;
+	else if (this->schemeData != sD) return false;
+	else if (this->dissType != dT) return false;
+	else if (this->accuracy != a) return false;
+	else if (this->factorCFL != f) return false;
+	else if (this->stats != s) return false;
+	else if (this->single_step != ss) return false;
+	else if (this->type != t) return false;
 	return true;
 
 }
@@ -422,7 +422,7 @@ bool HJIPDE_impl::solve(
 	levelset::Integrator* integratorFunc = numericalFuncs->integratorFunc;
 	levelset::SpatialDerivative* derivFunc = numericalFuncs->derivFunc;
 	//// SchemeFunc and SchemeData
-	levelset::Term* schemeFunc = numericalFuncs->schemeFunc;
+//	levelset::Term* schemeFunc = numericalFuncs->schemeFunc;
 	modified_schemeData->set_spatialDerivative(derivFunc);
 	modified_schemeData->set_dissipation(dissFunc);
 
