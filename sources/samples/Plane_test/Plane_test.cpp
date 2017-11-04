@@ -77,9 +77,10 @@ int main(int argc, char *argv[])
 	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 
 		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
-		beacls::IntegerVec{41,41,21}, beacls::IntegerVec{2});
-
+		beacls::IntegerVec{ 41,41,11 });
+//	beacls::IntegerVec{ 401,401,201 });
 	std::vector<beacls::FloatVec > targets(1);
+	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
 	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, 
 		  beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
 
