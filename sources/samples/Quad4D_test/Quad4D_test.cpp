@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
 		g->save_grid(std::string("g"), fs);
 		if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-		if (!tau2.empty()) save_vector(tau2, std::string("tau"), Ns, false, fs);
+		if (!tau2.empty()) save_vector(tau2, std::string("tau"), beacls::IntegerVec(), false, fs);
 
 		beacls::closeMatFStream(fs);
 	}

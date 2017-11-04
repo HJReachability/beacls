@@ -76,7 +76,8 @@ int main(int argc, char *argv[])
 	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 
 		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
-		beacls::IntegerVec{41,41,11});
+		beacls::IntegerVec{ 41,41,11 });
+//	beacls::IntegerVec{ 401,401,201 });
 	std::vector<beacls::FloatVec > targets(1);
 	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
 	beacls::FloatVec obs1, obs2;
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
 
 		g->save_grid(std::string("g"), fs);
 		if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), Ns, false, fs);
+		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
 	}
 	//!< Compute optimal trajectory
 	extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
