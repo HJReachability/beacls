@@ -2,7 +2,7 @@
 #define __UpwindFirstWENO5a_cuda_hpp__
 #include <typedef.hpp>
 #include <cuda_macro.hpp>
-
+#include <iostream>
 namespace beacls {
 	class CudaStream;
 };
@@ -809,13 +809,6 @@ __device__ inline
 void kernel_dim0_EpsilonCalculationMethod_Constant_inline2(
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
-	const FLOAT_TYPE* DD0_ptr,
-	const FLOAT_TYPE* dL0_ptr,
-	const FLOAT_TYPE* dL1_ptr,
-	const FLOAT_TYPE* dL2_ptr,
-	const FLOAT_TYPE* dR0_ptr,
-	const FLOAT_TYPE* dR1_ptr,
-	const FLOAT_TYPE* dR2_ptr,
 	const FLOAT_TYPE* boundedSrc_base_ptr,
 	const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
@@ -837,7 +830,6 @@ void kernel_dim0_EpsilonCalculationMethod_Constant_inline2(
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t stencil,
-	const size_t dst_DD0_line_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
 	const size_t thread_length_x,
@@ -865,38 +857,119 @@ void kernel_dim0_EpsilonCalculationMethod_Constant_inline2(
 			if (actual_thread_length_x > 0) {
 				const size_t dst_offset = loop_index_y * first_dimension_loop_size + dst_slice_offset;
 				const size_t src_D1_offset = loop_index_y * (first_dimension_loop_size + 5) + src_DD0_slice_offset;
-				FLOAT_TYPE smooth_m1_0;
-				FLOAT_TYPE smooth_m1_1;
-				FLOAT_TYPE smooth_m1_2;
-				FLOAT_TYPE D1_src_1;
-				FLOAT_TYPE D1_src_2;
-				FLOAT_TYPE D1_src_3;
-				FLOAT_TYPE D1_src_4;
-				//Prologue
-				{
-					const size_t loop_index_x = loop_index_x_base;
-					const size_t src_D1_index = loop_index_x + src_D1_offset;
-					const FLOAT_TYPE D1_src_0 = DD0_ptr[src_D1_index];
-					D1_src_1 = DD0_ptr[src_D1_index + 1];
-					D1_src_2 = DD0_ptr[src_D1_index + 2];
-					D1_src_3 = DD0_ptr[src_D1_index + 3];
-					D1_src_4 = DD0_ptr[src_D1_index + 4];
+				FLOAT_TYPE D1_src_0 = 0;
+				FLOAT_TYPE D1_src_1 = 0;
+				FLOAT_TYPE D1_src_2 = 0;
+				FLOAT_TYPE D1_src_3 = 0;
+				FLOAT_TYPE D1_src_4 = 0;
+
+				//! Target dimension is first loop
+				const size_t loop_index_with_slice = loop_index_y + loop_index_z * loop_length;
+				const FLOAT_TYPE* boundedSrc_ptr = boundedSrc_base_ptr + (first_dimension_loop_size + stencil * 2) * loop_index_with_slice;
+
+				FLOAT_TYPE d0_m0 = boundedSrc_ptr[loop_index_x_base];
+				FLOAT_TYPE d0_m1 = 0;
+				FLOAT_TYPE d1_m0 = 0;
+				FLOAT_TYPE d1_m1 = 0;
+				FLOAT_TYPE d1_m2 = 0;
+				FLOAT_TYPE d1_m3 = 0;
+				FLOAT_TYPE d1_m4 = 0;
+				FLOAT_TYPE d1_m5 = 0;
+				FLOAT_TYPE d1_m6 = 0;
+				FLOAT_TYPE d2_m0 = 0;
+				FLOAT_TYPE d2_m1 = 0;
+				FLOAT_TYPE d2_m2 = 0;
+				FLOAT_TYPE d2_m3 = 0;
+				FLOAT_TYPE d3_m0 = 0;
+				FLOAT_TYPE d3_m1 = 0;
+				FLOAT_TYPE d3_m2 = 0;
+				FLOAT_TYPE d3_m3 = 0;
+				FLOAT_TYPE smooth_m1_0 = 0;
+				FLOAT_TYPE smooth_m1_1 = 0;
+				FLOAT_TYPE smooth_m1_2 = 0;
+				//! Prologue
+				for (size_t target_dimension_loop_index = loop_index_x_base; target_dimension_loop_index < loop_index_x_base + stencil + 2; ++target_dimension_loop_index) {
+					size_t src_index = target_dimension_loop_index;
+					d0_m1 = d0_m0;
+					d0_m0 = boundedSrc_ptr[src_index + 1];
+					d1_m6 = d1_m5;
+					d1_m5 = d1_m4;
+					d1_m4 = d1_m3;
+					d1_m3 = d1_m2;
+					d1_m2 = d1_m1;
+					d1_m1 = d1_m0;
+					D1_src_0 = D1_src_1;
+					D1_src_1 = D1_src_2;
+					D1_src_2 = D1_src_3;
+					D1_src_3 = D1_src_4;
+					d1_m0 = dxInv * (d0_m0 - d0_m1);
+					if (target_dimension_loop_index >= 1) {
+						d2_m3 = d2_m2;
+						d2_m2 = d2_m1;
+						d2_m1 = d2_m0;
+						d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+						if (target_dimension_loop_index >= 2) {
+							d3_m3 = d3_m2;
+							d3_m2 = d3_m1;
+							d3_m1 = d3_m0;
+							d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+						}
+					}
+					D1_src_4 = d1_m0;
 					smooth_m1_0 = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
 					smooth_m1_1 = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
 					smooth_m1_2 = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
 				}
 				for (size_t loop_index_x = loop_index_x_base; loop_index_x < actual_thread_length_x + loop_index_x_base; ++loop_index_x) {
-					const size_t src_D1_index = loop_index_x + src_D1_offset;
-					const size_t dst_index = loop_index_x + dst_offset;
-					const FLOAT_TYPE D1_src_5 = DD0_ptr[src_D1_index + 5];
+					d0_m1 = d0_m0;
+					d0_m0 = boundedSrc_ptr[loop_index_x + stencil + 3];
+					d1_m6 = d1_m5;
+					d1_m5 = d1_m4;
+					d1_m4 = d1_m3;
+					d1_m3 = d1_m2;
+					d1_m2 = d1_m1;
+					d1_m1 = d1_m0;
+					d1_m0 = dxInv * (d0_m0 - d0_m1);
+					d2_m3 = d2_m2;
+					d2_m2 = d2_m1;
+					d2_m1 = d2_m0;
+					d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+					d3_m3 = d3_m2;
+					d3_m2 = d3_m1;
+					d3_m1 = d3_m0;
+					d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+
+					const FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
+					const FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
+					const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+					const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+					const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+					const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+					const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+					const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+					const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+					const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+					const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+					const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+					const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+					const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+					const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
+					const FLOAT_TYPE D1_src_5 = d1_m0;
 					const FLOAT_TYPE smooth_m0_0 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
 					const FLOAT_TYPE smooth_m0_1 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
 					const FLOAT_TYPE smooth_m0_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
+					const FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
+					const size_t dst_index = loop_index_x + dst_offset;
 					const FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
 					const size_t src_index = dst_index;
 					if (dst_index < dst_slice_upperlimit) {
-						dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_index], dL1_ptr[src_index], dL2_ptr[src_index], smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilon);
-						dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_index], dR1_ptr[src_index], dR2_ptr[src_index], smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilon);
+						dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilon);
+						dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilon);
 					}
 					smooth_m1_0 = smooth_m0_0;
 					smooth_m1_1 = smooth_m0_1;
@@ -915,13 +988,6 @@ __device__ inline
 void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
-	const FLOAT_TYPE* DD0_ptr,
-	const FLOAT_TYPE* dL0_ptr,
-	const FLOAT_TYPE* dL1_ptr,
-	const FLOAT_TYPE* dL2_ptr,
-	const FLOAT_TYPE* dR0_ptr,
-	const FLOAT_TYPE* dR1_ptr,
-	const FLOAT_TYPE* dR2_ptr,
 	const FLOAT_TYPE* boundedSrc_base_ptr,
 	const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
@@ -943,7 +1009,6 @@ void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t stencil,
-	const size_t dst_DD0_line_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
 	const size_t thread_length_x,
@@ -971,27 +1036,70 @@ void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 			if (actual_thread_length_x > 0) {
 				const size_t dst_offset = loop_index_y * first_dimension_loop_size + dst_slice_offset;
 				const size_t src_D1_offset = loop_index_y * (first_dimension_loop_size + 5) + src_DD0_slice_offset;
-				FLOAT_TYPE smooth_m1_0;
-				FLOAT_TYPE smooth_m1_1;
-				FLOAT_TYPE smooth_m1_2;
-				FLOAT_TYPE D1_src_1;
-				FLOAT_TYPE D1_src_2;
-				FLOAT_TYPE D1_src_3;
-				FLOAT_TYPE D1_src_4;
-				FLOAT_TYPE pow_D1_src_0;
-				FLOAT_TYPE pow_D1_src_1;
-				FLOAT_TYPE pow_D1_src_2;
-				FLOAT_TYPE pow_D1_src_3;
-				FLOAT_TYPE pow_D1_src_4;
-				//Prologue
-				{
-					const size_t loop_index_x = loop_index_x_base;
-					const size_t src_D1_index = loop_index_x + src_D1_offset;
-					const FLOAT_TYPE D1_src_0 = DD0_ptr[src_D1_index];
-					D1_src_1 = DD0_ptr[src_D1_index + 1];
-					D1_src_2 = DD0_ptr[src_D1_index + 2];
-					D1_src_3 = DD0_ptr[src_D1_index + 3];
-					D1_src_4 = DD0_ptr[src_D1_index + 4];
+				FLOAT_TYPE D1_src_0 = 0;
+				FLOAT_TYPE D1_src_1 = 0;
+				FLOAT_TYPE D1_src_2 = 0;
+				FLOAT_TYPE D1_src_3 = 0;
+				FLOAT_TYPE D1_src_4 = 0;
+
+				//! Target dimension is first loop
+				const size_t loop_index_with_slice = loop_index_y + loop_index_z * loop_length;
+				const FLOAT_TYPE* boundedSrc_ptr = boundedSrc_base_ptr + (first_dimension_loop_size + stencil * 2) * loop_index_with_slice;
+
+				FLOAT_TYPE d0_m0 = boundedSrc_ptr[loop_index_x_base];
+				FLOAT_TYPE d0_m1 = 0;
+				FLOAT_TYPE d1_m0 = 0;
+				FLOAT_TYPE d1_m1 = 0;
+				FLOAT_TYPE d1_m2 = 0;
+				FLOAT_TYPE d1_m3 = 0;
+				FLOAT_TYPE d1_m4 = 0;
+				FLOAT_TYPE d1_m5 = 0;
+				FLOAT_TYPE d1_m6 = 0;
+				FLOAT_TYPE d2_m0 = 0;
+				FLOAT_TYPE d2_m1 = 0;
+				FLOAT_TYPE d2_m2 = 0;
+				FLOAT_TYPE d2_m3 = 0;
+				FLOAT_TYPE d3_m0 = 0;
+				FLOAT_TYPE d3_m1 = 0;
+				FLOAT_TYPE d3_m2 = 0;
+				FLOAT_TYPE d3_m3 = 0;
+				FLOAT_TYPE smooth_m1_0 = 0;
+				FLOAT_TYPE smooth_m1_1 = 0;
+				FLOAT_TYPE smooth_m1_2 = 0;
+				FLOAT_TYPE pow_D1_src_0 = 0;
+				FLOAT_TYPE pow_D1_src_1 = 0;
+				FLOAT_TYPE pow_D1_src_2 = 0;
+				FLOAT_TYPE pow_D1_src_3 = 0;
+				FLOAT_TYPE pow_D1_src_4 = 0;
+				//! Prologue
+				for (size_t target_dimension_loop_index = loop_index_x_base; target_dimension_loop_index < loop_index_x_base+ stencil + 2; ++target_dimension_loop_index) {
+					size_t src_index = target_dimension_loop_index;
+					d0_m1 = d0_m0;
+					d0_m0 = boundedSrc_ptr[src_index + 1];
+					d1_m6 = d1_m5;
+					d1_m5 = d1_m4;
+					d1_m4 = d1_m3;
+					d1_m3 = d1_m2;
+					d1_m2 = d1_m1;
+					d1_m1 = d1_m0;
+					D1_src_0 = D1_src_1;
+					D1_src_1 = D1_src_2;
+					D1_src_2 = D1_src_3;
+					D1_src_3 = D1_src_4;
+					d1_m0 = dxInv * (d0_m0 - d0_m1);
+					if (target_dimension_loop_index >= 1) {
+						d2_m3 = d2_m2;
+						d2_m2 = d2_m1;
+						d2_m1 = d2_m0;
+						d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+						if (target_dimension_loop_index >= 2) {
+							d3_m3 = d3_m2;
+							d3_m2 = d3_m1;
+							d3_m1 = d3_m0;
+							d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+						}
+					}
+					D1_src_4 = d1_m0;
 					smooth_m1_0 = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
 					smooth_m1_1 = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
 					smooth_m1_2 = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
@@ -1001,14 +1109,53 @@ void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 					pow_D1_src_3 = D1_src_3 * D1_src_3;
 					pow_D1_src_4 = D1_src_4 * D1_src_4;
 				}
+				//! Body
 				for (size_t loop_index_x = loop_index_x_base; loop_index_x < actual_thread_length_x + loop_index_x_base; ++loop_index_x) {
-					const size_t src_D1_index = loop_index_x + src_D1_offset;
-					const size_t dst_index = loop_index_x + dst_offset;
-					const FLOAT_TYPE D1_src_5 = DD0_ptr[src_D1_index + 5];
+					d0_m1 = d0_m0;
+					d0_m0 = boundedSrc_ptr[loop_index_x + stencil +3];
+					d1_m6 = d1_m5;
+					d1_m5 = d1_m4;
+					d1_m4 = d1_m3;
+					d1_m3 = d1_m2;
+					d1_m2 = d1_m1;
+					d1_m1 = d1_m0;
+					d1_m0 = dxInv * (d0_m0 - d0_m1);
+					d2_m3 = d2_m2;
+					d2_m2 = d2_m1;
+					d2_m1 = d2_m0;
+					d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+					d3_m3 = d3_m2;
+					d3_m2 = d3_m1;
+					d3_m1 = d3_m0;
+					d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+
+					const FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
+					const FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
+					const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+					const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+					const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+					const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+					const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+					const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+					const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+					const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+					const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+					const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+					const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+					const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+					const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
+					const FLOAT_TYPE D1_src_5 = d1_m0;
 					const FLOAT_TYPE smooth_m0_0 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
 					const FLOAT_TYPE smooth_m0_1 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
 					const FLOAT_TYPE smooth_m0_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
 					const FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
+
+					const size_t dst_index = loop_index_x + dst_offset;
 					const FLOAT_TYPE max_1_2 = max_float_type(pow_D1_src_1, pow_D1_src_2);
 					const FLOAT_TYPE max_3_4 = max_float_type(pow_D1_src_3, pow_D1_src_4);
 					const FLOAT_TYPE max_1_2_3_4 = max_float_type(max_1_2, max_3_4);
@@ -1016,10 +1163,9 @@ void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 					const FLOAT_TYPE maxOverNeighborD1squaredR = max_float_type(max_1_2_3_4, pow_D1_src_5);
 					const FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
 					const FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
-					const size_t src_index = dst_index;
 					if (dst_index < dst_slice_upperlimit) {
-						dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_index], dL1_ptr[src_index], dL2_ptr[src_index], smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
-						dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_index], dR1_ptr[src_index], dR2_ptr[src_index], smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
+						dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
+						dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
 					}
 					smooth_m1_0 = smooth_m0_0;
 					smooth_m1_1 = smooth_m0_1;
@@ -1254,13 +1400,6 @@ void UpwindFirstWENO5a_execute_dim0_cuda2
 (
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
-	const FLOAT_TYPE* DD0_ptr,
-	const FLOAT_TYPE* dL0_ptr,
-	const FLOAT_TYPE* dL1_ptr,
-	const FLOAT_TYPE* dL2_ptr,
-	const FLOAT_TYPE* dR0_ptr,
-	const FLOAT_TYPE* dR1_ptr,
-	const FLOAT_TYPE* dR2_ptr,
 	const FLOAT_TYPE* boundedSrc_base_ptr,
 	const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
@@ -1282,7 +1421,6 @@ void UpwindFirstWENO5a_execute_dim0_cuda2
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t stencil,
-	const size_t dst_DD0_line_length,
 	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 );
