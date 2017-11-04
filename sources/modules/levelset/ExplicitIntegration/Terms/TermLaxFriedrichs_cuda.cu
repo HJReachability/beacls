@@ -47,8 +47,8 @@ void TermLaxFriedrichs_execute_cuda (
 		loop_length,
 		512
 		);
-	dim3 num_of_blocks(num_of_blocks_x, 1);
-	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 	kernel_TermLaxFriedrichs<< <num_of_blocks, num_of_threads, 0, ydot_stream >> > (
 		dst_ydot_ptr, diss_ptr, ham_ptr,
 		loop_length

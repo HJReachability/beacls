@@ -1012,8 +1012,8 @@ bool dynamics_cell_helper_execute_cuda(
 			num_of_blocks_x,
 			loop_length
 			);
-		dim3 num_of_blocks(num_of_blocks_x, 1);
-		dim3 num_of_threads(num_of_threads_x, 1, 1);
+		dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+		dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 		if (negate) {
 			kernel_HamFunction<false> << <num_of_blocks, num_of_threads, 0, hamValue_stream >> > (
 				hamValue_ptr, y2_ptr, deriv0_ptr, deriv1_ptr, deriv2_ptr,
@@ -1271,8 +1271,8 @@ bool dynamics_cell_helper_execute_cuda(
 			num_of_blocks_x,
 			loop_length
 			);
-		dim3 num_of_blocks(num_of_blocks_x, 1);
-		dim3 num_of_threads(num_of_threads_x, 1, 1);
+		dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+		dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 		switch (dim) {
 		case 0:
 		{

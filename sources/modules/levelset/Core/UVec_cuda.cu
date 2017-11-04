@@ -120,8 +120,8 @@ void fillCudaMemory_template(T* dst_raw_ptr, const T val, size_t length) {
 		num_of_blocks_x,
 		length
 		);
-	dim3 num_of_blocks(num_of_blocks_x, 1);
-	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 	kernel_FillCudaMemory<T> << <num_of_blocks, num_of_threads, 0 >> >(
 		dst_raw_ptr, val, length
 		);
@@ -196,8 +196,8 @@ void average_template(void* dst_raw_ptr, const void* src1_raw_ptr, const void* s
 		num_of_blocks_x,
 		length
 		);
-	dim3 num_of_blocks(num_of_blocks_x, 1);
-	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 	kernel_Average<T><<<num_of_blocks, num_of_threads, 0, stream>>>(
 		(T*)dst_raw_ptr, (const T*)src1_raw_ptr, (const T*)src2_raw_ptr, length
 		);

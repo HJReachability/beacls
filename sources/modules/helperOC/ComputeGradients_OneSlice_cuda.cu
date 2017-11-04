@@ -48,8 +48,8 @@ bool copyBackInfNan_cuda(
 		num_of_blocks_x,
 		loop_length
 		);
-	dim3 num_of_blocks(num_of_blocks_x, 1);
-	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 	cudaStream_t deriv_c_stream = beacls::get_stream(deriv_c_uvec);
 	kernel_copyBackInfNan << <num_of_blocks, num_of_threads, 0, deriv_c_stream >> >(
 		derivC_ptr, derivL_ptr, derivR_ptr, original_data_ptr,
