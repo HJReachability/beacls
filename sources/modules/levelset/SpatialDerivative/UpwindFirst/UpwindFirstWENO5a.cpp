@@ -280,16 +280,9 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 	const size_t outer_dimensions_loop_length = slice_length / first_dimension_loop_size;
 	const size_t total_slices_length = slice_length * num_of_slices;
 
-	std::vector<beacls::UVec >& dL_uvec = dL_uvecs[dim];
-	std::vector<beacls::UVec >& dR_uvec = dR_uvecs[dim];
-	std::vector<beacls::UVec >& DD_uvec = DD_uvecs[dim];
-
 	const bool stripDD = false;
 	const bool approx4 = false;
 
-	if (dL_uvec.size() != 3) dL_uvec.resize(3);
-	if (dR_uvec.size() != 3) dR_uvec.resize(3);
-	if (DD_uvec.size() != 3) DD_uvec.resize(3);
 	beacls::UVecDepth depth = dst_deriv_l.depth();
 
 	// We need the three ENO approximations 
@@ -297,29 +290,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 	if (true) {
 		beacls::CudaStream* cudaStream = cudaStreams[dim];
 		BoundaryCondition* boundaryCondition = grid->get_boundaryCondition(dim);
-		std::vector<beacls::UVec > &dst_dL = dL_uvec;
-		std::vector<beacls::UVec > &dst_dR = dR_uvec;
-		std::vector<beacls::UVec > &dst_DD = DD_uvec;
-		size_t num_of_dsts = 3;
-		if (dst_dL.size() != num_of_dsts) dst_dL.resize(num_of_dsts);
-		if (dst_dR.size() != num_of_dsts) dst_dR.resize(num_of_dsts);
-#if 0
-		if (bounded_first_dimension_line_cache_uvec.type() == beacls::UVecType_Invalid) {
-			bounded_first_dimension_line_cache_uvec = beacls::UVec(depth, type, first_dimension_loop_size + 2 * stencil);
-		}
-		else if (bounded_first_dimension_line_cache_uvec.size() < (first_dimension_loop_size + 2 * stencil)) {
-			bounded_first_dimension_line_cache_uvec.resize(first_dimension_loop_size + 2 * stencil);
-		}
-#endif
-		for_each(dst_dL.begin(), dst_dL.end(), ([total_slices_length, depth, this](auto &rhs) {
-			if (rhs.type() == beacls::UVecType_Invalid) rhs = beacls::UVec(depth, type, total_slices_length);
-			else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
-		}));
-		for_each(dst_dR.begin(), dst_dR.end(), ([total_slices_length, depth, this](auto &rhs) {
-			if (rhs.type() == beacls::UVecType_Invalid) rhs = beacls::UVec(depth, type, total_slices_length);
-			else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
-		}));
-
 		const FLOAT_TYPE dxInv = dxInvs[dim];
 		const FLOAT_TYPE dxInv_2 = dxInv_2s[dim];
 		const FLOAT_TYPE dxInv_3 = dxInv_3s[dim];
@@ -328,20 +298,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 		const FLOAT_TYPE dx = dxs[dim];
 		const size_t target_dimension_loop_size = target_dimension_loop_sizes[dim];
 
-		size_t DD_size_base = (first_dimension_loop_size + stencil * 2) * outer_dimensions_loop_length*num_of_slices;
-		for (std::vector<beacls::UVec >::iterator ite = dst_DD.begin(); ite != dst_DD.end(); ++ite) {
-			if (ite->type() == beacls::UVecType_Invalid) *ite = beacls::UVec(depth, type, DD_size_base);
-			else if (ite->size() < DD_size_base) ite->resize(DD_size_base);
-			DD_size_base -= outer_dimensions_loop_length*num_of_slices;
-		}
-
-		FLOAT_TYPE* dst_dL0_ptr = (dst_dL.size() >= 1) ? beacls::UVec_<FLOAT_TYPE>(dst_dL[0]).ptr() : NULL;
-		FLOAT_TYPE* dst_dR0_ptr = (dst_dR.size() >= 1) ? beacls::UVec_<FLOAT_TYPE>(dst_dR[0]).ptr() : NULL;
-		FLOAT_TYPE* dst_dL1_ptr = (dst_dL.size() >= 2) ? beacls::UVec_<FLOAT_TYPE>(dst_dL[1]).ptr() : NULL;
-		FLOAT_TYPE* dst_dR1_ptr = (dst_dR.size() >= 2) ? beacls::UVec_<FLOAT_TYPE>(dst_dR[1]).ptr() : NULL;
-		FLOAT_TYPE* dst_dL2_ptr = (dst_dL.size() >= 3) ? beacls::UVec_<FLOAT_TYPE>(dst_dL[2]).ptr() : NULL;
-		FLOAT_TYPE* dst_dR2_ptr = (dst_dR.size() >= 3) ? beacls::UVec_<FLOAT_TYPE>(dst_dR[2]).ptr() : NULL;
-		FLOAT_TYPE* dst_DD0_ptr = (dst_DD.size() >= 1) ? beacls::UVec_<FLOAT_TYPE>(dst_DD[0]).ptr() : NULL;
 		beacls::UVec& boundedSrc = tmpBoundedSrc_uvecs[dim];
 		size_t total_boundedSrc_size = target_dimension_loop_size * outer_dimensions_loop_length * num_of_slices;
 		// Add ghost cells.
@@ -360,33 +316,9 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 			num_of_slices
 		);
 		FLOAT_TYPE* boundedSrc_base_ptr = beacls::UVec_<FLOAT_TYPE>(boundedSrc).ptr();
-		size_t dst_DD0_slice_size = dst_DD[0].size() / num_of_slices;
-
-		size_t dst_DD0_line_length = dst_DD0_slice_size / outer_dimensions_loop_length;
 		if (type == beacls::UVecType_Cuda) {
 			boundedSrc_base_ptr = beacls::UVec_<FLOAT_TYPE>(boundedSrc).ptr();
-			UpwindFirstWENO5aHelper_execute_dim0_cuda(
-				dst_dL0_ptr, dst_dL1_ptr, dst_dL2_ptr,
-				dst_dR0_ptr, dst_dR1_ptr, dst_dR2_ptr,
-				dst_DD0_ptr, 
-				boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
-				num_of_slices,
-				outer_dimensions_loop_length,
-				target_dimension_loop_size,
-				first_dimension_loop_size,
-				slice_length,
-				stencil,
-				dst_DD0_line_length,
-				cudaStream);
 			const size_t src_target_dimension_loop_size = src_target_dimension_loop_sizes[dim];
-
-			FLOAT_TYPE* DD0_ptr = beacls::UVec_<FLOAT_TYPE>(DD_uvec[0]).ptr();
-			FLOAT_TYPE* dL0_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[0]).ptr();
-			FLOAT_TYPE* dR0_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[0]).ptr();
-			FLOAT_TYPE* dL1_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[1]).ptr();
-			FLOAT_TYPE* dR1_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[1]).ptr();
-			FLOAT_TYPE* dL2_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[2]).ptr();
-			FLOAT_TYPE* dR2_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[2]).ptr();
 			FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 			FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
 			dst_deriv_l.set_cudaStream(cudaStreams[dim]);
@@ -402,8 +334,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 			size_t loop_length = slice_length / first_dimension_loop_size;
 			UpwindFirstWENO5a_execute_dim0_cuda2(
 				dst_deriv_l_ptr, dst_deriv_r_ptr,
-				DD0_ptr,
-				dL0_ptr, dL1_ptr, dL2_ptr, dR0_ptr, dR1_ptr, dR2_ptr,
 				boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 				weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
 				num_of_slices, 
@@ -411,7 +341,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 				target_dimension_loop_size,
 				loop_length, src_target_dimension_loop_size, first_dimension_loop_size, slice_length,
 				stencil,
-				dst_DD0_line_length,
 				epsilonCalculationMethod_Type,
 				cudaStreams[dim]
 			);
@@ -419,14 +348,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 		else
 		{
 			const size_t src_target_dimension_loop_size = src_target_dimension_loop_sizes[dim];
-
-			FLOAT_TYPE* DD0_ptr = beacls::UVec_<FLOAT_TYPE>(DD_uvec[0]).ptr();
-			FLOAT_TYPE* dL0_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[0]).ptr();
-			FLOAT_TYPE* dR0_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[0]).ptr();
-			FLOAT_TYPE* dL1_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[1]).ptr();
-			FLOAT_TYPE* dR1_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[1]).ptr();
-			FLOAT_TYPE* dL2_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[2]).ptr();
-			FLOAT_TYPE* dR2_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[2]).ptr();
 			FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 			FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
 			dst_deriv_l.set_cudaStream(cudaStreams[dim]);
@@ -441,11 +362,9 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 
 			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
 				const size_t slice_loop_offset = slice_index * outer_dimensions_loop_length;
-				const size_t dst_dLdR_slice_offset = slice_loop_offset * first_dimension_loop_size;
 				const size_t slice_offset = slice_index * slice_length;
 				for (size_t loop_index = 0; loop_index < outer_dimensions_loop_length; ++loop_index) {
 					const size_t loop_index_with_slice = loop_index + slice_loop_offset;
-					size_t dst_dLdR_offset = loop_index * first_dimension_loop_size + dst_dLdR_slice_offset;
 					//! Target dimension is first loop
 					const FLOAT_TYPE* boundedSrc_ptr = boundedSrc_base_ptr + (first_dimension_loop_size + stencil * 2) * loop_index_with_slice;
 
@@ -471,9 +390,22 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 					size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
 
 					size_t dst_offset = loop_index * first_dimension_loop_size + slice_offset;
-					size_t src_D1_offset = (loop_index + slice_loop_offset) * (first_dimension_loop_size + 5);
+
+					FLOAT_TYPE D1_src_0 = 0;
+					FLOAT_TYPE D1_src_1 = 0;
+					FLOAT_TYPE D1_src_2 = 0;
+					FLOAT_TYPE D1_src_3 = 0;
+					FLOAT_TYPE D1_src_4 = 0;
 
 					//! Prologue
+					FLOAT_TYPE smooth_m1_0 = 0;
+					FLOAT_TYPE smooth_m1_1 = 0;
+					FLOAT_TYPE smooth_m1_2 = 0;
+					FLOAT_TYPE pow_D1_src_0 = 0;
+					FLOAT_TYPE pow_D1_src_1 = 0;
+					FLOAT_TYPE pow_D1_src_2 = 0;
+					FLOAT_TYPE pow_D1_src_3 = 0;
+					FLOAT_TYPE pow_D1_src_4 = 0;
 					for (size_t target_dimension_loop_index = 0; target_dimension_loop_index < stencil + 2; ++target_dimension_loop_index) {
 						size_t src_index = target_dimension_loop_index;
 						d0_m1 = d0_m0;
@@ -484,6 +416,10 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 						d1_m3 = d1_m2;
 						d1_m2 = d1_m1;
 						d1_m1 = d1_m0;
+						D1_src_0 = D1_src_1;
+						D1_src_1 = D1_src_2;
+						D1_src_2 = D1_src_3;
+						D1_src_3 = D1_src_4;
 						d1_m0 = dxInv * (d0_m0 - d0_m1);
 						if (target_dimension_loop_index >= 1) {
 							d2_m3 = d2_m2;
@@ -497,106 +433,22 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 								d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
 							}
 						}
-						dst_DD0_ptr[target_dimension_loop_index + src_D1_offset] = d1_m0;
-					}
-					//! Body
-					for (size_t target_dimension_loop_index = stencil + 2; target_dimension_loop_index < target_dimension_loop_size - stencil; ++target_dimension_loop_index) {
-						d3_m3 = d3_m2; d3_m2 = d3_m1; d3_m1 = d3_m0;
-						d2_m3 = d2_m2; d2_m2 = d2_m1; d2_m1 = d2_m0;
-						d1_m6 = d1_m5; d1_m5 = d1_m4; d1_m4 = d1_m3; d1_m3 = d1_m2; d1_m2 = d1_m1; d1_m1 = d1_m0;
-						d0_m1 = d0_m0;
-						d0_m0 = boundedSrc_ptr[target_dimension_loop_index + 1];
-						d1_m0 = dxInv * (d0_m0 - d0_m1);
-						d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
-						d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
-						dst_DD0_ptr[target_dimension_loop_index + src_D1_offset] = d1_m0;
-						size_t target_dimension_loop_index_stencil = target_dimension_loop_index - stencil - 1;
-						size_t dst_index = target_dimension_loop_index_stencil + dst_dLdR_offset - 1;
-						FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
-						FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
-						FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
-
-						FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
-						FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
-						FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
-
-						FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
-						FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
-						FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
-
-						FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
-						FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
-						FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
-
-						FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
-						FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
-						FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
-
-						dst_dL0_ptr[dst_index] = dLL0;
-						dst_dL1_ptr[dst_index] = dLL1;
-						dst_dL2_ptr[dst_index] = dLL2;
-						dst_dR0_ptr[dst_index] = dRR0;
-						dst_dR1_ptr[dst_index] = dRR1;
-						dst_dR2_ptr[dst_index] = dRR2;
-}
-					//! Epilogue
-					for (size_t target_dimension_loop_index = target_dimension_loop_size - stencil; target_dimension_loop_index < target_dimension_loop_size - 1; ++target_dimension_loop_index) {
-						d3_m3 = d3_m2; d3_m2 = d3_m1; d3_m1 = d3_m0;
-						d2_m3 = d2_m2; d2_m2 = d2_m1; d2_m1 = d2_m0;
-						d1_m6 = d1_m5; d1_m5 = d1_m4; d1_m4 = d1_m3; d1_m3 = d1_m2; d1_m2 = d1_m1; d1_m1 = d1_m0;
-						d0_m1 = d0_m0;
-						d0_m0 = boundedSrc_ptr[target_dimension_loop_index + 1];
-						d1_m0 = dxInv * (d0_m0 - d0_m1);
-						d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
-						d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
-						if (target_dimension_loop_index < dst_DD0_line_length)
-							dst_DD0_ptr[target_dimension_loop_index + src_D1_offset] = d1_m0;
-						size_t target_dimension_loop_index_stencil = target_dimension_loop_index - stencil - 1;
-						size_t dst_index = target_dimension_loop_index_stencil + dst_dLdR_offset - 1;
-						FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
-						FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
-						FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
-
-						FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
-						FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
-						FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
-
-						FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
-						FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
-						FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
-
-						FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
-						FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
-						FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
-
-						FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
-						FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
-						FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
-
-						dst_dL0_ptr[dst_index] = dLL0;
-						dst_dL1_ptr[dst_index] = dLL1;
-						dst_dL2_ptr[dst_index] = dLL2;
-						dst_dR0_ptr[dst_index] = dRR0;
-						dst_dR1_ptr[dst_index] = dRR1;
-						dst_dR2_ptr[dst_index] = dRR2;
+						D1_src_4 = d1_m0;
+						smooth_m1_0 = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
+						smooth_m1_1 = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
+						smooth_m1_2 = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
+						if (epsilonCalculationMethod_Type == levelset::EpsilonCalculationMethod_maxOverNeighbor) {
+							pow_D1_src_0 = D1_src_0 * D1_src_0;
+							pow_D1_src_1 = D1_src_1 * D1_src_1;
+							pow_D1_src_2 = D1_src_2 * D1_src_2;
+							pow_D1_src_3 = D1_src_3 * D1_src_3;
+							pow_D1_src_4 = D1_src_4 * D1_src_4;
+						}
 					}
 					// The smoothness estimates may have some relation to the higher order
 					// divided differences, but it isn't obvious from just reading O&F.
 					// For now, use only the first order divided differences.
 					//Prologue
-					{
-						beacls::FloatVec &smooth_m1 = tmpSmooths[tmpSmooth_last_index];
-						size_t target_dimension_loop_index = 0;
-						size_t src_D1_index = target_dimension_loop_index + src_D1_offset;
-						FLOAT_TYPE D1_src_0 = DD0_ptr[src_D1_index];
-						FLOAT_TYPE D1_src_1 = DD0_ptr[src_D1_index + 1];
-						FLOAT_TYPE D1_src_2 = DD0_ptr[src_D1_index + 2];
-						FLOAT_TYPE D1_src_3 = DD0_ptr[src_D1_index + 3];
-						FLOAT_TYPE D1_src_4 = DD0_ptr[src_D1_index + 4];
-						smooth_m1[0] = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
-						smooth_m1[1] = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
-						smooth_m1[2] = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
-					}
 					// Body
 					switch (epsilonCalculationMethod_Type) {
 					case levelset::EpsilonCalculationMethod_Invalid:
@@ -605,28 +457,60 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 						return false;
 					case levelset::EpsilonCalculationMethod_Constant:
 						for (size_t target_dimension_loop_index = 0; target_dimension_loop_index < src_target_dimension_loop_size; ++target_dimension_loop_index) {
-							size_t src_D1_index = target_dimension_loop_index + src_D1_offset;
-							size_t src_index = target_dimension_loop_index + dst_offset;
-							FLOAT_TYPE D1_src_1 = DD0_ptr[src_D1_index + 1];
-							FLOAT_TYPE D1_src_2 = DD0_ptr[src_D1_index + 2];
-							FLOAT_TYPE D1_src_3 = DD0_ptr[src_D1_index + 3];
-							FLOAT_TYPE D1_src_4 = DD0_ptr[src_D1_index + 4];
-							FLOAT_TYPE D1_src_5 = DD0_ptr[src_D1_index + 5];
-							beacls::FloatVec &smooth_m0 = tmpSmooths[tmpSmooth_current_index];
-							beacls::FloatVec &smooth_m1 = tmpSmooths[tmpSmooth_last_index];
-							FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
-							FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
-							FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-							smooth_m0[0] = smooth1;
-							smooth_m0[1] = smooth2;
-							smooth_m0[2] = smooth3;
-							beacls::FloatVec &smoothL = smooth_m1;
-							FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
-							size_t dst_index = src_index;
-							dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_index], dL1_ptr[src_index], dL2_ptr[src_index], smoothL[0], smoothL[1], smoothL[2], weightL0, weightL1, weightL2, epsilon);
-							dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_index], dR1_ptr[src_index], dR2_ptr[src_index], smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilon);
-							tmpSmooth_last_index = (tmpSmooth_last_index == 0) ? 1 : 0;
-							tmpSmooth_current_index = (tmpSmooth_current_index == 0) ? 1 : 0;
+							d0_m1 = d0_m0;
+							d0_m0 = boundedSrc_ptr[target_dimension_loop_index + stencil + 3];
+							d1_m6 = d1_m5;
+							d1_m5 = d1_m4;
+							d1_m4 = d1_m3;
+							d1_m3 = d1_m2;
+							d1_m2 = d1_m1;
+							d1_m1 = d1_m0;
+							d1_m0 = dxInv * (d0_m0 - d0_m1);
+							d2_m3 = d2_m2;
+							d2_m2 = d2_m1;
+							d2_m1 = d2_m0;
+							d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+							d3_m3 = d3_m2;
+							d3_m2 = d3_m1;
+							d3_m1 = d3_m0;
+							d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+
+							const FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
+							const FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
+							const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+							const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+							const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+							const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+							const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+							const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+							const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+							const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+							const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
+							const FLOAT_TYPE D1_src_5 = d1_m0;
+							const size_t src_index = target_dimension_loop_index + dst_offset;
+							const FLOAT_TYPE smooth_m0_0 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
+							const FLOAT_TYPE smooth_m0_1 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
+							const FLOAT_TYPE smooth_m0_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
+							const FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
+							const size_t dst_index = src_index;
+							dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilon);
+							dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilon);
+							smooth_m1_0 = smooth_m0_0;
+							smooth_m1_1 = smooth_m0_1;
+							smooth_m1_2 = smooth_m0_2;
+							D1_src_1 = D1_src_2;
+							D1_src_2 = D1_src_3;
+							D1_src_3 = D1_src_4;
+							D1_src_4 = D1_src_5;
 						}
 						break;
 					case levelset::EpsilonCalculationMethod_maxOverGrid:
@@ -634,41 +518,72 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 						return false;
 					case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 						for (size_t target_dimension_loop_index = 0; target_dimension_loop_index < src_target_dimension_loop_size; ++target_dimension_loop_index) {
-							size_t src_D1_index = target_dimension_loop_index + src_D1_offset;
-							size_t src_index = target_dimension_loop_index + dst_offset;
-							FLOAT_TYPE D1_src_0 = DD0_ptr[src_D1_index];
-							FLOAT_TYPE D1_src_1 = DD0_ptr[src_D1_index + 1];
-							FLOAT_TYPE D1_src_2 = DD0_ptr[src_D1_index + 2];
-							FLOAT_TYPE D1_src_3 = DD0_ptr[src_D1_index + 3];
-							FLOAT_TYPE D1_src_4 = DD0_ptr[src_D1_index + 4];
-							FLOAT_TYPE D1_src_5 = DD0_ptr[src_D1_index + 5];
-							beacls::FloatVec &smooth_m0 = tmpSmooths[tmpSmooth_current_index];
-							beacls::FloatVec &smooth_m1 = tmpSmooths[tmpSmooth_last_index];
-							FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
-							FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
-							FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-							smooth_m0[0] = smooth1;
-							smooth_m0[1] = smooth2;
-							smooth_m0[2] = smooth3;
-							beacls::FloatVec &smoothL = smooth_m1;
-							FLOAT_TYPE pow_D1_src_0 = D1_src_0 * D1_src_0;
-							FLOAT_TYPE pow_D1_src_1 = D1_src_1 * D1_src_1;
-							FLOAT_TYPE pow_D1_src_2 = D1_src_2 * D1_src_2;
-							FLOAT_TYPE pow_D1_src_3 = D1_src_3 * D1_src_3;
-							FLOAT_TYPE pow_D1_src_4 = D1_src_4 * D1_src_4;
-							FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
-							FLOAT_TYPE max_1_2 = std::max<FLOAT_TYPE>(pow_D1_src_1, pow_D1_src_2);
-							FLOAT_TYPE max_3_4 = std::max<FLOAT_TYPE>(pow_D1_src_3, pow_D1_src_4);
-							FLOAT_TYPE max_1_2_3_4 = std::max<FLOAT_TYPE>(max_1_2, max_3_4);
-							FLOAT_TYPE maxOverNeighborD1squaredL = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_0);
-							FLOAT_TYPE maxOverNeighborD1squaredR = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_5);
-							FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
-							FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
-							size_t dst_index = src_index;
-							dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_index], dL1_ptr[src_index], dL2_ptr[src_index], smoothL[0], smoothL[1], smoothL[2], weightL0, weightL1, weightL2, epsilonL);
-							dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_index], dR1_ptr[src_index], dR2_ptr[src_index], smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilonR);
-							tmpSmooth_last_index = (tmpSmooth_last_index == 0) ? 1 : 0;
-							tmpSmooth_current_index = (tmpSmooth_current_index == 0) ? 1 : 0;
+							d0_m1 = d0_m0;
+							d0_m0 = boundedSrc_ptr[target_dimension_loop_index + stencil + 3];
+							d1_m6 = d1_m5;
+							d1_m5 = d1_m4;
+							d1_m4 = d1_m3;
+							d1_m3 = d1_m2;
+							d1_m2 = d1_m1;
+							d1_m1 = d1_m0;
+							d1_m0 = dxInv * (d0_m0 - d0_m1);
+							d2_m3 = d2_m2;
+							d2_m2 = d2_m1;
+							d2_m1 = d2_m0;
+							d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+							d3_m3 = d3_m2;
+							d3_m2 = d3_m1;
+							d3_m1 = d3_m0;
+							d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+
+							const FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
+							const FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
+							const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+							const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+							const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+							const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+							const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+							const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+							const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+							const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+							const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
+							const FLOAT_TYPE D1_src_5 = d1_m0;
+							const size_t src_index = target_dimension_loop_index + dst_offset;
+							const FLOAT_TYPE smooth_m0_0 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
+							const FLOAT_TYPE smooth_m0_1 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
+							const FLOAT_TYPE smooth_m0_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
+							const FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
+							const FLOAT_TYPE max_1_2 = std::max<FLOAT_TYPE>(pow_D1_src_1, pow_D1_src_2);
+							const FLOAT_TYPE max_3_4 = std::max<FLOAT_TYPE>(pow_D1_src_3, pow_D1_src_4);
+							const FLOAT_TYPE max_1_2_3_4 = std::max<FLOAT_TYPE>(max_1_2, max_3_4);
+							const FLOAT_TYPE maxOverNeighborD1squaredL = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_0);
+							const FLOAT_TYPE maxOverNeighborD1squaredR = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_5);
+							const FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
+							const FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
+							const size_t dst_index = src_index;
+							dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
+							dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
+							smooth_m1_0 = smooth_m0_0;
+							smooth_m1_1 = smooth_m0_1;
+							smooth_m1_2 = smooth_m0_2;
+							D1_src_1 = D1_src_2;
+							D1_src_2 = D1_src_3;
+							D1_src_3 = D1_src_4;
+							D1_src_4 = D1_src_5;
+							pow_D1_src_0 = pow_D1_src_1;
+							pow_D1_src_1 = pow_D1_src_2;
+							pow_D1_src_2 = pow_D1_src_3;
+							pow_D1_src_3 = pow_D1_src_4;
+							pow_D1_src_4 = pow_D1_src_5;
 						}
 						break;
 					}
@@ -678,6 +593,12 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 
 	}
 	else {
+		std::vector<beacls::UVec >& dL_uvec = dL_uvecs[dim];
+		std::vector<beacls::UVec >& dR_uvec = dR_uvecs[dim];
+		std::vector<beacls::UVec >& DD_uvec = DD_uvecs[dim];
+		if (dL_uvec.size() != 3) dL_uvec.resize(3);
+		if (dR_uvec.size() != 3) dR_uvec.resize(3);
+		if (DD_uvec.size() != 3) DD_uvec.resize(3);
 		for_each(dL_uvec.begin(), dL_uvec.end(), ([total_slices_length, this, depth](auto &rhs) {
 			if (rhs.type() != type || rhs.depth() != depth) rhs = beacls::UVec(depth, type, total_slices_length);
 			else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
@@ -1529,7 +1450,7 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 
 
 
-	if (true) {
+	if (false) {
 		if (dL_uvec.size() != 3) dL_uvec.resize(3);
 		if (dR_uvec.size() != 3) dR_uvec.resize(3);
 		if (DD_uvec.size() != 3) DD_uvec.resize(3);
@@ -1682,7 +1603,7 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 		else
 		{
 #if 1
-			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
+			for (size_t slice_index = 0; slice_index < num_of_merged_slices; ++slice_index) {
 				size_t dst_slice_offset = slice_index * loop_length * first_dimension_loop_size;
 				for (size_t loop_index = 0; loop_index < loop_length; ++loop_index) {
 					size_t dst_loop_offset = loop_index * first_dimension_loop_size + dst_slice_offset;
@@ -1707,7 +1628,7 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 						}
 					}
 					for (size_t stride_index = 0; stride_index < num_of_strides; ++stride_index) {
-						const size_t dst_stride_offset = stride_index * loop_length * num_of_slices * first_dimension_loop_size;
+						const size_t dst_stride_offset = stride_index * loop_length * num_of_merged_slices * first_dimension_loop_size;
 						const size_t buffer_index = stride_index + num_of_buffer_lines - 1;
 						const size_t m0_index = ((buffer_index + 3) % num_of_buffer_lines);
 						const size_t m1_index = ((buffer_index + 2) % num_of_buffer_lines);
@@ -1809,7 +1730,8 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 			const FLOAT_TYPE weightL2 = weightL[2];
 			const FLOAT_TYPE weightR0 = weightR[0];
 			const FLOAT_TYPE weightR1 = weightR[1];
-			const FLOAT_TYPE weightR2 = weightR[2];			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
+			const FLOAT_TYPE weightR2 = weightR[2];
+			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
 				const size_t slice_offset = slice_index * slice_length;
 				switch (epsilonCalculationMethod_Type) {
 				case levelset::EpsilonCalculationMethod_Invalid:
