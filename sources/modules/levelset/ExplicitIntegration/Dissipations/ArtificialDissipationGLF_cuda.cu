@@ -289,8 +289,8 @@ void ArtificialDissipationGLF_execute_cuda (
 //	beacls::synchronizeUVec(deriv_r_uvec);
 	cudaStream_t diss_stream = beacls::get_stream(diss_uvec);
 
-	dim3 num_of_blocks(num_of_blocks_x, 1);
-	dim3 num_of_threads(num_of_threads_x, 1, 1);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
 	FLOAT_TYPE* min_ptr = beacls::UVec_<FLOAT_TYPE>(tmp_min_cuda_uvec).ptr();
 	FLOAT_TYPE* max_ptr = beacls::UVec_<FLOAT_TYPE>(tmp_max_cuda_uvec).ptr();
 	FLOAT_TYPE* max_alpha_ptr = beacls::UVec_<FLOAT_TYPE>(tmp_max_alpha_cuda_uvec).ptr();

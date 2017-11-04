@@ -359,8 +359,8 @@ void UpwindFirstENO3aHelper_execute_dim0_cuda
 		num_of_slices, loop_length, first_dimension_loop_size,
 		1, 1, 8, max_num_of_threads
 		);
-	dim3 num_of_blocks(num_of_blocks_x, num_of_blocks_y);
-	dim3 num_of_threads(num_of_threads_x, num_of_threads_y, num_of_threads_z);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, (unsigned int)num_of_blocks_y);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, (unsigned int)num_of_threads_y, (unsigned int)num_of_threads_z);
 
 	cudaStream_t stream = cudaStream->get_stream();
 	if(saveDD) {
@@ -765,8 +765,8 @@ void UpwindFirstENO3aHelper_execute_dim1_cuda
 		num_of_slices, loop_length, first_dimension_loop_size,
 		1, 8, 1, max_num_of_threads
 		);
-	dim3 num_of_blocks(num_of_blocks_x, num_of_blocks_y);
-	dim3 num_of_threads(num_of_threads_x, num_of_threads_y, num_of_threads_z);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, (unsigned int)num_of_blocks_y);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, (unsigned int)num_of_threads_y, (unsigned int)num_of_threads_z);
 
 	cudaStream_t stream = cudaStream->get_stream();
 	if (saveDD) {
@@ -1145,8 +1145,8 @@ void UpwindFirstENO3aHelper_execute_dimLET2_cuda
 		num_of_slices, loop_length, first_dimension_loop_size,
 		1, 1, 1, max_num_of_threads
 		);
-	dim3 num_of_blocks(num_of_blocks_x, num_of_blocks_y);
-	dim3 num_of_threads(num_of_threads_x, num_of_threads_y, num_of_threads_z);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, (unsigned int)num_of_blocks_y);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, (unsigned int)num_of_threads_y, (unsigned int)num_of_threads_z);
 
 	cudaStream_t stream = cudaStream->get_stream();
 	if (saveDD) {
