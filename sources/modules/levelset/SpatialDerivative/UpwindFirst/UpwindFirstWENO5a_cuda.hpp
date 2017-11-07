@@ -1982,18 +1982,6 @@ __device__ inline
 void kernel_dimLET2_EpsilonCalculationMethod_Constant_inline2(
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
-	const FLOAT_TYPE* DD0_0_ptr,
-	const FLOAT_TYPE* DD1_0_ptr,
-	const FLOAT_TYPE* DD2_0_ptr,
-	const FLOAT_TYPE* DD3_0_ptr,
-	const FLOAT_TYPE* DD4_0_ptr,
-	const FLOAT_TYPE* DD5_0_ptr,
-	const FLOAT_TYPE* dL0_ptr,
-	const FLOAT_TYPE* dL1_ptr,
-	const FLOAT_TYPE* dL2_ptr,
-	const FLOAT_TYPE* dR0_ptr,
-	const FLOAT_TYPE* dR1_ptr,
-	const FLOAT_TYPE* dR2_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
 	const size_t* tmpBoundedSrc_offset,
 	const FLOAT_TYPE dxInv,
@@ -2012,7 +2000,6 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant_inline2(
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
 	const size_t num_of_strides,
-	const size_t num_of_dLdR_in_slice,
 	const size_t slice_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
@@ -2037,15 +2024,74 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant_inline2(
 			const size_t global_thread_index_x = blockIdx_x * blockDim_x + threadIdx_x;
 			const size_t loop_index_x_base = global_thread_index_x * thread_length_x;
 			const size_t actual_thread_length_x = get_actual_length(first_dimension_loop_size, thread_length_x, loop_index_x_base);
+			const size_t loop_index_with_slice = (loop_index_y + loop_index_z * loop_length) * (num_of_strides+1);
+
+			const size_t src_stride_offset0 = tmpBoundedSrc_offset[loop_index_with_slice + 0];
+			const size_t src_stride_offset1 = tmpBoundedSrc_offset[loop_index_with_slice + 1];
+			const size_t src_stride_offset2 = tmpBoundedSrc_offset[loop_index_with_slice + 2];
+			const size_t src_stride_offset3 = tmpBoundedSrc_offset[loop_index_with_slice + 3];
+			const size_t src_stride_offset4 = tmpBoundedSrc_offset[loop_index_with_slice + 4];
+			const size_t src_stride_offset5 = tmpBoundedSrc_offset[loop_index_with_slice + 5];
+			const size_t src_stride_offset6 = tmpBoundedSrc_offset[loop_index_with_slice + 6];
+
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptr + src_stride_offset0;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptr + src_stride_offset1;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptr + src_stride_offset2;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs3 = tmpBoundedSrc_ptr + src_stride_offset3;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs4 = tmpBoundedSrc_ptr + src_stride_offset4;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs5 = tmpBoundedSrc_ptr + src_stride_offset5;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs6 = tmpBoundedSrc_ptr + src_stride_offset6;
 			for (size_t loop_index = 0; loop_index < actual_thread_length_x; ++loop_index) {
 				const size_t first_dimension_loop_index = loop_index + loop_index_x_base;
-				const size_t src_index = first_dimension_loop_index + dst_offset;
-				const FLOAT_TYPE D1_src_0 = DD0_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_1 = DD1_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_2 = DD2_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_3 = DD3_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_4 = DD4_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_5 = DD5_0_ptr[src_index];
+				const FLOAT_TYPE d0_m0 = tmpBoundedSrc_ptrs6[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m1 = tmpBoundedSrc_ptrs5[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m2 = tmpBoundedSrc_ptrs4[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m3 = tmpBoundedSrc_ptrs3[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m4 = tmpBoundedSrc_ptrs2[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m5 = tmpBoundedSrc_ptrs1[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m6 = tmpBoundedSrc_ptrs0[first_dimension_loop_index];
+				const FLOAT_TYPE d1_m0 = dxInv * (d0_m0 - d0_m1);
+				const FLOAT_TYPE d1_m1 = dxInv * (d0_m1 - d0_m2);
+				const FLOAT_TYPE d1_m2 = dxInv * (d0_m2 - d0_m3);
+				const FLOAT_TYPE d1_m3 = dxInv * (d0_m3 - d0_m4);
+				const FLOAT_TYPE d1_m4 = dxInv * (d0_m4 - d0_m5);
+				const FLOAT_TYPE d1_m5 = dxInv * (d0_m5 - d0_m6);
+				const FLOAT_TYPE d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+				const FLOAT_TYPE d2_m1 = dxInv_2 * (d1_m1 - d1_m2);
+				const FLOAT_TYPE d2_m2 = dxInv_2 * (d1_m2 - d1_m3);
+				const FLOAT_TYPE d2_m3 = dxInv_2 * (d1_m3 - d1_m4);
+				const FLOAT_TYPE d2_m4 = dxInv_2 * (d1_m4 - d1_m5);
+				const FLOAT_TYPE d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+				const FLOAT_TYPE d3_m1 = dxInv_3 * (d2_m1 - d2_m2);
+				const FLOAT_TYPE d3_m2 = dxInv_3 * (d2_m2 - d2_m3);
+				const FLOAT_TYPE d3_m3 = dxInv_3 * (d2_m3 - d2_m4);
+				const FLOAT_TYPE D1_src_0 = d1_m5;
+				const FLOAT_TYPE D1_src_1 = d1_m4;
+				const FLOAT_TYPE D1_src_2 = d1_m3;
+				const FLOAT_TYPE D1_src_3 = d1_m2;
+				const FLOAT_TYPE D1_src_4 = d1_m1;
+				const FLOAT_TYPE D1_src_5 = d1_m0;
+
+				const FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
+				const FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
+				const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+				const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+				const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+				const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+				const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+				const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+				const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+				const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+				const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+				const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+				const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+				const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+				const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
 				const FLOAT_TYPE smoothL_0 = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
 				const FLOAT_TYPE smoothL_1 = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
 				const FLOAT_TYPE smoothL_2 = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
@@ -2053,9 +2099,9 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant_inline2(
 				const FLOAT_TYPE smoothR_1 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
 				const FLOAT_TYPE smoothR_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
 				const FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
-				const size_t dst_index = src_index;
-				dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_index], dL1_ptr[src_index], dL2_ptr[src_index], smoothL_0, smoothL_1, smoothL_2, weightL0, weightL1, weightL2, epsilon);
-				dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_index], dR1_ptr[src_index], dR2_ptr[src_index], smoothR_0, smoothR_1, smoothR_2, weightR0, weightR1, weightR2, epsilon);
+				const size_t dst_index = first_dimension_loop_index + dst_offset;;
+				dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smoothL_0, smoothL_1, smoothL_2, weightL0, weightL1, weightL2, epsilon);
+				dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smoothR_0, smoothR_1, smoothR_2, weightR0, weightR1, weightR2, epsilon);
 			}
 		}
 	}
@@ -2065,18 +2111,6 @@ __device__ inline
 void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
-	const FLOAT_TYPE* DD0_0_ptr,
-	const FLOAT_TYPE* DD1_0_ptr,
-	const FLOAT_TYPE* DD2_0_ptr,
-	const FLOAT_TYPE* DD3_0_ptr,
-	const FLOAT_TYPE* DD4_0_ptr,
-	const FLOAT_TYPE* DD5_0_ptr,
-	const FLOAT_TYPE* dL0_ptr,
-	const FLOAT_TYPE* dL1_ptr,
-	const FLOAT_TYPE* dL2_ptr,
-	const FLOAT_TYPE* dR0_ptr,
-	const FLOAT_TYPE* dR1_ptr,
-	const FLOAT_TYPE* dR2_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
 	const size_t* tmpBoundedSrc_offset,
 	const FLOAT_TYPE dxInv,
@@ -2095,7 +2129,6 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
 	const size_t num_of_strides,
-	const size_t num_of_dLdR_in_slice,
 	const size_t slice_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
@@ -2120,15 +2153,76 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 			const size_t global_thread_index_x = blockIdx_x * blockDim_x + threadIdx_x;
 			const size_t loop_index_x_base = global_thread_index_x * thread_length_x;
 			const size_t actual_thread_length_x = get_actual_length(first_dimension_loop_size, thread_length_x, loop_index_x_base);
+
+			const size_t loop_index_with_slice = (loop_index_y + loop_index_z * loop_length) * (num_of_strides + 1);
+			const size_t src_stride_offset0 = tmpBoundedSrc_offset[loop_index_with_slice + 0];
+			const size_t src_stride_offset1 = tmpBoundedSrc_offset[loop_index_with_slice + 1];
+			const size_t src_stride_offset2 = tmpBoundedSrc_offset[loop_index_with_slice + 2];
+			const size_t src_stride_offset3 = tmpBoundedSrc_offset[loop_index_with_slice + 3];
+			const size_t src_stride_offset4 = tmpBoundedSrc_offset[loop_index_with_slice + 4];
+			const size_t src_stride_offset5 = tmpBoundedSrc_offset[loop_index_with_slice + 5];
+			const size_t src_stride_offset6 = tmpBoundedSrc_offset[loop_index_with_slice + 6];
+
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptr + src_stride_offset0;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptr + src_stride_offset1;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptr + src_stride_offset2;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs3 = tmpBoundedSrc_ptr + src_stride_offset3;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs4 = tmpBoundedSrc_ptr + src_stride_offset4;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs5 = tmpBoundedSrc_ptr + src_stride_offset5;
+			const FLOAT_TYPE* tmpBoundedSrc_ptrs6 = tmpBoundedSrc_ptr + src_stride_offset6;
+
 			for (size_t loop_index = 0; loop_index < actual_thread_length_x; ++loop_index) {
 				const size_t first_dimension_loop_index = loop_index + loop_index_x_base;
-				const size_t src_index = first_dimension_loop_index + dst_offset;
-				const FLOAT_TYPE D1_src_0 = DD0_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_1 = DD1_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_2 = DD2_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_3 = DD3_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_4 = DD4_0_ptr[src_index];
-				const FLOAT_TYPE D1_src_5 = DD5_0_ptr[src_index];
+
+				const FLOAT_TYPE d0_m0 = tmpBoundedSrc_ptrs6[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m1 = tmpBoundedSrc_ptrs5[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m2 = tmpBoundedSrc_ptrs4[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m3 = tmpBoundedSrc_ptrs3[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m4 = tmpBoundedSrc_ptrs2[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m5 = tmpBoundedSrc_ptrs1[first_dimension_loop_index];
+				const FLOAT_TYPE d0_m6 = tmpBoundedSrc_ptrs0[first_dimension_loop_index];
+				const FLOAT_TYPE d1_m0 = dxInv * (d0_m0 - d0_m1);
+				const FLOAT_TYPE d1_m1 = dxInv * (d0_m1 - d0_m2);
+				const FLOAT_TYPE d1_m2 = dxInv * (d0_m2 - d0_m3);
+				const FLOAT_TYPE d1_m3 = dxInv * (d0_m3 - d0_m4);
+				const FLOAT_TYPE d1_m4 = dxInv * (d0_m4 - d0_m5);
+				const FLOAT_TYPE d1_m5 = dxInv * (d0_m5 - d0_m6);
+				const FLOAT_TYPE d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+				const FLOAT_TYPE d2_m1 = dxInv_2 * (d1_m1 - d1_m2);
+				const FLOAT_TYPE d2_m2 = dxInv_2 * (d1_m2 - d1_m3);
+				const FLOAT_TYPE d2_m3 = dxInv_2 * (d1_m3 - d1_m4);
+				const FLOAT_TYPE d2_m4 = dxInv_2 * (d1_m4 - d1_m5);
+				const FLOAT_TYPE d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+				const FLOAT_TYPE d3_m1 = dxInv_3 * (d2_m1 - d2_m2);
+				const FLOAT_TYPE d3_m2 = dxInv_3 * (d2_m2 - d2_m3);
+				const FLOAT_TYPE d3_m3 = dxInv_3 * (d2_m3 - d2_m4);
+				const FLOAT_TYPE D1_src_0 = d1_m5;
+				const FLOAT_TYPE D1_src_1 = d1_m4;
+				const FLOAT_TYPE D1_src_2 = d1_m3;
+				const FLOAT_TYPE D1_src_3 = d1_m2;
+				const FLOAT_TYPE D1_src_4 = d1_m1;
+				const FLOAT_TYPE D1_src_5 = d1_m0;
+
+				const FLOAT_TYPE dx_d2_m3 = dx * d2_m3;
+				const FLOAT_TYPE dx_d2_m2 = dx * d2_m2;
+				const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+				const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+				const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+				const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+				const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+				const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+				const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+				const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+				const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+				const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+				const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+				const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+				const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
 				const FLOAT_TYPE smoothL_0 = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
 				const FLOAT_TYPE smoothL_1 = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
 				const FLOAT_TYPE smoothL_2 = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
@@ -2148,9 +2242,9 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor_inline2(
 				const FLOAT_TYPE maxOverNeighborD1squaredR = max_float_type(max_1_2_3_4, pow_D1_src_5);
 				const FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
 				const FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
-				const size_t dst_index = src_index;
-				dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_index], dL1_ptr[src_index], dL2_ptr[src_index], smoothL_0, smoothL_1, smoothL_2, weightL0, weightL1, weightL2, epsilonL);
-				dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_index], dR1_ptr[src_index], dR2_ptr[src_index], smoothR_0, smoothR_1, smoothR_2, weightR0, weightR1, weightR2, epsilonR);
+				const size_t dst_index = first_dimension_loop_index + dst_offset;;
+				dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smoothL_0, smoothL_1, smoothL_2, weightL0, weightL1, weightL2, epsilonL);
+				dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smoothR_0, smoothR_1, smoothR_2, weightR0, weightR1, weightR2, epsilonR);
 			}
 		}
 	}
@@ -2316,18 +2410,6 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2
 (
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
-	const FLOAT_TYPE* DD0_0_ptr,
-	const FLOAT_TYPE* DD1_0_ptr,
-	const FLOAT_TYPE* DD2_0_ptr,
-	const FLOAT_TYPE* DD3_0_ptr,
-	const FLOAT_TYPE* DD4_0_ptr,
-	const FLOAT_TYPE* DD5_0_ptr,
-	const FLOAT_TYPE* dL0_ptr,
-	const FLOAT_TYPE* dL1_ptr,
-	const FLOAT_TYPE* dL2_ptr,
-	const FLOAT_TYPE* dR0_ptr,
-	const FLOAT_TYPE* dR1_ptr,
-	const FLOAT_TYPE* dR2_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
 	const size_t* tmpBoundedSrc_offset,
 	const FLOAT_TYPE dxInv,
@@ -2346,7 +2428,6 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
 	const size_t num_of_strides,
-	const size_t num_of_dLdR_in_slice,
 	const size_t slice_length,
 	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
