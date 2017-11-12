@@ -14,6 +14,7 @@ namespace levelset {
 		std::vector<beacls::FloatVec > last_d1ss;
 		std::vector<beacls::FloatVec > last_d2ss;
 		std::vector<beacls::FloatVec > last_d3ss;
+		std::vector<beacls::FloatVec > last_dx_d2ss;
 		//		beacls::FloatVec last_d2s;
 		//beacls::FloatVec last_d2s_fabs;
 		//beacls::FloatVec last_dx_d2_effs;
@@ -25,7 +26,8 @@ namespace levelset {
 		UpwindFirstWENO5a_Cache(const UpwindFirstWENO5a_Cache& rhs) :
 			last_d1ss(rhs.last_d1ss),
 			last_d2ss(rhs.last_d2ss),
-			last_d3ss(rhs.last_d3ss) {
+			last_d3ss(rhs.last_d3ss),
+			last_dx_d2ss(rhs.last_dx_d2ss) {
 			boundedSrc_ptrs.resize(rhs.boundedSrc_ptrs.size(), NULL);
 		}
 	};
@@ -52,10 +54,7 @@ namespace levelset {
 		std::vector<FLOAT_TYPE*> tmp_d1s_ms_ites;
 		std::vector<FLOAT_TYPE*> tmp_d2s_ms_ites;
 		std::vector<FLOAT_TYPE*> tmp_d3s_ms_ites;
-
-		std::vector<FLOAT_TYPE*> tmp_d1s_ms_ites2;
-		std::vector<FLOAT_TYPE*> tmp_d2s_ms_ites2;
-		std::vector<FLOAT_TYPE*> tmp_d3s_ms_ites2;
+		std::vector<FLOAT_TYPE*> tmp_dx_d2s_ms_ites;
 		size_t num_of_strides;
 
 		std::vector<std::vector<beacls::UVec > > dL_uvecs;
@@ -139,17 +138,9 @@ namespace levelset {
 			std::vector<FLOAT_TYPE*> &d1s_ms,
 			std::vector<FLOAT_TYPE*> &d2s_ms,
 			std::vector<FLOAT_TYPE*> &d3s_ms,
-			std::vector<beacls::UVec > &dst_DD,
-			bool &d1_m0_writeToCache,
-			bool &d2_m0_writeToCache,
-			bool &d3_m0_writeToCache,
-			const size_t slice_index,
+			std::vector<FLOAT_TYPE*> &dx_d2ss,
 			const size_t shifted_target_dimension_loop_index,
-			const size_t first_dimension_loop_size,
-			const size_t dst_loop_offset,
-			const size_t num_of_slices,
-			const size_t num_of_cache_lines,
-			const bool stepHead);
+			const size_t num_of_cache_lines);
 		void createCaches(
 			const size_t first_dimension_loop_size,
 			const size_t num_of_cache_lines);

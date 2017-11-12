@@ -12,7 +12,7 @@
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3aHelper.hpp>
 #include "UpwindFirstWENO5a_impl.hpp"
 #include "UpwindFirstWENO5a_cuda.hpp"
-#include "UpwindFirstENO3aHelper_impl.hpp"
+
 using namespace levelset;
 
 UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(
@@ -102,6 +102,7 @@ UpwindFirstWENO5a_impl::~UpwindFirstWENO5a_impl() {
 			rhs = NULL;
 		});
 	}
+	if (cache) delete cache;
 	if (upwindFirstENO3aHelper) delete upwindFirstENO3aHelper;
 }
 bool UpwindFirstWENO5a_impl::operator==(const UpwindFirstWENO5a_impl& rhs) const {
@@ -127,28 +128,23 @@ void UpwindFirstWENO5a_impl::createCaches(
 	std::vector<beacls::FloatVec > &last_d1ss = cache->last_d1ss;
 	std::vector<beacls::FloatVec > &last_d2ss = cache->last_d2ss;
 	std::vector<beacls::FloatVec > &last_d3ss = cache->last_d3ss;
+	std::vector<beacls::FloatVec > &last_dx_d2ss = cache->last_dx_d2ss;
 	if (last_d1ss.size() != num_of_cache_lines) last_d1ss.resize(num_of_cache_lines);
 	if (last_d2ss.size() != num_of_cache_lines) last_d2ss.resize(num_of_cache_lines);
 	if (last_d3ss.size() != num_of_cache_lines) last_d3ss.resize(num_of_cache_lines);
+	if (last_dx_d2ss.size() != num_of_cache_lines) last_dx_d2ss.resize(num_of_cache_lines);
 	for_each(last_d1ss.begin(), last_d1ss.end(), ([first_dimension_loop_size](auto& rhs) {if (rhs.size() < first_dimension_loop_size) rhs.resize(first_dimension_loop_size); }));
 	for_each(last_d2ss.begin(), last_d2ss.end(), ([first_dimension_loop_size](auto& rhs) {if (rhs.size() < first_dimension_loop_size) rhs.resize(first_dimension_loop_size); }));
 	for_each(last_d3ss.begin(), last_d3ss.end(), ([first_dimension_loop_size](auto& rhs) {if (rhs.size() < first_dimension_loop_size) rhs.resize(first_dimension_loop_size); }));
+	for_each(last_dx_d2ss.begin(), last_dx_d2ss.end(), ([first_dimension_loop_size](auto& rhs) {if (rhs.size() < first_dimension_loop_size) rhs.resize(first_dimension_loop_size); }));
 }
 void UpwindFirstWENO5a_impl::getCachePointers(
 	std::vector<FLOAT_TYPE*> &d1s_ms,
 	std::vector<FLOAT_TYPE*> &d2s_ms,
 	std::vector<FLOAT_TYPE*> &d3s_ms,
-	std::vector<beacls::UVec > &dst_DD,
-	bool &d1_m0_writeToCache,
-	bool &d2_m0_writeToCache,
-	bool &d3_m0_writeToCache,
-	const size_t slice_index,
+	std::vector<FLOAT_TYPE*> &dx_d2ss,
 	const size_t shifted_target_dimension_loop_index,
-	const size_t first_dimension_loop_size,
-	const size_t dst_loop_offset,
-	const size_t num_of_slices,
-	const size_t num_of_cache_lines,
-	const bool stepHead) {
+	const size_t num_of_cache_lines) {
 	beacls::IntegerVec &cache_indexes = tmp_cache_indexes;
 	if (cache_indexes.size() < num_of_cache_lines) cache_indexes.resize(num_of_cache_lines);
 	for (size_t i = 0; i < cache_indexes.size(); ++i) {
@@ -158,59 +154,16 @@ void UpwindFirstWENO5a_impl::getCachePointers(
 	std::vector<beacls::FloatVec > &last_d1ss = cache->last_d1ss;
 	std::vector<beacls::FloatVec > &last_d2ss = cache->last_d2ss;
 	std::vector<beacls::FloatVec > &last_d3ss = cache->last_d3ss;
+	std::vector<beacls::FloatVec > &last_dx_d2ss = cache->last_dx_d2ss;
 	for (size_t i = 0; i < cache_indexes.size(); ++i) {
 		size_t cache_index = cache_indexes[i];
 		d1s_ms[i] = &last_d1ss[cache_index][0];
 		d2s_ms[i] = &last_d2ss[cache_index][0];
 		d3s_ms[i] = &last_d3ss[cache_index][0];
+		dx_d2ss[i] = &last_dx_d2ss[cache_index][0];
 	}
 
-	d1_m0_writeToCache = d2_m0_writeToCache = d3_m0_writeToCache = true;
 	//! Use DD instead of cache.
-	const size_t dst_DD0_slice_size = dst_DD[0].size() / num_of_slices;
-	const size_t dst_DD1_slice_size = dst_DD[1].size() / num_of_slices;
-	const size_t dst_DD2_slice_size = dst_DD[2].size() / num_of_slices;
-	const size_t dst_DD0_slice_offset = slice_index * dst_DD0_slice_size;
-	const size_t dst_DD1_slice_offset = slice_index * dst_DD1_slice_size;
-	const size_t dst_DD2_slice_offset = slice_index * dst_DD2_slice_size;
-	if (!stepHead) {
-		for (size_t i = 0; i < d1s_ms.size(); ++i) {
-			if (dst_loop_offset >= first_dimension_loop_size * (i + 2)) {
-				const size_t dst_dd_base = dst_loop_offset - first_dimension_loop_size * (i + 2);
-				if (dst_dd_base < dst_DD0_slice_size) {
-					d1s_ms[i] = beacls::UVec_<FLOAT_TYPE>(dst_DD[0]).ptr() + dst_dd_base + dst_DD0_slice_offset;
-					if (i == 0) d1_m0_writeToCache = false;
-				}
-				if (dst_dd_base < dst_DD1_slice_size) {
-					d2s_ms[i] = beacls::UVec_<FLOAT_TYPE>(dst_DD[1]).ptr() + dst_dd_base + dst_DD1_slice_offset;
-					if (i == 0) d2_m0_writeToCache = false;
-				}
-				if (dst_dd_base < dst_DD2_slice_size) {
-					d3s_ms[i] = beacls::UVec_<FLOAT_TYPE>(dst_DD[2]).ptr() + dst_dd_base + dst_DD2_slice_offset;
-					if (i == 0) d3_m0_writeToCache = false;
-				}
-			}
-		}
-	}
-	else {
-		for (size_t i = 0; i < d1s_ms.size(); ++i) {
-			if (dst_loop_offset >= first_dimension_loop_size * i) {
-				const size_t dst_dd_base = dst_loop_offset - first_dimension_loop_size * i;
-				if (dst_dd_base < dst_DD0_slice_size) {
-					d1s_ms[i] = beacls::UVec_<FLOAT_TYPE>(dst_DD[0]).ptr() + dst_dd_base + dst_DD0_slice_offset;
-					if (i == 0) d1_m0_writeToCache = false;
-				}
-				if ((dst_dd_base < dst_DD1_slice_size) && (i >= 1)) {
-					d2s_ms[i - 1] = beacls::UVec_<FLOAT_TYPE>(dst_DD[1]).ptr() + dst_dd_base + dst_DD1_slice_offset;
-					if ((i - 1) == 0) d2_m0_writeToCache = false;
-				}
-				if ((dst_dd_base < dst_DD2_slice_size) && (i >= 2)) {
-					d3s_ms[i - 2] = beacls::UVec_<FLOAT_TYPE>(dst_DD[2]).ptr() + dst_dd_base + dst_DD2_slice_offset;
-					if ((i - 2) == 0) d3_m0_writeToCache = false;
-				}
-			}
-		}
-	}
 }
 
 UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(const UpwindFirstWENO5a_impl& rhs) :
@@ -229,9 +182,7 @@ UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(const UpwindFirstWENO5a_impl& rhs
 	tmp_d1s_ms_ites(rhs.tmp_d1s_ms_ites),
 	tmp_d2s_ms_ites(rhs.tmp_d2s_ms_ites),
 	tmp_d3s_ms_ites(rhs.tmp_d3s_ms_ites),
-	tmp_d1s_ms_ites2(rhs.tmp_d1s_ms_ites2),
-	tmp_d2s_ms_ites2(rhs.tmp_d2s_ms_ites2),
-	tmp_d3s_ms_ites2(rhs.tmp_d3s_ms_ites2),
+	tmp_dx_d2s_ms_ites(rhs.tmp_dx_d2s_ms_ites),
 	num_of_strides(rhs.num_of_strides),
 	d1ss(rhs.d1ss),
 	d2ss(rhs.d2ss),
@@ -597,649 +548,387 @@ bool UpwindFirstWENO5a_impl::execute_dim1(
 	const size_t num_of_slices
 ) {
 	const size_t first_dimension_loop_size = first_dimension_loop_sizes[dim];
-	const size_t outer_dimensions_loop_length = slice_length / first_dimension_loop_size;
-	const size_t total_slices_length = slice_length * num_of_slices;
 
-	std::vector<beacls::UVec >& dL_uvec = dL_uvecs[dim];
-	std::vector<beacls::UVec >& dR_uvec = dR_uvecs[dim];
-	std::vector<beacls::UVec >& DD_uvec = DD_uvecs[dim];
-
-	const bool stripDD = false;
-	const bool approx4 = false;
-	if (dL_uvec.size() != 3) dL_uvec.resize(3);
-	if (dR_uvec.size() != 3) dR_uvec.resize(3);
-	if (DD_uvec.size() != 3) DD_uvec.resize(3);
 	beacls::UVecDepth depth = dst_deriv_l.depth();
-	for_each(dL_uvec.begin(), dL_uvec.end(), ([total_slices_length, this, depth](auto &rhs) {
-		if (rhs.type() != type || rhs.depth() != depth) rhs = beacls::UVec(depth, type, total_slices_length);
-		else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
-	}));
-	for_each(dR_uvec.begin(), dR_uvec.end(), ([total_slices_length, this, depth](auto &rhs) {
-		if (rhs.type() != type || rhs.depth() != depth) rhs = beacls::UVec(depth, type, total_slices_length);
-		else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
-	}));
 
-	if (false) {
-		beacls::CudaStream* cudaStream = cudaStreams[dim];
-		BoundaryCondition* boundaryCondition = grid->get_boundaryCondition(dim);
-		std::vector<beacls::UVec > &dst_dL = dL_uvec;
-		std::vector<beacls::UVec > &dst_dR = dR_uvec;
-		std::vector<beacls::UVec > &dst_DD = DD_uvec;
-		const size_t num_of_cache_lines = 6;
-		const size_t src_target_dimension_loop_size = src_target_dimension_loop_sizes[dim];
-		const size_t inner_dimensions_loop_size = inner_dimensions_loop_sizes[dim];
+	beacls::CudaStream* cudaStream = cudaStreams[dim];
+	BoundaryCondition* boundaryCondition = grid->get_boundaryCondition(dim);
+	const size_t src_target_dimension_loop_size = src_target_dimension_loop_sizes[dim];
+	const size_t inner_dimensions_loop_size = inner_dimensions_loop_sizes[dim];
 
-		createCaches(first_dimension_loop_size, num_of_cache_lines);
-		const size_t loop_length = slice_length / first_dimension_loop_size;
-		const size_t target_dimension_loop_size = target_dimension_loop_sizes[dim];
+	const size_t loop_length = slice_length / first_dimension_loop_size;
+	const size_t target_dimension_loop_size = target_dimension_loop_sizes[dim];
 
-		size_t num_of_dsts = 3;
-		if (dst_dL.size() != num_of_dsts) dst_dL.resize(num_of_dsts);
-		if (dst_dR.size() != num_of_dsts) dst_dR.resize(num_of_dsts);
-		for_each(dst_dL.begin(), dst_dL.end(), ([total_slices_length, depth, this](auto &rhs) {
-			if (rhs.type() == beacls::UVecType_Invalid) rhs = beacls::UVec(depth, type, total_slices_length);
-			else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
-		}));
-		for_each(dst_dR.begin(), dst_dR.end(), ([total_slices_length, depth, this](auto &rhs) {
-			if (rhs.type() == beacls::UVecType_Invalid) rhs = beacls::UVec(depth, type, total_slices_length);
-			else if (rhs.size() < total_slices_length) rhs.resize(total_slices_length);
-		}));
-
-		size_t target_dimension_loop_begin = loop_begin % src_target_dimension_loop_size;
-		size_t prologue_loop_size;
-		size_t prologue_loop_dst_offset;
-		size_t prologue_loop_src_offset;
-		if (type == beacls::UVecType_Cuda) {
-			prologue_loop_size = stencil * 2;
-			prologue_loop_dst_offset = 0;
-			prologue_loop_src_offset = 0;
-		}
-		else if (target_dimension_loop_begin < stencil * 2) {
-			prologue_loop_size = stencil * 2 - target_dimension_loop_begin;
-			prologue_loop_dst_offset = target_dimension_loop_begin;
-			prologue_loop_src_offset = 0;
-		}
-		else {
-			prologue_loop_size = 1;
-			prologue_loop_dst_offset = stencil * 2;
-			prologue_loop_src_offset = 1;
-		}
-		std::vector<std::vector<std::vector<const FLOAT_TYPE*> > >& dst_ptrsss = tmpBoundedSrc_ptrssss[dim];
-		if (dst_ptrsss.size() < num_of_slices) dst_ptrsss.resize(num_of_slices);
-		for_each(dst_ptrsss.begin(), dst_ptrsss.end(), [loop_length, prologue_loop_size](auto &rhs) {
-			rhs.resize(loop_length + prologue_loop_size);
-			for_each(rhs.begin(), rhs.end(), [](auto &rhs) {
-				rhs.resize(1);
-			});
-		});
-		beacls::UVec& boundedSrc = tmpBoundedSrc_uvecs[dim];
-		size_t total_boundedSrc_size = first_dimension_loop_size * num_of_slices*(loop_length + prologue_loop_size);
-		if (boundedSrc.type() != type) boundedSrc = beacls::UVec(depth, type, total_boundedSrc_size);
-		else if (boundedSrc.size() != total_boundedSrc_size) boundedSrc.resize(total_boundedSrc_size);
-		boundedSrc.set_cudaStream(cudaStream);
-		const FLOAT_TYPE dxInv = dxInvs[dim];
-		const FLOAT_TYPE dxInv_2 = dxInv_2s[dim];
-		const FLOAT_TYPE dxInv_3 = dxInv_3s[dim];
-		const FLOAT_TYPE dx_square = dx_squares[dim];
-		const FLOAT_TYPE x2_dx_square = 2 * dx_square;
-		const FLOAT_TYPE dx = dxs[dim];
-
-
-		if (tmp_d1s_ms_ites.size() != num_of_cache_lines) tmp_d1s_ms_ites.resize(num_of_cache_lines);
-		if (tmp_d2s_ms_ites.size() != num_of_cache_lines) tmp_d2s_ms_ites.resize(num_of_cache_lines);
-		if (tmp_d3s_ms_ites.size() != num_of_cache_lines) tmp_d3s_ms_ites.resize(num_of_cache_lines);
-		if (tmp_d1s_ms_ites2.size() != num_of_cache_lines) tmp_d1s_ms_ites2.resize(num_of_cache_lines);
-		if (tmp_d2s_ms_ites2.size() != num_of_cache_lines) tmp_d2s_ms_ites2.resize(num_of_cache_lines);
-		if (tmp_d3s_ms_ites2.size() != num_of_cache_lines) tmp_d3s_ms_ites2.resize(num_of_cache_lines);
-
-
-		size_t DD_size_base = first_dimension_loop_size * (loop_length + stencil + 2) * num_of_slices;
-		for (std::vector<beacls::UVec >::iterator ite = dst_DD.begin(); ite != dst_DD.end(); ++ite) {
-			if (ite->type() == beacls::UVecType_Invalid) *ite = beacls::UVec(depth, type, DD_size_base);
-			else if (ite->size() < DD_size_base) ite->resize(DD_size_base);
-			DD_size_base -= first_dimension_loop_size * num_of_slices;
-		}
-
-		std::vector<FLOAT_TYPE*> &d1s_ms = tmp_d1s_ms_ites;
-		std::vector<FLOAT_TYPE*> &d2s_ms = tmp_d2s_ms_ites;
-		std::vector<FLOAT_TYPE*> &d3s_ms = tmp_d3s_ms_ites;
-		size_t dst_DD0_slice_size = dst_DD[0].size() / num_of_slices;
-
-		bool stepHead;
-		if ((loop_begin % src_target_dimension_loop_size) == 0) stepHead = true;
-		else stepHead = false;
-
-		std::vector<beacls::UVec >& tmp_DD = dst_DD;
-		FLOAT_TYPE* dst_dL0_ptr = (dst_dL.size() >= 1) ? beacls::UVec_<FLOAT_TYPE>(dst_dL[0]).ptr() : NULL;
-		FLOAT_TYPE* dst_dR0_ptr = (dst_dR.size() >= 1) ? beacls::UVec_<FLOAT_TYPE>(dst_dR[0]).ptr() : NULL;
-		FLOAT_TYPE* dst_dL1_ptr = (dst_dL.size() >= 2) ? beacls::UVec_<FLOAT_TYPE>(dst_dL[1]).ptr() : NULL;
-		FLOAT_TYPE* dst_dR1_ptr = (dst_dR.size() >= 2) ? beacls::UVec_<FLOAT_TYPE>(dst_dR[1]).ptr() : NULL;
-		FLOAT_TYPE* dst_dL2_ptr = (dst_dL.size() >= 3) ? beacls::UVec_<FLOAT_TYPE>(dst_dL[2]).ptr() : NULL;
-		FLOAT_TYPE* dst_dR2_ptr = (dst_dR.size() >= 3) ? beacls::UVec_<FLOAT_TYPE>(dst_dR[2]).ptr() : NULL;
-		FLOAT_TYPE* dst_DD0_ptr = (dst_DD.size() >= 1) ? beacls::UVec_<FLOAT_TYPE>(dst_DD[0]).ptr() : NULL;
-		boundaryCondition->execute(
-			src,
-			boundedSrc, tmpBoundedSrc_uvec_vectors[dim], dst_ptrsss,
-			stencil,
-			dim,
-			target_dimension_loop_size,
-			inner_dimensions_loop_size,
-			first_dimension_loop_size,
-			loop_begin - prologue_loop_src_offset,
-			prologue_loop_dst_offset,
-			num_of_slices,
-			loop_length + prologue_loop_size,
-			1,
-			stencil
-		);
-		if (type == beacls::UVecType_Cuda) {
-			UpwindFirstWENO5aHelper_execute_dim1_cuda(
-				dst_dL0_ptr, dst_dL1_ptr, dst_dL2_ptr,
-				dst_dR0_ptr, dst_dR1_ptr, dst_dR2_ptr,
-				dst_DD0_ptr, 
-				dst_ptrsss[0][0][0], dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
-				num_of_slices, loop_length, first_dimension_loop_size, slice_length,
-				stencil,
-				dst_DD0_slice_size, 
-				cudaStream
-			);
-			FLOAT_TYPE* DD0_ptr = beacls::UVec_<FLOAT_TYPE>(DD_uvec[0]).ptr();
-			FLOAT_TYPE* dL0_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[0]).ptr();
-			FLOAT_TYPE* dR0_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[0]).ptr();
-			FLOAT_TYPE* dL1_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[1]).ptr();
-			FLOAT_TYPE* dR1_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[1]).ptr();
-			FLOAT_TYPE* dL2_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[2]).ptr();
-			FLOAT_TYPE* dR2_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[2]).ptr();
-
-			FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
-			FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-			dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-			dst_deriv_r.set_cudaStream(cudaStreams[dim]);
-			const FLOAT_TYPE weightL0 = weightL[0];
-			const FLOAT_TYPE weightL1 = weightL[1];
-			const FLOAT_TYPE weightL2 = weightL[2];
-			const FLOAT_TYPE weightR0 = weightR[0];
-			const FLOAT_TYPE weightR1 = weightR[1];
-			const FLOAT_TYPE weightR2 = weightR[2];
-			UpwindFirstWENO5a_execute_dim1_cuda2(
-				dst_deriv_l_ptr, dst_deriv_r_ptr,
-				DD0_ptr,
-				dL0_ptr, dL1_ptr, dL2_ptr, dR0_ptr, dR1_ptr, dR2_ptr,
-				dst_ptrsss[0][0][0], dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
-				weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
-				num_of_slices, loop_length, first_dimension_loop_size, slice_length,
-				stencil,
-				dst_DD0_slice_size,
-				epsilonCalculationMethod_Type,
-				cudaStreams[dim]
-			);
-		}
-		else
-		{
-			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
-				size_t prologue_offset = 0;
-				const size_t slice_offset = slice_index * slice_length;
-				const size_t slice_loop_offset = slice_index * loop_length;
-				const size_t slice_loop_begin = loop_begin + slice_loop_offset;
-				for (size_t index = 0; index < loop_length; ++index) {
-					const size_t dst_loop_offset = index * first_dimension_loop_size;
-					const size_t dst_slice_offset = dst_loop_offset + slice_offset;
-					const size_t loop_index = index + slice_loop_begin;
-					const size_t target_dimension_loop_index = loop_index % src_target_dimension_loop_size;
-
-					//! Prologue
-					if (index == 0) {
-						if (target_dimension_loop_index == 0) {
-							for (size_t prologue_target_dimension_loop_index = 0; prologue_target_dimension_loop_index < stencil * 2; ++prologue_target_dimension_loop_index) {
-								if ((prologue_target_dimension_loop_index >= 1)) {
-									const FLOAT_TYPE* current_boundedSrc_ptr = dst_ptrsss[slice_index][prologue_target_dimension_loop_index][0];
-									const FLOAT_TYPE* last_boundedSrc_ptr = dst_ptrsss[slice_index][prologue_target_dimension_loop_index - 1][0];
-
-									bool d1_m0_writeToCache, d2_m0_writeToCache, d3_m0_writeToCache;
-									getCachePointers(d1s_ms, d2s_ms, d3s_ms, tmp_DD,
-										d1_m0_writeToCache, d2_m0_writeToCache, d3_m0_writeToCache,
-										slice_index, prologue_target_dimension_loop_index, first_dimension_loop_size,
-										dst_loop_offset + prologue_offset, num_of_slices,
-										num_of_cache_lines, stepHead);
-
-									for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
-										FLOAT_TYPE this_src = current_boundedSrc_ptr[first_dimension_loop_index];
-										FLOAT_TYPE last_src = last_boundedSrc_ptr[first_dimension_loop_index];
-										FLOAT_TYPE d1_m0 = dxInv * (this_src - last_src);
-										d1s_ms[0][first_dimension_loop_index] = d1_m0;
-										if (prologue_target_dimension_loop_index >= 2) {
-											FLOAT_TYPE d1_m1 = d1s_ms[1][first_dimension_loop_index];
-											FLOAT_TYPE d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
-											d2s_ms[0][first_dimension_loop_index] = d2_m0;
-											if (prologue_target_dimension_loop_index >= 3) {
-												FLOAT_TYPE d2_m1 = d2s_ms[1][first_dimension_loop_index];
-												FLOAT_TYPE d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
-												d3s_ms[0][first_dimension_loop_index] = d3_m0;
-											}
-										}
-									}
-									prologue_offset += first_dimension_loop_size;
-									//! Epilogue (Prologue may overlap Epilogue, when chunk size is short.
-									if ((prologue_target_dimension_loop_index + num_of_cache_lines) >= ((stencil * 2 + loop_length) + 1)) {
-										//! Copy back from DD to cache for next chunk
-										bool tmp_d1_m0_writeToCache, tmp_d2_m0_writeToCache, tmp_d3_m0_writeToCache;
-										getCachePointers(tmp_d1s_ms_ites2, tmp_d2s_ms_ites2, tmp_d3s_ms_ites2, tmp_DD,
-											tmp_d1_m0_writeToCache, tmp_d2_m0_writeToCache, tmp_d3_m0_writeToCache,
-											slice_index, prologue_target_dimension_loop_index, first_dimension_loop_size,
-											dst_loop_offset + prologue_offset, num_of_slices,
-											num_of_cache_lines, false);
-										if (!d1_m0_writeToCache) memcpy(tmp_d1s_ms_ites2[0], d1s_ms[0], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-										if (!d2_m0_writeToCache) memcpy(tmp_d2s_ms_ites2[0], d2s_ms[0], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-										if (!d3_m0_writeToCache) memcpy(tmp_d3s_ms_ites2[0], d3s_ms[0], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-									}
-								}
-							}
-						}
-						else {
-							size_t shifted_target_dimension_loop_index = target_dimension_loop_index + stencil * 2;
-							bool d1_m0_writeToCache, d2_m0_writeToCache, d3_m0_writeToCache;
-							getCachePointers(d1s_ms, d2s_ms, d3s_ms, tmp_DD,
-								d1_m0_writeToCache, d2_m0_writeToCache, d3_m0_writeToCache,
-								slice_index, shifted_target_dimension_loop_index, first_dimension_loop_size,
-								dst_loop_offset + prologue_offset, num_of_slices,
-								num_of_cache_lines, stepHead);
-							for (size_t i = 1; i < d1s_ms.size(); i++) {
-								size_t cache_offset = dst_slice_offset + first_dimension_loop_size * (num_of_cache_lines - 1 - i);
-								if (dst_DD0_slice_size >= (cache_offset + first_dimension_loop_size)) memcpy((beacls::UVec_<FLOAT_TYPE>(tmp_DD[0]).ptr() + cache_offset), d1s_ms[i], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-							}
-							prologue_offset = first_dimension_loop_size*(2 + num_of_cache_lines - 1);
-						}
-					}
-					if (target_dimension_loop_index < (target_dimension_loop_size - (stencil + 1))) {
-						//! Body
-						size_t shifted_target_dimension_loop_index = target_dimension_loop_index + stencil * 2;
-						//				size_t boundedSrc_cache_current_index = shifted_target_dimension_loop_index & 0x1;
-						//				size_t boundedSrc_cache_last_index = (boundedSrc_cache_current_index == 0) ? 1 : 0;
-
-						const FLOAT_TYPE* last_boundedSrc_ptr = NULL;
-						const FLOAT_TYPE* current_boundedSrc_ptr = dst_ptrsss[slice_index][index + prologue_loop_size][0];
-						last_boundedSrc_ptr = dst_ptrsss[slice_index][index + prologue_loop_size - 1][0];
-						bool d1_m0_writeToCache, d2_m0_writeToCache, d3_m0_writeToCache;
-						getCachePointers(d1s_ms, d2s_ms, d3s_ms, tmp_DD,
-							d1_m0_writeToCache, d2_m0_writeToCache, d3_m0_writeToCache,
-							slice_index, shifted_target_dimension_loop_index, first_dimension_loop_size,
-							dst_loop_offset + prologue_offset, num_of_slices,
-							num_of_cache_lines, stepHead);
-						const FLOAT_TYPE* d1s_ms1 = d1s_ms[1];
-						const FLOAT_TYPE* d1s_ms2 = d1s_ms[2];
-						const FLOAT_TYPE* d1s_ms3 = d1s_ms[3];
-						const FLOAT_TYPE* d2s_ms1 = d2s_ms[1];
-						const FLOAT_TYPE* d2s_ms2 = d2s_ms[2];
-						const FLOAT_TYPE* d2s_ms3 = d2s_ms[3];
-						const FLOAT_TYPE* d3s_ms1 = d3s_ms[1];
-						const FLOAT_TYPE* d3s_ms2 = d3s_ms[2];
-						const FLOAT_TYPE* d3s_ms3 = d3s_ms[3];
-						for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
-							size_t dst_index = first_dimension_loop_index + dst_slice_offset;
-							FLOAT_TYPE d1_m0, d1_m1, d1_m2, d1_m3, d2_m0, d2_m1, d2_m2, d2_m3, d3_m0, d3_m1, d3_m2, d3_m3;
-							calcD1toD3_dim1(
-								d1_m0, d1_m1, d1_m2, d1_m3, d2_m0, d2_m1, d2_m2, d2_m3, d3_m0, d3_m1, d3_m2, d3_m3,
-								d1s_ms1, d1s_ms2, d1s_ms3, d2s_ms1, d2s_ms2, d2s_ms3, d3s_ms1, d3s_ms2, d3s_ms3,
-								last_boundedSrc_ptr, current_boundedSrc_ptr, dxInv, dxInv_2, dxInv_3, first_dimension_loop_index
-							);
-							calcApprox1to3(dst_dL0_ptr, dst_dL1_ptr, dst_dL2_ptr, dst_dR0_ptr, dst_dR1_ptr, dst_dR2_ptr, d1_m2, d1_m3, d2_m1, d2_m2, d2_m3, d3_m0, d3_m1, d3_m2, d3_m3, dx, x2_dx_square, dx_square, dst_index);
-							d1s_ms[0][first_dimension_loop_index] = d1_m0;
-							d2s_ms[0][first_dimension_loop_index] = d2_m0;
-							d3s_ms[0][first_dimension_loop_index] = d3_m0;
-						}
-						//! Epilogue
-						if ((target_dimension_loop_index + num_of_cache_lines) >= (loop_length + 1)) {
-							//! Copy back from DD to cache for next chunk
-							bool tmp_d1_m0_writeToCache, tmp_d2_m0_writeToCache, tmp_d3_m0_writeToCache;
-							getCachePointers(tmp_d1s_ms_ites2, tmp_d2s_ms_ites2, tmp_d3s_ms_ites2, tmp_DD,
-								tmp_d1_m0_writeToCache, tmp_d2_m0_writeToCache, tmp_d3_m0_writeToCache,
-								slice_index, shifted_target_dimension_loop_index, first_dimension_loop_size,
-								dst_loop_offset + prologue_offset, num_of_slices,
-								num_of_cache_lines, false);
-							if (!d1_m0_writeToCache) memcpy(tmp_d1s_ms_ites2[0], d1s_ms[0], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-							if (!d2_m0_writeToCache) memcpy(tmp_d2s_ms_ites2[0], d2s_ms[0], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-							if (!d3_m0_writeToCache) memcpy(tmp_d3s_ms_ites2[0], d3s_ms[0], first_dimension_loop_size * sizeof(FLOAT_TYPE));
-						}
-					}
-				}
-			}
-			FLOAT_TYPE* DD0_ptr = beacls::UVec_<FLOAT_TYPE>(DD_uvec[0]).ptr();
-			FLOAT_TYPE* dL0_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[0]).ptr();
-			FLOAT_TYPE* dR0_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[0]).ptr();
-			FLOAT_TYPE* dL1_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[1]).ptr();
-			FLOAT_TYPE* dR1_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[1]).ptr();
-			FLOAT_TYPE* dL2_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[2]).ptr();
-			FLOAT_TYPE* dR2_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[2]).ptr();
-
-			const size_t DD0_slice_length = DD_uvec[0].size() / first_dimension_loop_size / num_of_slices;
-
-			FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
-			FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-			dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-			dst_deriv_r.set_cudaStream(cudaStreams[dim]);
-			const FLOAT_TYPE weightL0 = weightL[0];
-			const FLOAT_TYPE weightL1 = weightL[1];
-			const FLOAT_TYPE weightL2 = weightL[2];
-			const FLOAT_TYPE weightR0 = weightR[0];
-			const FLOAT_TYPE weightR1 = weightR[1];
-			const FLOAT_TYPE weightR2 = weightR[2];
-			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
-				const size_t dst_slice_offset = slice_index * slice_length;
-				const size_t src_DD0_slice_offset = slice_index * DD0_slice_length * first_dimension_loop_size;
-				const size_t src_dLdR_slice_offset = dst_slice_offset;
-				// Need to figure out which approximation has the least oscillation.
-				// Note that L and R in this section refer to neighboring divided
-				// difference entries, not to left and right approximations.
-				//Prologue
-				{
-					size_t index = 0;
-					size_t loop_index = index + loop_begin + dst_slice_offset;
-					size_t tmpSmooth_current_index = loop_index % 2;
-					size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
-					std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
-					beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
-					beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
-					beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
-
-					size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
-					for (size_t fdl_index = 0; fdl_index < first_dimension_loop_size; ++fdl_index) {
-						size_t src_DD0_index = fdl_index + src_DD0_offset;
-
-						FLOAT_TYPE D1_src_0 = DD0_ptr[src_DD0_index];
-						FLOAT_TYPE D1_src_1 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 1];
-						FLOAT_TYPE D1_src_2 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 2];
-						FLOAT_TYPE D1_src_3 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 3];
-						FLOAT_TYPE D1_src_4 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 4];
-						smooth1_m1[fdl_index] = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
-						smooth2_m1[fdl_index] = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
-						smooth3_m1[fdl_index] = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
-					}
-				}
-				// Body
-				switch (epsilonCalculationMethod_Type) {
-				case levelset::EpsilonCalculationMethod_Invalid:
-				default:
-					printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
-					return false;
-				case levelset::EpsilonCalculationMethod_Constant:
-					for (size_t index = 0; index < loop_length; ++index) {
-						size_t loop_index = index + loop_begin + dst_slice_offset;
-						size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
-						size_t src_dLdR_offset = index * first_dimension_loop_size + src_dLdR_slice_offset;
-						size_t dst_offset = index * first_dimension_loop_size + dst_slice_offset;
-						size_t tmpSmooth_current_index = loop_index % 2;
-						size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
-						std::vector<beacls::FloatVec > &tmpSmooth_m0 = tmpSmooths_m1s[tmpSmooth_current_index];
-						std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
-						beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
-						beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
-						beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
-						beacls::FloatVec &smooth1_m0 = tmpSmooth_m0[0];
-						beacls::FloatVec &smooth2_m0 = tmpSmooth_m0[1];
-						beacls::FloatVec &smooth3_m0 = tmpSmooth_m0[2];
-						beacls::FloatVec &smooth1L = smooth1_m1;
-						beacls::FloatVec &smooth2L = smooth2_m1;
-						beacls::FloatVec &smooth3L = smooth3_m1;
-						for (size_t fdl_index = 0; fdl_index < first_dimension_loop_size; ++fdl_index) {
-							size_t dst_index = fdl_index + dst_offset;
-							size_t src_DD0_index = fdl_index + src_DD0_offset;
-							size_t src_dLdR_index = fdl_index + src_dLdR_offset;
-							FLOAT_TYPE D1_src_1 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 1];
-							FLOAT_TYPE D1_src_2 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 2];
-							FLOAT_TYPE D1_src_3 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 3];
-							FLOAT_TYPE D1_src_4 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 4];
-							FLOAT_TYPE D1_src_5 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 5];
-							FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
-							FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
-							FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-							smooth1_m0[fdl_index] = smooth1;
-							smooth2_m0[fdl_index] = smooth2;
-							smooth3_m0[fdl_index] = smooth3;
-							FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
-							dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_dLdR_index], dL1_ptr[src_dLdR_index], dL2_ptr[src_dLdR_index], smooth1L[fdl_index], smooth2L[fdl_index], smooth3L[fdl_index], weightL0, weightL1, weightL2, epsilon);
-							dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_dLdR_index], dR1_ptr[src_dLdR_index], dR2_ptr[src_dLdR_index], smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilon);
-						}
-					}
-					break;
-				case levelset::EpsilonCalculationMethod_maxOverGrid:
-					printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
-					return false;
-				case levelset::EpsilonCalculationMethod_maxOverNeighbor:
-					for (size_t index = 0; index < loop_length; ++index) {
-						size_t loop_index = index + loop_begin + dst_slice_offset;
-						size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
-						size_t src_dLdR_offset = index * first_dimension_loop_size + src_dLdR_slice_offset;
-						size_t dst_offset = index * first_dimension_loop_size + dst_slice_offset;
-						size_t tmpSmooth_current_index = loop_index % 2;
-						size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
-						std::vector<beacls::FloatVec > &tmpSmooth_m0 = tmpSmooths_m1s[tmpSmooth_current_index];
-						std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
-						beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
-						beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
-						beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
-						beacls::FloatVec &smooth1_m0 = tmpSmooth_m0[0];
-						beacls::FloatVec &smooth2_m0 = tmpSmooth_m0[1];
-						beacls::FloatVec &smooth3_m0 = tmpSmooth_m0[2];
-						beacls::FloatVec &smooth1L = smooth1_m1;
-						beacls::FloatVec &smooth2L = smooth2_m1;
-						beacls::FloatVec &smooth3L = smooth3_m1;
-						for (size_t fdl_index = 0; fdl_index < first_dimension_loop_size; ++fdl_index) {
-							size_t dst_index = fdl_index + dst_offset;
-							size_t src_DD0_index = fdl_index + src_DD0_offset;
-							size_t src_dLdR_index = fdl_index + src_dLdR_offset;
-							FLOAT_TYPE D1_src_0 = DD0_ptr[src_DD0_index];
-							FLOAT_TYPE D1_src_1 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 1];
-							FLOAT_TYPE D1_src_2 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 2];
-							FLOAT_TYPE D1_src_3 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 3];
-							FLOAT_TYPE D1_src_4 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 4];
-							FLOAT_TYPE D1_src_5 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 5];
-							FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
-							FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
-							FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-							smooth1_m0[fdl_index] = smooth1;
-							smooth2_m0[fdl_index] = smooth2;
-							smooth3_m0[fdl_index] = smooth3;
-							FLOAT_TYPE pow_D1_src_0 = D1_src_0 * D1_src_0;
-							FLOAT_TYPE pow_D1_src_1 = D1_src_1 * D1_src_1;
-							FLOAT_TYPE pow_D1_src_2 = D1_src_2 * D1_src_2;
-							FLOAT_TYPE pow_D1_src_3 = D1_src_3 * D1_src_3;
-							FLOAT_TYPE pow_D1_src_4 = D1_src_4 * D1_src_4;
-							FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
-							FLOAT_TYPE max_1_2 = std::max<FLOAT_TYPE>(pow_D1_src_1, pow_D1_src_2);
-							FLOAT_TYPE max_3_4 = std::max<FLOAT_TYPE>(pow_D1_src_3, pow_D1_src_4);
-							FLOAT_TYPE max_1_2_3_4 = std::max<FLOAT_TYPE>(max_1_2, max_3_4);
-							FLOAT_TYPE maxOverNeighborD1squaredL = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_0);
-							FLOAT_TYPE maxOverNeighborD1squaredR = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_5);
-							FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
-							FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
-							dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_dLdR_index], dL1_ptr[src_dLdR_index], dL2_ptr[src_dLdR_index], smooth1L[fdl_index], smooth2L[fdl_index], smooth3L[fdl_index], weightL0, weightL1, weightL2, epsilonL);
-							dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_dLdR_index], dR1_ptr[src_dLdR_index], dR2_ptr[src_dLdR_index], smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilonR);
-						}
-					}
-					break;
-				}
-			}
-		}
-
+	size_t target_dimension_loop_begin = loop_begin % src_target_dimension_loop_size;
+	size_t prologue_loop_size;
+	size_t prologue_loop_dst_offset;
+	size_t prologue_loop_src_offset;
+	if (type == beacls::UVecType_Cuda) {
+		prologue_loop_size = stencil * 2;
+		prologue_loop_dst_offset = 0;
+		prologue_loop_src_offset = 0;
+	}
+	else if (target_dimension_loop_begin < stencil * 2) {
+		prologue_loop_size = stencil * 2 - target_dimension_loop_begin;
+		prologue_loop_dst_offset = target_dimension_loop_begin;
+		prologue_loop_src_offset = 0;
 	}
 	else {
-		size_t DD_size_base = first_dimension_loop_size * (outer_dimensions_loop_length + stencil + 2)*num_of_slices;
-		for (std::vector<beacls::UVec>::iterator ite = DD_uvec.begin(); ite != DD_uvec.end(); ++ite) {
-			if (ite->type() != type || ite->depth() != depth) *ite = beacls::UVec(depth, type, DD_size_base);
-			else if (ite->size() < DD_size_base) ite->resize(DD_size_base);
-			DD_size_base -= first_dimension_loop_size*num_of_slices;
-		}
-		upwindFirstENO3aHelper->execute(dL_uvec, dR_uvec, DD_uvec, grid, src, dim, approx4, stripDD, loop_begin, slice_length, num_of_slices, 1, cudaStreams[dim]);
+		prologue_loop_size = 1;
+		prologue_loop_dst_offset = stencil * 2;
+		prologue_loop_src_offset = 1;
+	}
+	std::vector<std::vector<std::vector<const FLOAT_TYPE*> > >& dst_ptrsss = tmpBoundedSrc_ptrssss[dim];
+	if (dst_ptrsss.size() < num_of_slices) dst_ptrsss.resize(num_of_slices);
+	for_each(dst_ptrsss.begin(), dst_ptrsss.end(), [loop_length, prologue_loop_size](auto &rhs) {
+		rhs.resize(loop_length + prologue_loop_size);
+		for_each(rhs.begin(), rhs.end(), [](auto &rhs) {
+			rhs.resize(1);
+		});
+	});
+	beacls::UVec& boundedSrc = tmpBoundedSrc_uvecs[dim];
+	size_t total_boundedSrc_size = first_dimension_loop_size * num_of_slices*(loop_length + prologue_loop_size);
+	if (boundedSrc.type() != type) boundedSrc = beacls::UVec(depth, type, total_boundedSrc_size);
+	else if (boundedSrc.size() != total_boundedSrc_size) boundedSrc.resize(total_boundedSrc_size);
+	boundedSrc.set_cudaStream(cudaStream);
+	const FLOAT_TYPE dxInv = dxInvs[dim];
+	const FLOAT_TYPE dxInv_2 = dxInv_2s[dim];
+	const FLOAT_TYPE dxInv_3 = dxInv_3s[dim];
+	const FLOAT_TYPE dx_square = dx_squares[dim];
+	const FLOAT_TYPE x2_dx_square = 2 * dx_square;
+	const FLOAT_TYPE dx = dxs[dim];
 
-		FLOAT_TYPE* DD0_ptr = beacls::UVec_<FLOAT_TYPE>(DD_uvec[0]).ptr();
-		FLOAT_TYPE* dL0_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[0]).ptr();
-		FLOAT_TYPE* dR0_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[0]).ptr();
-		FLOAT_TYPE* dL1_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[1]).ptr();
-		FLOAT_TYPE* dR1_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[1]).ptr();
-		FLOAT_TYPE* dL2_ptr = beacls::UVec_<FLOAT_TYPE>(dL_uvec[2]).ptr();
-		FLOAT_TYPE* dR2_ptr = beacls::UVec_<FLOAT_TYPE>(dR_uvec[2]).ptr();
-
-		const size_t DD0_slice_length = DD_uvec[0].size() / first_dimension_loop_size / num_of_slices;
-
+	boundaryCondition->execute(
+		src,
+		boundedSrc, tmpBoundedSrc_uvec_vectors[dim], dst_ptrsss,
+		stencil,
+		dim,
+		target_dimension_loop_size,
+		inner_dimensions_loop_size,
+		first_dimension_loop_size,
+		loop_begin - prologue_loop_src_offset,
+		prologue_loop_dst_offset,
+		num_of_slices,
+		loop_length + prologue_loop_size,
+		1,
+		stencil
+	);
+	if (type == beacls::UVecType_Cuda) {
 		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
 		dst_deriv_l.set_cudaStream(cudaStreams[dim]);
 		dst_deriv_r.set_cudaStream(cudaStreams[dim]);
-		size_t loop_length = slice_length / first_dimension_loop_size;
 		const FLOAT_TYPE weightL0 = weightL[0];
 		const FLOAT_TYPE weightL1 = weightL[1];
 		const FLOAT_TYPE weightL2 = weightL[2];
 		const FLOAT_TYPE weightR0 = weightR[0];
 		const FLOAT_TYPE weightR1 = weightR[1];
 		const FLOAT_TYPE weightR2 = weightR[2];
-		if (type == beacls::UVecType_Cuda) {
-			UpwindFirstWENO5a_execute_dim1_cuda(
-				dst_deriv_l_ptr, dst_deriv_r_ptr,
-				DD0_ptr,
-				dL0_ptr, dL1_ptr, dL2_ptr, dR0_ptr, dR1_ptr, dR2_ptr,
-				weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
-				num_of_slices, loop_length, first_dimension_loop_size, slice_length,
-				DD0_slice_length * first_dimension_loop_size,
-				epsilonCalculationMethod_Type,
-				cudaStreams[dim]
-			);
-		}
-		else
-		{
-			for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
-				const size_t dst_slice_offset = slice_index * slice_length;
-				const size_t src_DD0_slice_offset = slice_index * DD0_slice_length * first_dimension_loop_size;
-				const size_t src_dLdR_slice_offset = dst_slice_offset;
-				// Need to figure out which approximation has the least oscillation.
-				// Note that L and R in this section refer to neighboring divided
-				// difference entries, not to left and right approximations.
-				//Prologue
-				{
-					size_t index = 0;
-					size_t loop_index = index + loop_begin + dst_slice_offset;
-					size_t tmpSmooth_current_index = loop_index % 2;
-					size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
+		UpwindFirstWENO5a_execute_dim1_cuda2(
+			dst_deriv_l_ptr, dst_deriv_r_ptr,
+			dst_ptrsss[0][0][0], dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
+			weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
+			num_of_slices, loop_length, first_dimension_loop_size, slice_length,
+			stencil,
+			epsilonCalculationMethod_Type,
+			cudaStreams[dim]
+		);
+	}
+	else
+	{
+		const size_t num_of_cache_lines = 6;
+		createCaches(first_dimension_loop_size, num_of_cache_lines);
+		if (tmp_d1s_ms_ites.size() != num_of_cache_lines) tmp_d1s_ms_ites.resize(num_of_cache_lines);
+		if (tmp_d2s_ms_ites.size() != num_of_cache_lines) tmp_d2s_ms_ites.resize(num_of_cache_lines);
+		if (tmp_d3s_ms_ites.size() != num_of_cache_lines) tmp_d3s_ms_ites.resize(num_of_cache_lines);
+		if (tmp_dx_d2s_ms_ites.size() != num_of_cache_lines) tmp_dx_d2s_ms_ites.resize(num_of_cache_lines);
+
+		std::vector<FLOAT_TYPE*> &d1s_ms = tmp_d1s_ms_ites;
+		std::vector<FLOAT_TYPE*> &d2s_ms = tmp_d2s_ms_ites;
+		std::vector<FLOAT_TYPE*> &d3s_ms = tmp_d3s_ms_ites;
+		std::vector<FLOAT_TYPE*> &dx_d2s_ms = tmp_dx_d2s_ms_ites;
+		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
+		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
+		for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
+			size_t prologue_offset = 0;
+			const size_t slice_offset = slice_index * slice_length;
+			const size_t slice_loop_offset = slice_index * loop_length;
+			const size_t slice_loop_begin = loop_begin + slice_loop_offset;
+			for (size_t index = 0; index < loop_length; ++index) {
+				const size_t dst_loop_offset = index * first_dimension_loop_size;
+				const size_t dst_slice_offset = dst_loop_offset + slice_offset;
+				const size_t loop_index = index + slice_loop_begin;
+				const size_t target_dimension_loop_index = loop_index % src_target_dimension_loop_size;
+
+				//! Prologue
+				if (index == 0) {
+					const size_t tmpSmooth_current_index = loop_index % 2;
+					const size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
 					std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
 					beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
 					beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
 					beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
+					if (target_dimension_loop_index == 0) {
+						for (size_t prologue_target_dimension_loop_index = 0; prologue_target_dimension_loop_index < stencil * 2; ++prologue_target_dimension_loop_index) {
+							if ((prologue_target_dimension_loop_index >= 1)) {
+								const FLOAT_TYPE* current_boundedSrc_ptr = dst_ptrsss[slice_index][prologue_target_dimension_loop_index][0];
+								const FLOAT_TYPE* last_boundedSrc_ptr = dst_ptrsss[slice_index][prologue_target_dimension_loop_index - 1][0];
 
-					size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
-					for (size_t fdl_index = 0; fdl_index < first_dimension_loop_size; ++fdl_index) {
-						size_t src_DD0_index = fdl_index + src_DD0_offset;
+								getCachePointers(d1s_ms, d2s_ms, d3s_ms, dx_d2s_ms,
+									prologue_target_dimension_loop_index, 
+									num_of_cache_lines);
+								FLOAT_TYPE* d1s_ms0 = d1s_ms[0];
+								FLOAT_TYPE* d2s_ms0 = d2s_ms[0];
+								FLOAT_TYPE* d3s_ms0 = d3s_ms[0];
+								FLOAT_TYPE* dx_d2s_ms1 = dx_d2s_ms[1];
+								const FLOAT_TYPE* d1s_ms1 = d1s_ms[1];
+								const FLOAT_TYPE* d1s_ms2 = d1s_ms[2];
+								const FLOAT_TYPE* d1s_ms3 = d1s_ms[3];
+								const FLOAT_TYPE* d1s_ms4 = d1s_ms[4];
+								const FLOAT_TYPE* d2s_ms1 = d2s_ms[1];
 
-						FLOAT_TYPE D1_src_0 = DD0_ptr[src_DD0_index];
-						FLOAT_TYPE D1_src_1 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 1];
-						FLOAT_TYPE D1_src_2 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 2];
-						FLOAT_TYPE D1_src_3 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 3];
-						FLOAT_TYPE D1_src_4 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 4];
-						smooth1_m1[fdl_index] = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
-						smooth2_m1[fdl_index] = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
-						smooth3_m1[fdl_index] = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
+								for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
+									const FLOAT_TYPE d0_m0 = current_boundedSrc_ptr[first_dimension_loop_index];
+									const FLOAT_TYPE d0_m1 = last_boundedSrc_ptr[first_dimension_loop_index];
+									const FLOAT_TYPE d1_m0 = dxInv * (d0_m0 - d0_m1);
+									d1s_ms0[first_dimension_loop_index] = d1_m0;
+									if (prologue_target_dimension_loop_index >= 2) {
+										const FLOAT_TYPE d1_m1 = d1s_ms1[first_dimension_loop_index];
+										const FLOAT_TYPE d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+										d2s_ms0[first_dimension_loop_index] = d2_m0;
+										if (prologue_target_dimension_loop_index >= 3) {
+											const FLOAT_TYPE d2_m1 = d2s_ms1[first_dimension_loop_index];
+											const FLOAT_TYPE d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+											d3s_ms0[first_dimension_loop_index] = d3_m0;
+											const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+											dx_d2s_ms1[first_dimension_loop_index] = dx_d2_m1;
+											if (prologue_target_dimension_loop_index >= stencil * 2-1) {
+												const FLOAT_TYPE d1_m2 = d1s_ms2[first_dimension_loop_index];
+												const FLOAT_TYPE d1_m3 = d1s_ms3[first_dimension_loop_index];
+												const FLOAT_TYPE d1_m4 = d1s_ms4[first_dimension_loop_index];
+												const FLOAT_TYPE D1_src_0 = d1_m4;
+												const FLOAT_TYPE D1_src_1 = d1_m3;
+												const FLOAT_TYPE D1_src_2 = d1_m2;
+												const FLOAT_TYPE D1_src_3 = d1_m1;
+												const FLOAT_TYPE D1_src_4 = d1_m0;
+
+												smooth1_m1[first_dimension_loop_index] = calcSmooth0(D1_src_0, D1_src_1, D1_src_2);
+												smooth2_m1[first_dimension_loop_index] = calcSmooth1(D1_src_1, D1_src_2, D1_src_3);
+												smooth3_m1[first_dimension_loop_index] = calcSmooth2(D1_src_2, D1_src_3, D1_src_4);
+											}
+										}
+									}
+								}
+								prologue_offset += first_dimension_loop_size;
+							}
+						}
 					}
 				}
-				// Body
-				switch (epsilonCalculationMethod_Type) {
-				case levelset::EpsilonCalculationMethod_Invalid:
-				default:
-					printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
-					return false;
-				case levelset::EpsilonCalculationMethod_Constant:
-					for (size_t index = 0; index < loop_length; ++index) {
-						size_t loop_index = index + loop_begin + dst_slice_offset;
-						size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
-						size_t src_dLdR_offset = index * first_dimension_loop_size + src_dLdR_slice_offset;
-						size_t dst_offset = index * first_dimension_loop_size + dst_slice_offset;
-						size_t tmpSmooth_current_index = loop_index % 2;
-						size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
-						std::vector<beacls::FloatVec > &tmpSmooth_m0 = tmpSmooths_m1s[tmpSmooth_current_index];
-						std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
-						beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
-						beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
-						beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
-						beacls::FloatVec &smooth1_m0 = tmpSmooth_m0[0];
-						beacls::FloatVec &smooth2_m0 = tmpSmooth_m0[1];
-						beacls::FloatVec &smooth3_m0 = tmpSmooth_m0[2];
-						beacls::FloatVec &smooth1L = smooth1_m1;
-						beacls::FloatVec &smooth2L = smooth2_m1;
-						beacls::FloatVec &smooth3L = smooth3_m1;
-						for (size_t fdl_index = 0; fdl_index < first_dimension_loop_size; ++fdl_index) {
-							size_t dst_index = fdl_index + dst_offset;
-							size_t src_DD0_index = fdl_index + src_DD0_offset;
-							size_t src_dLdR_index = fdl_index + src_dLdR_offset;
-							FLOAT_TYPE D1_src_1 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 1];
-							FLOAT_TYPE D1_src_2 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 2];
-							FLOAT_TYPE D1_src_3 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 3];
-							FLOAT_TYPE D1_src_4 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 4];
-							FLOAT_TYPE D1_src_5 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 5];
-							FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
-							FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
-							FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-							smooth1_m0[fdl_index] = smooth1;
-							smooth2_m0[fdl_index] = smooth2;
-							smooth3_m0[fdl_index] = smooth3;
-							FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
-							dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_dLdR_index], dL1_ptr[src_dLdR_index], dL2_ptr[src_dLdR_index], smooth1L[fdl_index], smooth2L[fdl_index], smooth3L[fdl_index], weightL0, weightL1, weightL2, epsilon);
-							dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_dLdR_index], dR1_ptr[src_dLdR_index], dR2_ptr[src_dLdR_index], smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilon);
+				if (target_dimension_loop_index < (target_dimension_loop_size - (stencil + 1))) {
+					//! Body
+					const size_t shifted_target_dimension_loop_index = target_dimension_loop_index + stencil * 2;
+					//				size_t boundedSrc_cache_current_index = shifted_target_dimension_loop_index & 0x1;
+					//				size_t boundedSrc_cache_last_index = (boundedSrc_cache_current_index == 0) ? 1 : 0;
+
+					const FLOAT_TYPE* last_boundedSrc_ptr = NULL;
+					const FLOAT_TYPE* current_boundedSrc_ptr = dst_ptrsss[slice_index][index + prologue_loop_size][0];
+					last_boundedSrc_ptr = dst_ptrsss[slice_index][index + prologue_loop_size - 1][0];
+					getCachePointers(d1s_ms, d2s_ms, d3s_ms, dx_d2s_ms,
+						shifted_target_dimension_loop_index,
+						num_of_cache_lines);
+					const size_t dst_offset = index * first_dimension_loop_size + dst_slice_offset;
+					const size_t tmpSmooth_current_index = loop_index % 2;
+					const size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
+					std::vector<beacls::FloatVec > &tmpSmooth_m0 = tmpSmooths_m1s[tmpSmooth_current_index];
+					std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
+					const beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
+					const beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
+					const beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
+					beacls::FloatVec &smooth1_m0 = tmpSmooth_m0[0];
+					beacls::FloatVec &smooth2_m0 = tmpSmooth_m0[1];
+					beacls::FloatVec &smooth3_m0 = tmpSmooth_m0[2];
+					const beacls::FloatVec &smooth1L = smooth1_m1;
+					const beacls::FloatVec &smooth2L = smooth2_m1;
+					const beacls::FloatVec &smooth3L = smooth3_m1;
+
+
+					FLOAT_TYPE* d1s_ms0 = d1s_ms[0];
+					FLOAT_TYPE* d2s_ms0 = d2s_ms[0];
+					FLOAT_TYPE* d3s_ms0 = d3s_ms[0];
+					FLOAT_TYPE* dx_d2s_ms1 = dx_d2s_ms[1];
+					const FLOAT_TYPE* d1s_ms1 = d1s_ms[1];
+					const FLOAT_TYPE* d1s_ms2 = d1s_ms[2];
+					const FLOAT_TYPE* d1s_ms3 = d1s_ms[3];
+					const FLOAT_TYPE* d1s_ms4 = d1s_ms[4];
+					const FLOAT_TYPE* d1s_ms5 = d1s_ms[5];
+					const FLOAT_TYPE* d2s_ms1 = d2s_ms[1];
+					const FLOAT_TYPE* d2s_ms2 = d2s_ms[2];
+					const FLOAT_TYPE* d2s_ms3 = d2s_ms[3];
+					const FLOAT_TYPE* d2s_ms4 = d2s_ms[4];
+					const FLOAT_TYPE* d3s_ms1 = d3s_ms[1];
+					const FLOAT_TYPE* d3s_ms2 = d3s_ms[2];
+					const FLOAT_TYPE* d3s_ms3 = d3s_ms[3];
+					const FLOAT_TYPE* dx_d2s_ms2 = dx_d2s_ms[2];
+					const FLOAT_TYPE* dx_d2s_ms3 = dx_d2s_ms[3];
+					const FLOAT_TYPE weightL0 = weightL[0];
+					const FLOAT_TYPE weightL1 = weightL[1];
+					const FLOAT_TYPE weightL2 = weightL[2];
+					const FLOAT_TYPE weightR0 = weightR[0];
+					const FLOAT_TYPE weightR1 = weightR[1];
+					const FLOAT_TYPE weightR2 = weightR[2];
+
+
+					switch (epsilonCalculationMethod_Type) {
+					case levelset::EpsilonCalculationMethod_Invalid:
+					default:
+						printf("Unknown epsilonCalculationMethod %d\n", epsilonCalculationMethod_Type);
+						return false;
+					case levelset::EpsilonCalculationMethod_Constant:
+						for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
+							const size_t dst_index = first_dimension_loop_index + dst_slice_offset;
+							const FLOAT_TYPE d0_m0 = current_boundedSrc_ptr[first_dimension_loop_index];
+							const FLOAT_TYPE d0_m1 = last_boundedSrc_ptr[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m0 = dxInv * (d0_m0 - d0_m1);
+							const FLOAT_TYPE d1_m1 = d1s_ms1[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m2 = d1s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m3 = d1s_ms3[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m4 = d1s_ms4[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m5 = d1s_ms5[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+							const FLOAT_TYPE d2_m1 = d2s_ms1[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m2 = d2s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m3 = d2s_ms3[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m4 = d2s_ms4[first_dimension_loop_index];
+							const FLOAT_TYPE d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+							const FLOAT_TYPE d3_m1 = d3s_ms1[first_dimension_loop_index];
+							const FLOAT_TYPE d3_m2 = d3s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE d3_m3 = d3s_ms3[first_dimension_loop_index];
+
+							const FLOAT_TYPE D1_src_0 = d1_m5;
+							const FLOAT_TYPE D1_src_1 = d1_m4;
+							const FLOAT_TYPE D1_src_2 = d1_m3;
+							const FLOAT_TYPE D1_src_3 = d1_m2;
+							const FLOAT_TYPE D1_src_4 = d1_m1;
+							const FLOAT_TYPE D1_src_5 = d1_m0;
+
+							const FLOAT_TYPE dx_d2_m3 = dx_d2s_ms[3][first_dimension_loop_index];
+							const FLOAT_TYPE dx_d2_m2 = dx_d2s_ms[2][first_dimension_loop_index];
+							const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+							const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+							const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+							const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+							const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+							const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+							const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+							const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+							const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
+							d1s_ms0[first_dimension_loop_index] = d1_m0;
+							d2s_ms0[first_dimension_loop_index] = d2_m0;
+							d3s_ms0[first_dimension_loop_index] = d3_m0;
+							dx_d2s_ms1[first_dimension_loop_index] = dx_d2_m1;
+
+							const FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
+							const FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
+							const FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
+							smooth1_m0[first_dimension_loop_index] = smooth1;
+							smooth2_m0[first_dimension_loop_index] = smooth2;
+							smooth3_m0[first_dimension_loop_index] = smooth3;
+							const FLOAT_TYPE epsilon = (FLOAT_TYPE)1e-6;
+							dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth1L[first_dimension_loop_index], smooth2L[first_dimension_loop_index], smooth3L[first_dimension_loop_index], weightL0, weightL1, weightL2, epsilon);
+							dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilon);
 						}
-					}
-					break;
-				case levelset::EpsilonCalculationMethod_maxOverGrid:
-					printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
-					return false;
-				case levelset::EpsilonCalculationMethod_maxOverNeighbor:
-					for (size_t index = 0; index < loop_length; ++index) {
-						size_t loop_index = index + loop_begin + dst_slice_offset;
-						size_t src_DD0_offset = index * first_dimension_loop_size + src_DD0_slice_offset;
-						size_t src_dLdR_offset = index * first_dimension_loop_size + src_dLdR_slice_offset;
-						size_t dst_offset = index * first_dimension_loop_size + dst_slice_offset;
-						size_t tmpSmooth_current_index = loop_index % 2;
-						size_t tmpSmooth_last_index = (tmpSmooth_current_index == 0) ? 1 : 0;
-						std::vector<beacls::FloatVec > &tmpSmooth_m0 = tmpSmooths_m1s[tmpSmooth_current_index];
-						std::vector<beacls::FloatVec > &tmpSmooth_m1 = tmpSmooths_m1s[tmpSmooth_last_index];
-						beacls::FloatVec &smooth1_m1 = tmpSmooth_m1[0];
-						beacls::FloatVec &smooth2_m1 = tmpSmooth_m1[1];
-						beacls::FloatVec &smooth3_m1 = tmpSmooth_m1[2];
-						beacls::FloatVec &smooth1_m0 = tmpSmooth_m0[0];
-						beacls::FloatVec &smooth2_m0 = tmpSmooth_m0[1];
-						beacls::FloatVec &smooth3_m0 = tmpSmooth_m0[2];
-						beacls::FloatVec &smooth1L = smooth1_m1;
-						beacls::FloatVec &smooth2L = smooth2_m1;
-						beacls::FloatVec &smooth3L = smooth3_m1;
-						for (size_t fdl_index = 0; fdl_index < first_dimension_loop_size; ++fdl_index) {
-							size_t dst_index = fdl_index + dst_offset;
-							size_t src_DD0_index = fdl_index + src_DD0_offset;
-							size_t src_dLdR_index = fdl_index + src_dLdR_offset;
-							FLOAT_TYPE D1_src_0 = DD0_ptr[src_DD0_index];
-							FLOAT_TYPE D1_src_1 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 1];
-							FLOAT_TYPE D1_src_2 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 2];
-							FLOAT_TYPE D1_src_3 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 3];
-							FLOAT_TYPE D1_src_4 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 4];
-							FLOAT_TYPE D1_src_5 = DD0_ptr[src_DD0_index + first_dimension_loop_size * 5];
-							FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
-							FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
-							FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-							smooth1_m0[fdl_index] = smooth1;
-							smooth2_m0[fdl_index] = smooth2;
-							smooth3_m0[fdl_index] = smooth3;
-							FLOAT_TYPE pow_D1_src_0 = D1_src_0 * D1_src_0;
-							FLOAT_TYPE pow_D1_src_1 = D1_src_1 * D1_src_1;
-							FLOAT_TYPE pow_D1_src_2 = D1_src_2 * D1_src_2;
-							FLOAT_TYPE pow_D1_src_3 = D1_src_3 * D1_src_3;
-							FLOAT_TYPE pow_D1_src_4 = D1_src_4 * D1_src_4;
-							FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
-							FLOAT_TYPE max_1_2 = std::max<FLOAT_TYPE>(pow_D1_src_1, pow_D1_src_2);
-							FLOAT_TYPE max_3_4 = std::max<FLOAT_TYPE>(pow_D1_src_3, pow_D1_src_4);
-							FLOAT_TYPE max_1_2_3_4 = std::max<FLOAT_TYPE>(max_1_2, max_3_4);
-							FLOAT_TYPE maxOverNeighborD1squaredL = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_0);
-							FLOAT_TYPE maxOverNeighborD1squaredR = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_5);
-							FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
-							FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
-							dst_deriv_l_ptr[dst_index] = weightWENO(dL0_ptr[src_dLdR_index], dL1_ptr[src_dLdR_index], dL2_ptr[src_dLdR_index], smooth1L[fdl_index], smooth2L[fdl_index], smooth3L[fdl_index], weightL0, weightL1, weightL2, epsilonL);
-							dst_deriv_r_ptr[dst_index] = weightWENO(dR0_ptr[src_dLdR_index], dR1_ptr[src_dLdR_index], dR2_ptr[src_dLdR_index], smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilonR);
+						break;
+
+					case levelset::EpsilonCalculationMethod_maxOverGrid:
+						printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
+						return false;
+					case levelset::EpsilonCalculationMethod_maxOverNeighbor:
+						for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
+							const size_t dst_index = first_dimension_loop_index + dst_slice_offset;
+							const FLOAT_TYPE d0_m0 = current_boundedSrc_ptr[first_dimension_loop_index];
+							const FLOAT_TYPE d0_m1 = last_boundedSrc_ptr[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m0 = dxInv * (d0_m0 - d0_m1);
+							const FLOAT_TYPE d1_m1 = d1s_ms1[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m2 = d1s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m3 = d1s_ms3[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m4 = d1s_ms4[first_dimension_loop_index];
+							const FLOAT_TYPE d1_m5 = d1s_ms5[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m0 = dxInv_2 * (d1_m0 - d1_m1);
+							const FLOAT_TYPE d2_m1 = d2s_ms1[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m2 = d2s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m3 = d2s_ms3[first_dimension_loop_index];
+							const FLOAT_TYPE d2_m4 = d2s_ms4[first_dimension_loop_index];
+							const FLOAT_TYPE d3_m0 = dxInv_3 * (d2_m0 - d2_m1);
+							const FLOAT_TYPE d3_m1 = d3s_ms1[first_dimension_loop_index];
+							const FLOAT_TYPE d3_m2 = d3s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE d3_m3 = d3s_ms3[first_dimension_loop_index];
+
+							const FLOAT_TYPE D1_src_0 = d1_m5;
+							const FLOAT_TYPE D1_src_1 = d1_m4;
+							const FLOAT_TYPE D1_src_2 = d1_m3;
+							const FLOAT_TYPE D1_src_3 = d1_m2;
+							const FLOAT_TYPE D1_src_4 = d1_m1;
+							const FLOAT_TYPE D1_src_5 = d1_m0;
+
+							const FLOAT_TYPE dx_d2_m3 = dx_d2s_ms3[first_dimension_loop_index];
+							const FLOAT_TYPE dx_d2_m2 = dx_d2s_ms2[first_dimension_loop_index];
+							const FLOAT_TYPE dx_d2_m1 = dx * d2_m1;
+
+							const FLOAT_TYPE dL0 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL1 = d1_m3 + dx_d2_m3;
+							const FLOAT_TYPE dL2 = d1_m3 + dx_d2_m2;
+
+							const FLOAT_TYPE dR0 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR1 = d1_m2 - dx_d2_m2;
+							const FLOAT_TYPE dR2 = d1_m2 - dx_d2_m1;
+
+							const FLOAT_TYPE dLL0 = dL0 + x2_dx_square * d3_m3;
+							const FLOAT_TYPE dLL1 = dL1 + x2_dx_square * d3_m2;
+							const FLOAT_TYPE dLL2 = dL2 - dx_square * d3_m1;
+
+							const FLOAT_TYPE dRR0 = dR0 - dx_square * d3_m2;
+							const FLOAT_TYPE dRR1 = dR1 - dx_square * d3_m1;
+							const FLOAT_TYPE dRR2 = dR2 + x2_dx_square * d3_m0;
+
+							d1s_ms0[first_dimension_loop_index] = d1_m0;
+							d2s_ms0[first_dimension_loop_index] = d2_m0;
+							d3s_ms0[first_dimension_loop_index] = d3_m0;
+							dx_d2s_ms1[first_dimension_loop_index] = dx_d2_m1;
+
+							const FLOAT_TYPE smooth1 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
+							const FLOAT_TYPE smooth2 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
+							const FLOAT_TYPE smooth3 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
+							smooth1_m0[first_dimension_loop_index] = smooth1;
+							smooth2_m0[first_dimension_loop_index] = smooth2;
+							smooth3_m0[first_dimension_loop_index] = smooth3;
+							const FLOAT_TYPE pow_D1_src_0 = D1_src_0 * D1_src_0;
+							const FLOAT_TYPE pow_D1_src_1 = D1_src_1 * D1_src_1;
+							const FLOAT_TYPE pow_D1_src_2 = D1_src_2 * D1_src_2;
+							const FLOAT_TYPE pow_D1_src_3 = D1_src_3 * D1_src_3;
+							const FLOAT_TYPE pow_D1_src_4 = D1_src_4 * D1_src_4;
+							const FLOAT_TYPE pow_D1_src_5 = D1_src_5 * D1_src_5;
+							const FLOAT_TYPE max_1_2 = std::max<FLOAT_TYPE>(pow_D1_src_1, pow_D1_src_2);
+							const FLOAT_TYPE max_3_4 = std::max<FLOAT_TYPE>(pow_D1_src_3, pow_D1_src_4);
+							const FLOAT_TYPE max_1_2_3_4 = std::max<FLOAT_TYPE>(max_1_2, max_3_4);
+							const FLOAT_TYPE maxOverNeighborD1squaredL = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_0);
+							const FLOAT_TYPE maxOverNeighborD1squaredR = std::max<FLOAT_TYPE>(max_1_2_3_4, pow_D1_src_5);
+							const FLOAT_TYPE epsilonL = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredL + get_epsilon_base<FLOAT_TYPE>());
+							const FLOAT_TYPE epsilonR = (FLOAT_TYPE)(1e-6 * maxOverNeighborD1squaredR + get_epsilon_base<FLOAT_TYPE>());
+							dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth1L[first_dimension_loop_index], smooth2L[first_dimension_loop_index], smooth3L[first_dimension_loop_index], weightL0, weightL1, weightL2, epsilonL);
+							dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth1, smooth2, smooth3, weightR0, weightR1, weightR2, epsilonR);
+
 						}
+						break;
 					}
-					break;
 				}
 			}
 		}
