@@ -35,7 +35,7 @@ void kernel_dim0_EpsilonCalculationMethod_Constant2(
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
-	kernel_dim0_EpsilonCalculationMethod_Constant_inline2(
+	kernel_dim0_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
@@ -45,7 +45,8 @@ void kernel_dim0_EpsilonCalculationMethod_Constant2(
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x,
 		blockDim.y, blockDim.x,
-		threadIdx.z, threadIdx.y, threadIdx.x);
+		threadIdx.z, threadIdx.y, threadIdx.x,
+		ECM_Constant_Cuda());
 }
 
 __global__ static
@@ -75,7 +76,7 @@ void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor2(
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
-	kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor_inline2(
+	kernel_dim0_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
@@ -85,7 +86,8 @@ void kernel_dim0_EpsilonCalculationMethod_maxOverNeighbor2(
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
 		blockDim.y, blockDim.x,
-		threadIdx.z, threadIdx.y, threadIdx.x);
+		threadIdx.z, threadIdx.y, threadIdx.x,
+		ECM_MaxOverNeighbor_Cuda());
 }
 
 void UpwindFirstWENO5a_execute_dim0_cuda2 (
@@ -190,7 +192,7 @@ void kernel_dim1_EpsilonCalculationMethod_Constant2(
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
-	kernel_dim1_EpsilonCalculationMethod_Constant_inline2(
+	kernel_dim1_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		tmpBoundedSrc_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
@@ -199,7 +201,8 @@ void kernel_dim1_EpsilonCalculationMethod_Constant2(
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
 		blockDim.y, blockDim.x,
-		threadIdx.z, threadIdx.y, threadIdx.x);
+		threadIdx.z, threadIdx.y, threadIdx.x,
+		ECM_Constant_Cuda());
 }
 
 __global__ static
@@ -228,7 +231,7 @@ void kernel_dim1_EpsilonCalculationMethod_maxOverNeighbor2(
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
-	kernel_dim1_EpsilonCalculationMethod_maxOverNeighbor_inline2(
+	kernel_dim1_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		tmpBoundedSrc_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
@@ -237,7 +240,8 @@ void kernel_dim1_EpsilonCalculationMethod_maxOverNeighbor2(
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
 		blockDim.y, blockDim.x,
-		threadIdx.z, threadIdx.y, threadIdx.x);
+		threadIdx.z, threadIdx.y, threadIdx.x,
+		ECM_MaxOverNeighbor_Cuda());
 }
 
 void UpwindFirstWENO5a_execute_dim1_cuda2 (
@@ -340,7 +344,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant2(
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
-	kernel_dimLET2_EpsilonCalculationMethod_Constant_inline2(
+	kernel_dimLET2_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		tmpBoundedSrc_ptr, tmpBoundedSrc_offset,
 		dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
@@ -351,7 +355,8 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant2(
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
 		blockDim.y, blockDim.x,
-		threadIdx.z, threadIdx.y, threadIdx.x);
+		threadIdx.z, threadIdx.y, threadIdx.x,
+		ECM_Constant_Cuda());
 }
 
 __global__ static
@@ -381,7 +386,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor2(
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
-	kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor_inline2(
+	kernel_dimLET2_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
 		tmpBoundedSrc_ptr, tmpBoundedSrc_offset,
 		dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
@@ -392,7 +397,8 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor2(
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
 		blockDim.y, blockDim.x,
-		threadIdx.z, threadIdx.y, threadIdx.x);
+		threadIdx.z, threadIdx.y, threadIdx.x,
+		ECM_MaxOverNeighbor_Cuda());
 }
 
 
