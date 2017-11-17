@@ -9,10 +9,22 @@
 #if defined(WITH_GPU)
 #include <cuda_runtime.h>
 #include <thrust/device_ptr.h>
+#include <cstdio>
+#define CUDA_CHECK(call)                              \
+{                                                     \
+    const cudaError_t error = call;                   \
+    if (error != cudaSuccess)                         \
+    {                                                 \
+       printf("Error: %s:%d,  ", __FILE__, __LINE__); \
+       printf("code:%d, reason: %s\n", error,         \
+            cudaGetErrorString(error));               \
+    }                                                 \
+}
 #else	/* defined(WITH_GPU) */
 #define __device__
 #define __global__
 #define __host__ 
+#define CUDA_CHECK(call) call
 #endif	/* !defined(WITH_GPU) */
 static const size_t max_num_of_threads = 1024;
 

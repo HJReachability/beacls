@@ -230,7 +230,7 @@ bool run_UTest_SpatialDerivative(
 	const size_t parallel_loop_size = (size_t)std::ceil((FLOAT_TYPE)num_of_outer_lines / num_of_parallel_loop_lines);
 	const size_t num_of_inner_lines = (size_t)std::ceil((FLOAT_TYPE)num_of_lines / num_of_outer_lines);
 
-	const double gpu_memory_ocupancy_ratio = 1.0 / (2 + 15 * num_of_dimensions) / 2 * 0.8;
+	const double gpu_memory_ocupancy_ratio = 1.0 / (2 + 6 * num_of_dimensions) / 2 * 0.8;
 	const size_t minimum_global_memory_in_devices = beacls::get_minimum_global_memory_in_devices();
 	const size_t available_line_length_for_cuda = (size_t)std::floor(minimum_global_memory_in_devices * gpu_memory_ocupancy_ratio / first_dimension_loop_size / sizeof(FLOAT_TYPE));
 	const size_t available_line_length_of_chunk_for_cuda = (size_t)(std::ceil(std::floor((FLOAT_TYPE)available_line_length_for_cuda / actual_num_of_threads) / second_dimension_loop_size)*second_dimension_loop_size);

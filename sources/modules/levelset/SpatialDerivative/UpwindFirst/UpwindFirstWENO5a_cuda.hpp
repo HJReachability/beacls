@@ -467,9 +467,14 @@ void kernel_dim1_EpsilonCalculationMethod_inline2(
 		const size_t actual_thread_length_y = get_actual_length(loop_length, thread_length_y, loop_index_y_base);
 		if (actual_thread_length_y > 0) {
 			const size_t global_thread_index_x = blockIdx_x * blockDim_x + threadIdx_x;
+#if 0
+			const size_t loop_index_x_base = global_thread_index_x;
+			for (size_t fdl_index = loop_index_x_base; fdl_index < first_dimension_loop_size; fdl_index += blockDim_x) {
+#else
 			const size_t loop_index_x_base = global_thread_index_x * thread_length_x;
 			const size_t actual_thread_length_x = get_actual_length(first_dimension_loop_size, thread_length_x, loop_index_x_base);
 			for (size_t fdl_index = loop_index_x_base; fdl_index < actual_thread_length_x + loop_index_x_base; ++fdl_index) {
+#endif
 				T d0_m0 = -1;
 				T d0_m1 = -1;
 				T d1_m0 = -1;
@@ -677,7 +682,6 @@ void kernel_dimLET2_EpsilonCalculationMethod_inline2(
 	T* dst_deriv_l_ptr,
 	T* dst_deriv_r_ptr,
 	const T* tmpBoundedSrc_ptr,
-	const size_t* tmpBoundedSrc_offset,
 	const T dxInv,
 	const T dxInv_2,
 	const T dxInv_3,
@@ -693,7 +697,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_inline2(
 	const size_t num_of_slices,
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
-	const size_t num_of_strides,
+	const size_t stride_distance,
 	const size_t slice_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
@@ -716,30 +720,27 @@ void kernel_dimLET2_EpsilonCalculationMethod_inline2(
 		const size_t loop_index_y_base = global_thraed_index_y*thread_length_y;
 		const size_t actual_thread_length_y = get_actual_length(loop_length, thread_length_y, loop_index_y_base);
 		for (size_t loop_index_y = loop_index_y_base; loop_index_y < actual_thread_length_y + loop_index_y_base; ++loop_index_y) {
-			const size_t dst_offset = loop_index_y * first_dimension_loop_size + dst_slice_offset;
+			const size_t line_offset = loop_index_y * first_dimension_loop_size;
+			const size_t dst_offset = line_offset + dst_slice_offset;
 			const size_t global_thread_index_x = blockIdx_x * blockDim_x + threadIdx_x;
+
+			const size_t src_stride_offset = loop_index_z * slice_length + line_offset;
+			const T* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptr + src_stride_offset;
+			const T* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptrs0 + stride_distance;
+			const T* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptrs1 + stride_distance;
+			const T* tmpBoundedSrc_ptrs3 = tmpBoundedSrc_ptrs2 + stride_distance;
+			const T* tmpBoundedSrc_ptrs4 = tmpBoundedSrc_ptrs3 + stride_distance;
+			const T* tmpBoundedSrc_ptrs5 = tmpBoundedSrc_ptrs4 + stride_distance;
+			const T* tmpBoundedSrc_ptrs6 = tmpBoundedSrc_ptrs5 + stride_distance;
+#if 0
+			for (size_t loop_index = global_thread_index_x; loop_index < first_dimension_loop_size; loop_index+= blockDim_x) {
+				const size_t first_dimension_loop_index = loop_index;
+#else
 			const size_t loop_index_x_base = global_thread_index_x * thread_length_x;
 			const size_t actual_thread_length_x = get_actual_length(first_dimension_loop_size, thread_length_x, loop_index_x_base);
-
-			const size_t loop_index_with_slice = (loop_index_y + loop_index_z * loop_length) * (num_of_strides + 1);
-			const size_t src_stride_offset0 = tmpBoundedSrc_offset[loop_index_with_slice + 0];
-			const size_t src_stride_offset1 = tmpBoundedSrc_offset[loop_index_with_slice + 1];
-			const size_t src_stride_offset2 = tmpBoundedSrc_offset[loop_index_with_slice + 2];
-			const size_t src_stride_offset3 = tmpBoundedSrc_offset[loop_index_with_slice + 3];
-			const size_t src_stride_offset4 = tmpBoundedSrc_offset[loop_index_with_slice + 4];
-			const size_t src_stride_offset5 = tmpBoundedSrc_offset[loop_index_with_slice + 5];
-			const size_t src_stride_offset6 = tmpBoundedSrc_offset[loop_index_with_slice + 6];
-
-			const T* tmpBoundedSrc_ptrs0 = tmpBoundedSrc_ptr + src_stride_offset0;
-			const T* tmpBoundedSrc_ptrs1 = tmpBoundedSrc_ptr + src_stride_offset1;
-			const T* tmpBoundedSrc_ptrs2 = tmpBoundedSrc_ptr + src_stride_offset2;
-			const T* tmpBoundedSrc_ptrs3 = tmpBoundedSrc_ptr + src_stride_offset3;
-			const T* tmpBoundedSrc_ptrs4 = tmpBoundedSrc_ptr + src_stride_offset4;
-			const T* tmpBoundedSrc_ptrs5 = tmpBoundedSrc_ptr + src_stride_offset5;
-			const T* tmpBoundedSrc_ptrs6 = tmpBoundedSrc_ptr + src_stride_offset6;
-
 			for (size_t loop_index = 0; loop_index < actual_thread_length_x; ++loop_index) {
 				const size_t first_dimension_loop_index = loop_index + loop_index_x_base;
+#endif
 
 				const T d0_m0 = tmpBoundedSrc_ptrs6[first_dimension_loop_index];
 				const T d0_m1 = tmpBoundedSrc_ptrs5[first_dimension_loop_index];
@@ -798,7 +799,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_inline2(
 				const T smoothR_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
 				T epsilonL, epsilonR;
 				calc_epsilon_dimLET2_cuda(epsilonL, epsilonR, D1_src_0, D1_src_1, D1_src_2, D1_src_3, D1_src_4, D1_src_5, e);
-				const size_t dst_index = first_dimension_loop_index + dst_offset;;
+				const size_t dst_index = first_dimension_loop_index + dst_offset;
 				dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smoothL_0, smoothL_1, smoothL_2, weightL0, weightL1, weightL2, epsilonL);
 				dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smoothR_0, smoothR_1, smoothR_2, weightR0, weightR1, weightR2, epsilonR);
 			}
@@ -810,7 +811,6 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
-	const size_t* tmpBoundedSrc_offset,
 	const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
 	const FLOAT_TYPE dxInv_3,
@@ -826,10 +826,11 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2
 	const size_t num_of_slices,
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
-	const size_t num_of_strides,
+	const size_t stride_distance,
 	const size_t slice_length,
 	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
 
 );
+
 #endif	/* __UpwindFirstWENO5a_cuda_hpp__ */
