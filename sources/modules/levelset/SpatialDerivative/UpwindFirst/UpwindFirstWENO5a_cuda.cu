@@ -149,6 +149,7 @@ void UpwindFirstWENO5a_execute_dim0_cuda2 (
 			stencil,
 			thread_length_z, thread_length_y, thread_length_x
 			);
+		CUDA_CHECK(cudaPeekAtLastError());
 		break;
 	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
@@ -163,6 +164,7 @@ void UpwindFirstWENO5a_execute_dim0_cuda2 (
 			stencil,
 			thread_length_z, thread_length_y, thread_length_x
 			);
+		CUDA_CHECK(cudaPeekAtLastError());
 		break;
 	}
 }
@@ -301,6 +303,7 @@ void UpwindFirstWENO5a_execute_dim1_cuda2 (
 		stencil,
 		thread_length_z, thread_length_y, thread_length_x
 		);
+		CUDA_CHECK(cudaPeekAtLastError());
 		break;
 	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
@@ -314,6 +317,7 @@ void UpwindFirstWENO5a_execute_dim1_cuda2 (
 		stencil,
 		thread_length_z, thread_length_y, thread_length_x
 		);
+		CUDA_CHECK(cudaPeekAtLastError());
 		break;
 	}
 }
@@ -322,8 +326,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant2(
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
-	const size_t* tmpBoundedSrc_offset,
-	const FLOAT_TYPE dxInv,
+const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
 	const FLOAT_TYPE dxInv_3,
 	const FLOAT_TYPE dx,
@@ -338,7 +341,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant2(
 	const size_t num_of_slices,
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
-	const size_t num_of_strides,
+	const size_t stride_distance,
 	const size_t slice_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
@@ -346,11 +349,11 @@ void kernel_dimLET2_EpsilonCalculationMethod_Constant2(
 ) {
 	kernel_dimLET2_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
-		tmpBoundedSrc_ptr, tmpBoundedSrc_offset,
+		tmpBoundedSrc_ptr, 
 		dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
 		num_of_slices, loop_length, first_dimension_loop_size,
-		num_of_strides,
+		stride_distance,
 		slice_length,
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
@@ -364,7 +367,6 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor2(
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
-	const size_t* tmpBoundedSrc_offset,
 	const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
 	const FLOAT_TYPE dxInv_3,
@@ -380,7 +382,7 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor2(
 	const size_t num_of_slices,
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
-	const size_t num_of_strides,
+	const size_t stride_distance,
 	const size_t slice_length,
 	const size_t thread_length_z,
 	const size_t thread_length_y,
@@ -388,11 +390,11 @@ void kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor2(
 ) {
 	kernel_dimLET2_EpsilonCalculationMethod_inline2(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
-		tmpBoundedSrc_ptr, tmpBoundedSrc_offset,
+		tmpBoundedSrc_ptr,
 		dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
 		num_of_slices, loop_length, first_dimension_loop_size,
-		num_of_strides,
+		stride_distance,
 		slice_length,
 		thread_length_z, thread_length_y, thread_length_x,
 		blockIdx.y, blockIdx.x, 
@@ -406,7 +408,6 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 	FLOAT_TYPE* dst_deriv_l_ptr,
 	FLOAT_TYPE* dst_deriv_r_ptr,
 	const FLOAT_TYPE* tmpBoundedSrc_ptr,
-	const size_t* tmpBoundedSrc_offset,
 	const FLOAT_TYPE dxInv,
 	const FLOAT_TYPE dxInv_2,
 	const FLOAT_TYPE dxInv_3,
@@ -422,7 +423,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 	const size_t num_of_slices,
 	const size_t loop_length,
 	const size_t first_dimension_loop_size,
-	const size_t num_of_strides,
+	const size_t stride_distance,
 	const size_t slice_length,
 	const levelset::EpsilonCalculationMethod_Type epsilonCalculationMethod_Type,
 	beacls::CudaStream* cudaStream
@@ -454,14 +455,15 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 	case levelset::EpsilonCalculationMethod_Constant:
 		kernel_dimLET2_EpsilonCalculationMethod_Constant2<<<num_of_blocks,num_of_threads, 0, stream>>>(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
-		tmpBoundedSrc_ptr, tmpBoundedSrc_offset,
+		tmpBoundedSrc_ptr,
 		dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
 		num_of_slices, loop_length, first_dimension_loop_size,
-		num_of_strides,
+		stride_distance,
 		slice_length,
 		thread_length_z, thread_length_y, thread_length_x
 		);
+		CUDA_CHECK(cudaPeekAtLastError());
 		break;
 	case levelset::EpsilonCalculationMethod_maxOverGrid:
 //		printf("epsilonCalculationMethod %d is not supported yet\n", epsilonCalculationMethod_Type);
@@ -469,15 +471,17 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 	case levelset::EpsilonCalculationMethod_maxOverNeighbor:
 		kernel_dimLET2_EpsilonCalculationMethod_maxOverNeighbor2<<<num_of_blocks,num_of_threads, 0, stream>>>(
 		dst_deriv_l_ptr, dst_deriv_r_ptr,
-		tmpBoundedSrc_ptr, tmpBoundedSrc_offset,
+		tmpBoundedSrc_ptr,
 		dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 		weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
 		num_of_slices, loop_length, first_dimension_loop_size,
-		num_of_strides,
+		stride_distance,
 		slice_length,
 		thread_length_z, thread_length_y, thread_length_x
 		);
+		CUDA_CHECK(cudaPeekAtLastError());
 		break;
 	}
 }
+
 #endif /* defined(WITH_GPU) */

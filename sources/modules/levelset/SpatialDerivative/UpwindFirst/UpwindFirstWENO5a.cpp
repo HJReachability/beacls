@@ -12,6 +12,7 @@
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirstENO3aHelper.hpp>
 #include "UpwindFirstWENO5a_impl.hpp"
 #include "UpwindFirstWENO5a_cuda.hpp"
+#include <chrono>
 
 using namespace levelset;
 
@@ -271,8 +272,8 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 		const size_t src_target_dimension_loop_size = src_target_dimension_loop_sizes[dim];
 		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-		dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-		dst_deriv_r.set_cudaStream(cudaStreams[dim]);
+		dst_deriv_l.set_cudaStream(cudaStream);
+		dst_deriv_r.set_cudaStream(cudaStream);
 
 		const FLOAT_TYPE weightL0 = weightL[0];
 		const FLOAT_TYPE weightL1 = weightL[1];
@@ -280,7 +281,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 		const FLOAT_TYPE weightR0 = weightR[0];
 		const FLOAT_TYPE weightR1 = weightR[1];
 		const FLOAT_TYPE weightR2 = weightR[2];
-
 		size_t loop_length = slice_length / first_dimension_loop_size;
 		UpwindFirstWENO5a_execute_dim0_cuda2(
 			dst_deriv_l_ptr, dst_deriv_r_ptr,
@@ -290,7 +290,7 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 			loop_length, src_target_dimension_loop_size, first_dimension_loop_size, slice_length,
 			stencil,
 			epsilonCalculationMethod_Type,
-			cudaStreams[dim]
+			cudaStream
 		);
 	}
 	else
@@ -298,8 +298,6 @@ bool UpwindFirstWENO5a_impl::execute_dim0(
 		const size_t src_target_dimension_loop_size = src_target_dimension_loop_sizes[dim];
 		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-		dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-		dst_deriv_r.set_cudaStream(cudaStreams[dim]);
 
 		const FLOAT_TYPE weightL0 = weightL[0];
 		const FLOAT_TYPE weightL1 = weightL[1];
@@ -529,8 +527,8 @@ bool UpwindFirstWENO5a_impl::execute_dim1(
 	if (type == beacls::UVecType_Cuda) {
 		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-		dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-		dst_deriv_r.set_cudaStream(cudaStreams[dim]);
+		dst_deriv_l.set_cudaStream(cudaStream);
+		dst_deriv_r.set_cudaStream(cudaStream);
 		const FLOAT_TYPE weightL0 = weightL[0];
 		const FLOAT_TYPE weightL1 = weightL[1];
 		const FLOAT_TYPE weightL2 = weightL[2];
@@ -544,7 +542,7 @@ bool UpwindFirstWENO5a_impl::execute_dim1(
 			num_of_slices, loop_length, first_dimension_loop_size, slice_length,
 			stencil,
 			epsilonCalculationMethod_Type,
-			cudaStreams[dim]
+			cudaStream
 		);
 	}
 	else
@@ -799,8 +797,8 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 	if (type == beacls::UVecType_Cuda) {
 		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-		dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-		dst_deriv_r.set_cudaStream(cudaStreams[dim]);
+		dst_deriv_l.set_cudaStream(cudaStream);
+		dst_deriv_r.set_cudaStream(cudaStream);
 		// Need to figure out which approximation has the least oscillation.
 		// Note that L and R in this section refer to neighboring divided
 		// difference entries, not to left and right approximations.
@@ -811,35 +809,23 @@ bool UpwindFirstWENO5a_impl::execute_dimLET2(
 		const FLOAT_TYPE weightR0 = weightR[0];
 		const FLOAT_TYPE weightR1 = weightR[1];
 		const FLOAT_TYPE weightR2 = weightR[2];
-		std::vector<size_t> tmpBoundedSrc_offset(num_of_slices * loop_length * (num_of_strides + 1));
-		for (size_t slice_index = 0; slice_index < num_of_slices; ++slice_index) {
-			for (size_t loop_index = 0; loop_index < loop_length; ++loop_index) {
-				for (size_t stride_index = 0; stride_index < num_of_strides+1; ++stride_index) {
-					const size_t src_slice_index = ((dim == 2) ? 0 : slice_index);
-					const size_t src_stride_offset = ((dim == 2) ? slice_index : 0);
-					size_t dst_index = stride_index + (loop_index + slice_index * loop_length) * (num_of_strides+1);
-					tmpBoundedSrc_offset[dst_index] = tmpBoundedSrc_ptrsss[src_slice_index][loop_index][stride_index+ src_stride_offset] - tmpBoundedSrc_ptrsss[0][0][0];
-				}
-			}
-		}
+		const size_t stride_distance = tmpBoundedSrc_ptrsss[0][0][1] - tmpBoundedSrc_ptrsss[0][0][0];
 		UpwindFirstWENO5a_execute_dimLET2_cuda2(
 			dst_deriv_l_ptr, dst_deriv_r_ptr,
-			tmpBoundedSrc_ptrsss[0][0][0], tmpBoundedSrc_offset.data(), 
+			tmpBoundedSrc_ptrsss[0][0][0], 
 			dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 			weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
 			num_of_slices, loop_length, first_dimension_loop_size, 
-			num_of_strides,
+			stride_distance,
 			slice_length,
 			epsilonCalculationMethod_Type,
-			cudaStreams[dim]
+			cudaStream
 		);
 	}
 	else
 	{
 		FLOAT_TYPE* dst_deriv_l_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_l).ptr();
 		FLOAT_TYPE* dst_deriv_r_ptr = beacls::UVec_<FLOAT_TYPE>(dst_deriv_r).ptr();
-		dst_deriv_l.set_cudaStream(cudaStreams[dim]);
-		dst_deriv_r.set_cudaStream(cudaStreams[dim]);
 		// Need to figure out which approximation has the least oscillation.
 		// Note that L and R in this section refer to neighboring divided
 		// difference entries, not to left and right approximations.
@@ -994,7 +980,6 @@ bool UpwindFirstWENO5a_impl::execute(
 		break;
 		}
 	}
-
 	return true;
 }
 

@@ -19,33 +19,33 @@ namespace beacls
 void* allocateCudaMem(const size_t s)
 {
 	void* ptr = NULL;
-	cudaMalloc((void**)&ptr,s);
+	CUDA_CHECK(cudaMalloc((void**)&ptr,s));
 	return ptr;
 
 }
 void freeCudaMem(void* ptr)
 {
-	if(ptr) cudaFree(ptr);
+	if(ptr) CUDA_CHECK(cudaFree(ptr));
 }
 void copyCudaDeviceToHost(void* dst, const void* src, size_t s)
 {
-	cudaMemcpy(dst,src,s,cudaMemcpyDeviceToHost);
+	CUDA_CHECK(cudaMemcpy(dst,src,s,cudaMemcpyDeviceToHost));
 }
 void copyCudaDeviceToDevice(void* dst, const void* src, size_t s)
 {
-	cudaMemcpy(dst,src,s,cudaMemcpyDeviceToDevice);
+	CUDA_CHECK(cudaMemcpy(dst,src,s,cudaMemcpyDeviceToDevice));
 }
 void copyCudaHostToDevice(void* dst, const void* src, size_t s)
 {
-	cudaMemcpy(dst,src,s,cudaMemcpyHostToDevice);
+	CUDA_CHECK(cudaMemcpy(dst,src,s,cudaMemcpyHostToDevice));
 }
 beacls::CudaStream_impl::CudaStream_impl() {
-	cudaStreamCreate(&stream);
+	CUDA_CHECK(cudaStreamCreate(&stream));
 //	cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking);
 }
 beacls::CudaStream_impl::~CudaStream_impl() {
 	if (stream) {
-		cudaStreamDestroy(stream);
+		CUDA_CHECK(cudaStreamDestroy(stream));
 	}
 }
 cudaStream_t beacls::CudaStream_impl::get_stream() {
@@ -73,25 +73,25 @@ cudaStream_t get_stream(const beacls::UVec& src) {
 void copyCudaDeviceToHostAsync(void* dst, const void* src, const size_t s, beacls::CudaStream* cudaStream) {
 	if (cudaStream) {
 		cudaStream_t stream = cudaStream->get_stream();
-		cudaMemcpyAsync(dst, src, s, cudaMemcpyDeviceToHost, stream);
+		CUDA_CHECK(cudaMemcpyAsync(dst, src, s, cudaMemcpyDeviceToHost, stream));
 	}
 }
 void copyCudaDeviceToDeviceAsync(void* dst, const void* src, const size_t s, beacls::CudaStream* cudaStream) {
 	if (cudaStream) {
 		cudaStream_t stream = cudaStream->get_stream();
-		cudaMemcpyAsync(dst, src, s, cudaMemcpyDeviceToDevice, stream);
+		CUDA_CHECK(cudaMemcpyAsync(dst, src, s, cudaMemcpyDeviceToDevice, stream));
 	}
 }
 void copyCudaHostToDeviceAsync(void* dst, const void* src, const size_t s, beacls::CudaStream* cudaStream) {
 	if (cudaStream) {
 		cudaStream_t stream = cudaStream->get_stream();
-		cudaMemcpyAsync(dst, src, s, cudaMemcpyHostToDevice, stream);
+		CUDA_CHECK(cudaMemcpyAsync(dst, src, s, cudaMemcpyHostToDevice, stream));
 	}
 }
 void synchronizeCuda(beacls::CudaStream* cudaStream) {
 	if (cudaStream) {
 		cudaStream_t stream = cudaStream->get_stream();
-		cudaStreamSynchronize(stream);
+		CUDA_CHECK(cudaStreamSynchronize(stream));
 	}
 }
 template<typename T>
@@ -125,6 +125,7 @@ void fillCudaMemory_template(T* dst_raw_ptr, const T val, size_t length) {
 	kernel_FillCudaMemory<T> << <num_of_blocks, num_of_threads, 0 >> >(
 		dst_raw_ptr, val, length
 		);
+	CUDA_CHECK(cudaPeekAtLastError());
 }
 void fillCudaMemory(uint8_t* dst, const uint8_t val, size_t s)
 {
@@ -201,6 +202,7 @@ void average_template(void* dst_raw_ptr, const void* src1_raw_ptr, const void* s
 	kernel_Average<T><<<num_of_blocks, num_of_threads, 0, stream>>>(
 		(T*)dst_raw_ptr, (const T*)src1_raw_ptr, (const T*)src2_raw_ptr, length
 		);
+	CUDA_CHECK(cudaPeekAtLastError());
 }
 void cudaAverage(beacls::UVec& dst_uvec, const beacls::UVec& src1, const beacls::UVec& src2) {
 	const size_t length = src1.size();

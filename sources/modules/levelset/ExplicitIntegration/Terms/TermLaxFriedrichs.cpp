@@ -118,6 +118,7 @@ bool TermLaxFriedrichs_impl::execute(
 				slice_length,
 				num_of_slices);
 			beacls::UVec& deriv_c_uvec = deriv_c_uvecs[dimension];
+			deriv_c_uvec.set_cudaStream(deriv_l_uvec.get_cudaStream());
 			beacls::average(deriv_l_uvec, deriv_r_uvec, deriv_c_uvec);
 		}
 #if 0
