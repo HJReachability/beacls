@@ -237,18 +237,20 @@ void kernel_dim0_EpsilonCalculationMethod_inline2(
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t stencil,
-	const size_t thread_length_z,
-	const size_t thread_length_y,
 	const size_t thread_length_x,
-	const size_t blockIdx_y,
+	const size_t thread_length_y,
+	const size_t thread_length_z,
 	const size_t blockIdx_x,
-	const size_t blockDim_y,
+	const size_t blockIdx_y,
+	const size_t blockIdx_z,
 	const size_t blockDim_x,
-	const size_t threadIdx_z,
-	const size_t threadIdx_y,
+	const size_t blockDim_y,
+	const size_t blockDim_z,
 	const size_t threadIdx_x,
+	const size_t threadIdx_y,
+	const size_t threadIdx_z,
 	const E e) {
-	const size_t global_thraed_index_z = threadIdx_z;
+	const size_t global_thraed_index_z = blockIdx_z * blockDim_z + threadIdx_z;
 	const size_t loop_index_z_base = global_thraed_index_z*thread_length_z;
 	const size_t actual_thread_length_z = get_actual_length(num_of_slices, thread_length_z, loop_index_z_base);
 	for (size_t loop_index_z = loop_index_z_base; loop_index_z < actual_thread_length_z + loop_index_z_base; ++loop_index_z) {
@@ -271,8 +273,15 @@ void kernel_dim0_EpsilonCalculationMethod_inline2(
 
 				//! Target dimension is first loop
 				const size_t loop_index_with_slice = loop_index_y + loop_index_z * loop_length;
-				const T* boundedSrc_ptr = boundedSrc_base_ptr + (first_dimension_loop_size + stencil * 2) * loop_index_with_slice;
-
+				const size_t src_offset = (first_dimension_loop_size + stencil * 2) * loop_index_with_slice;
+				const T* boundedSrc_ptr = boundedSrc_base_ptr + src_offset;
+#if 0
+				std::cout << 
+					dst_offset << ", " <<
+					src_offset << ", " <<
+					loop_index_x_base << ", " <<
+					actual_thread_length_x << std::endl;
+#endif
 				T d0_m0 = boundedSrc_ptr[loop_index_x_base];
 				T d0_m1 = 0;
 				T d1_m0 = 0;
@@ -375,10 +384,18 @@ void kernel_dim0_EpsilonCalculationMethod_inline2(
 					const size_t dst_index = loop_index_x + dst_offset;
 					T epsilonL, epsilonR;
 					calc_epsilon_dim0_cuda(epsilonL, epsilonR, pow_D1_src_0, pow_D1_src_1, pow_D1_src_2, pow_D1_src_3, pow_D1_src_4, D1_src_5, e);
+#if 1
+					dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
+					dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
+#else
 					if (dst_index < dst_slice_upperlimit) {
 						dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
 						dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
 					}
+					else {
+						std::cout << std::endl;
+					}
+#endif
 					smooth_m1_0 = smooth_m0_0;
 					smooth_m1_1 = smooth_m0_1;
 					smooth_m1_2 = smooth_m0_2;
@@ -443,18 +460,20 @@ void kernel_dim1_EpsilonCalculationMethod_inline2(
 	const size_t first_dimension_loop_size,
 	const size_t slice_length,
 	const size_t stencil,
-	const size_t thread_length_z,
-	const size_t thread_length_y,
 	const size_t thread_length_x,
-	const size_t blockIdx_y,
+	const size_t thread_length_y,
+	const size_t thread_length_z,
 	const size_t blockIdx_x,
-	const size_t blockDim_y,
+	const size_t blockIdx_y,
+	const size_t blockIdx_z,
 	const size_t blockDim_x,
-	const size_t threadIdx_z,
-	const size_t threadIdx_y,
+	const size_t blockDim_y,
+	const size_t blockDim_z,
 	const size_t threadIdx_x,
+	const size_t threadIdx_y,
+	const size_t threadIdx_z,
 	const E e) {
-	const size_t global_thraed_index_z = threadIdx_z;
+	const size_t global_thraed_index_z = blockIdx_z * blockDim_z + threadIdx_z;
 	const size_t loop_index_z_base = global_thraed_index_z*thread_length_z;
 	const size_t actual_thread_length_z = get_actual_length(num_of_slices, thread_length_z, loop_index_z_base);
 	const size_t prologue_length = stencil * 2;
@@ -467,7 +486,7 @@ void kernel_dim1_EpsilonCalculationMethod_inline2(
 		const size_t actual_thread_length_y = get_actual_length(loop_length, thread_length_y, loop_index_y_base);
 		if (actual_thread_length_y > 0) {
 			const size_t global_thread_index_x = blockIdx_x * blockDim_x + threadIdx_x;
-#if 0
+#if 1
 			const size_t loop_index_x_base = global_thread_index_x;
 			for (size_t fdl_index = loop_index_x_base; fdl_index < first_dimension_loop_size; fdl_index += blockDim_x) {
 #else
@@ -636,10 +655,18 @@ void kernel_dim1_EpsilonCalculationMethod_inline2(
 					T epsilonL, epsilonR;
 					calc_epsilon_dim0_cuda(epsilonL, epsilonR, pow_D1_src_0, pow_D1_src_1, pow_D1_src_2, pow_D1_src_3, pow_D1_src_4, D1_src_5, e);
 					const size_t dst_index = fdl_index + dst_offset;
+#if 1
+					dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
+					dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
+#else
 					if (dst_index < dst_slice_upperlimit) {
 						dst_deriv_l_ptr[dst_index] = weightWENO(dLL0, dLL1, dLL2, smooth_m1_0, smooth_m1_1, smooth_m1_2, weightL0, weightL1, weightL2, epsilonL);
 						dst_deriv_r_ptr[dst_index] = weightWENO(dRR0, dRR1, dRR2, smooth_m0_0, smooth_m0_1, smooth_m0_2, weightR0, weightR1, weightR2, epsilonR);
 					}
+					else {
+						std::cout << std::endl;
+					}
+#endif
 					smooth_m1_0 = smooth_m0_0;
 					smooth_m1_1 = smooth_m0_1;
 					smooth_m1_2 = smooth_m0_2;

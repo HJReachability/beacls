@@ -385,10 +385,12 @@ void get_cuda_thread_size(
 	const T num_of_threads_in_warp_x = 4;
 	const T num_of_threads_in_warp_y = 2;
 	const T num_of_blocks_z = 1;
+
+
 	const T available_num_of_threads_z = std::min(maximum_num_of_threads_z, std::max((T)1, (T)std::floor((double)maximum_num_of_threads / minimum_num_of_threads_x / minimum_num_of_threads_y)));
-	const T unlimited_num_of_threads_z = std::min(total_length_z, (T)std::ceil((double)total_length_z / minimum_thread_length_z / num_of_threads_in_warp_z)*num_of_threads_in_warp_z);
+	const T unlimited_num_of_threads_z = std::min(total_length_z, std::max<T>((T)1, (T)std::floor((double)total_length_z / minimum_thread_length_z / num_of_threads_in_warp_z))*num_of_threads_in_warp_z);
 	if (unlimited_num_of_threads_z < available_num_of_threads_z) {
-		num_of_threads_z = unlimited_num_of_threads_z;
+		num_of_threads_z = nextPow2(unlimited_num_of_threads_z);
 	}
 	else {
 		num_of_threads_z = available_num_of_threads_z;
@@ -396,9 +398,9 @@ void get_cuda_thread_size(
 	thread_length_z = (T)std::ceil((double)total_length_z / num_of_threads_z / num_of_blocks_z);
 
 	const T available_num_of_threads_x = std::min(maximum_num_of_threads_x, std::max((T)1, (T)std::floor((double)maximum_num_of_threads / num_of_threads_z / minimum_num_of_threads_y)));
-	const T unlimited_num_of_threads_x = std::min(total_length_x, (T)std::ceil((double)total_length_x / minimum_thread_length_x / num_of_threads_in_warp_x)*num_of_threads_in_warp_x);
+	const T unlimited_num_of_threads_x = std::min(total_length_x, std::max<T>((T)1, (T)std::floor((double)total_length_x / minimum_thread_length_x / num_of_threads_in_warp_x))*num_of_threads_in_warp_x);
 	if (unlimited_num_of_threads_x < available_num_of_threads_x) {
-		num_of_threads_x = unlimited_num_of_threads_x;
+		num_of_threads_x = nextPow2(unlimited_num_of_threads_x);
 		num_of_blocks_x = 1;
 	}
 	else if (unlimited_num_of_threads_x < available_num_of_threads_x * maximum_num_of_blocks_x) {
@@ -412,9 +414,9 @@ void get_cuda_thread_size(
 	thread_length_x = (T)std::ceil((double)total_length_x / num_of_threads_x / num_of_blocks_x);
 
 	const T available_num_of_threads_y = std::min(maximum_num_of_threads_y, std::max((T)1, (T)std::floor((double)maximum_num_of_threads / num_of_threads_z / num_of_threads_x)));
-	const T unlimited_num_of_threads_y = std::min(total_length_y, (T)std::ceil((double)total_length_y / minimum_thread_length_y / num_of_threads_in_warp_y)*num_of_threads_in_warp_y);
+	const T unlimited_num_of_threads_y = std::min(total_length_y, std::max<T>((T)1, (T)std::floor((double)total_length_y / minimum_thread_length_y / num_of_threads_in_warp_y))*num_of_threads_in_warp_y);
 	if (unlimited_num_of_threads_y < available_num_of_threads_y) {
-		num_of_threads_y = unlimited_num_of_threads_y;
+		num_of_threads_y = nextPow2(unlimited_num_of_threads_y);
 		num_of_blocks_y = 1;
 	}
 	else if (unlimited_num_of_threads_y < available_num_of_threads_y * maximum_num_of_blocks_y) {
