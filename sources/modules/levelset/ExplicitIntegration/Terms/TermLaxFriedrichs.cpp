@@ -103,7 +103,7 @@ bool TermLaxFriedrichs_impl::execute(
 	if (!cacheTag->check_tag(t, loop_begin, slice_length*num_of_slices)) {
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
 			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
-			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
+			const size_t dimension = index;
 			beacls::UVec& deriv_l_uvec = deriv_l_uvecs[dimension];
 			beacls::UVec& deriv_r_uvec = deriv_r_uvecs[dimension];
 

@@ -13,6 +13,7 @@ set OPENCV_RELEASE_BINS=opencv_world%OPENCV_VER%.dll
 set CUDA_PATH=$(CUDA_PATH_V9_0)
 set CUDA_LIBS=cudart.lib
 set CUDA_MACRO=WITH_GPU
+set PATH=%~dp0..\builds\x64\Release\bin;%~dp0..\builds\x64\Debug\bin;%PATH%
 
 echo Opening "beacls.sln" on Visua Studio 2015
 "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" "beacls.sln"

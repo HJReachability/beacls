@@ -39,14 +39,23 @@ void UpwindFirstWENO5a_execute_dim0_cuda2(
 	size_t num_of_threads_x;
 	size_t num_of_blocks_x;
 	size_t thread_length_x;
+#if 1
 	get_cuda_thread_size<size_t>(
 		thread_length_z, thread_length_y, thread_length_x,
 		num_of_threads_z, num_of_threads_y, num_of_threads_x,
 		num_of_blocks_y, num_of_blocks_x,
-		num_of_slices, loop_length, first_dimension_loop_size,
-		1, 1, 8, max_num_of_threads
+		first_dimension_loop_size, loop_length * num_of_slices, 1,
+		4, 1, 1, max_num_of_threads
 		);
-
+#else
+	get_cuda_thread_size<size_t>(
+		thread_length_z, thread_length_y, thread_length_x,
+		num_of_threads_z, num_of_threads_y, num_of_threads_x,
+		num_of_blocks_y, num_of_blocks_x,
+		first_dimension_loop_size, loop_length, num_of_slices,
+		4, 1, 1, max_num_of_threads
+		);
+#endif
 	switch (epsilonCalculationMethod_Type) {
 	case levelset::EpsilonCalculationMethod_Invalid:
 	default:
@@ -62,12 +71,12 @@ void UpwindFirstWENO5a_execute_dim0_cuda2(
 								dst_deriv_l_ptr, dst_deriv_r_ptr,
 								boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 								weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
-								num_of_slices, loop_length,
+								1, num_of_slices*loop_length,
 								src_target_dimension_loop_size, first_dimension_loop_size, slice_length,
 								stencil,
 								thread_length_z, thread_length_y, thread_length_x,
-								blockIdx_y, blockIdx_x,
-								num_of_threads_y, num_of_threads_x,
+								0, blockIdx_y, blockIdx_x,
+								num_of_threads_z, num_of_threads_y, num_of_threads_x,
 								threadIdx_z, threadIdx_y, threadIdx_x,
 								ECM_Constant_Cuda());
 						}
@@ -86,17 +95,31 @@ void UpwindFirstWENO5a_execute_dim0_cuda2(
 					for (size_t threadIdx_y = 0; threadIdx_y < num_of_threads_y; ++threadIdx_y) {
 						for (size_t threadIdx_x = 0; threadIdx_x < num_of_threads_x; ++threadIdx_x) {
 							kernel_dim0_EpsilonCalculationMethod_inline2(
+#if 1
 								dst_deriv_l_ptr, dst_deriv_r_ptr,
 								boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 								weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
-								num_of_slices, loop_length, 
+								1, num_of_slices*loop_length,
 								src_target_dimension_loop_size, first_dimension_loop_size, slice_length,
 								stencil,
 								thread_length_z, thread_length_y, thread_length_x,
-								blockIdx_y, blockIdx_x,
-								num_of_threads_y, num_of_threads_x,
+								0, blockIdx_y, blockIdx_x,
+								num_of_threads_z, num_of_threads_y, num_of_threads_x,
 								threadIdx_z, threadIdx_y, threadIdx_x,
 								ECM_MaxOverNeighbor_Cuda());
+#else
+								dst_deriv_l_ptr, dst_deriv_r_ptr,
+								boundedSrc_base_ptr, dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
+								weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
+								num_of_slices, loop_length,
+								src_target_dimension_loop_size, first_dimension_loop_size, slice_length,
+								stencil,
+								thread_length_z, thread_length_y, thread_length_x,
+								0, blockIdx_y, blockIdx_x,
+								num_of_threads_z, num_of_threads_y, num_of_threads_x,
+								threadIdx_z, threadIdx_y, threadIdx_x,
+								ECM_MaxOverNeighbor_Cuda());
+#endif
 						}
 					}
 				}
@@ -165,8 +188,8 @@ void UpwindFirstWENO5a_execute_dim1_cuda2(
 								num_of_slices, loop_length, first_dimension_loop_size, slice_length,
 								stencil,
 								thread_length_z, thread_length_y, thread_length_x,
-								blockIdx_y, blockIdx_x,
-								num_of_threads_y, num_of_threads_x,
+								0, blockIdx_y, blockIdx_x,
+								num_of_threads_z, num_of_threads_y, num_of_threads_x,
 								threadIdx_z, threadIdx_y, threadIdx_x,
 								ECM_Constant_Cuda());
 						}
@@ -191,8 +214,8 @@ void UpwindFirstWENO5a_execute_dim1_cuda2(
 								num_of_slices, loop_length, first_dimension_loop_size, slice_length,
 								stencil,
 								thread_length_z, thread_length_y, thread_length_x,
-								blockIdx_y, blockIdx_x,
-								num_of_threads_y, num_of_threads_x,
+								0, blockIdx_y, blockIdx_x,
+								num_of_threads_z, num_of_threads_y, num_of_threads_x,
 								threadIdx_z, threadIdx_y, threadIdx_x,
 								ECM_MaxOverNeighbor_Cuda());
 						}
@@ -241,7 +264,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 		thread_length_z, thread_length_y, thread_length_x,
 		num_of_threads_z, num_of_threads_y, num_of_threads_x,
 		num_of_blocks_y, num_of_blocks_x,
-		num_of_slices, loop_length, first_dimension_loop_size,
+		num_of_slices, 1, loop_length * first_dimension_loop_size,
 		1, 1, 1, max_num_of_threads
 		);
 
@@ -261,7 +284,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 								tmpBoundedSrc_ptr,
 								dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 								weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
-								num_of_slices, loop_length, first_dimension_loop_size,
+								num_of_slices, 1, loop_length * first_dimension_loop_size,
 								stride_distance,
 								slice_length,
 								thread_length_z, thread_length_y, thread_length_x,
@@ -289,7 +312,7 @@ void UpwindFirstWENO5a_execute_dimLET2_cuda2 (
 								tmpBoundedSrc_ptr,
 								dxInv, dxInv_2, dxInv_3, dx, x2_dx_square, dx_square,
 								weightL0, weightL1, weightL2, weightR0, weightR1, weightR2,
-								num_of_slices, loop_length, first_dimension_loop_size,
+								num_of_slices, 1, loop_length * first_dimension_loop_size,
 								stride_distance,
 								slice_length,
 								thread_length_z, thread_length_y, thread_length_x,

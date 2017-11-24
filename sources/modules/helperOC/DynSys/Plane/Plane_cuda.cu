@@ -1010,7 +1010,8 @@ bool dynamics_cell_helper_execute_cuda(
 		get_cuda_thread_size_1d<size_t>(
 			num_of_threads_x,
 			num_of_blocks_x,
-			loop_length
+			loop_length,
+			128
 			);
 		dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
 		dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
@@ -1269,7 +1270,8 @@ bool dynamics_cell_helper_execute_cuda(
 		get_cuda_thread_size_1d<size_t>(
 			num_of_threads_x,
 			num_of_blocks_x,
-			loop_length
+			loop_length,
+			128
 			);
 		dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
 		dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
