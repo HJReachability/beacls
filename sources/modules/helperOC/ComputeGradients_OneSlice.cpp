@@ -54,8 +54,7 @@ void helperOC::ComputeGradients_OneSlice_impl::execute(
 		beacls::copyHostPtrToUVecAsync(original_data_line_uvec, original_data.data() + expected_result_offset, slices_result_size);
 		std::vector<beacls::UVec> dummys(num_of_dimensions);
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
-			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
-			const size_t dim = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
+			const size_t dim = index;
 
 			beacls::UVec& deriv_c_line_uvec = deriv_c_line_uvecs[dim];
 			beacls::UVec& deriv_l_line_uvec = deriv_l_line_uvecs[dim];
