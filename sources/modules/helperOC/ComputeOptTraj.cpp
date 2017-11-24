@@ -63,7 +63,8 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 #if defined(VISUALIZE_BY_OPENCV)
 	cv::Mat BRSplot;
 #if defined(VISUALIZE_WITH_GUI)
-	cv::namedWindow("BRS1", 0);
+	if (visualize)
+		cv::namedWindow("BRS1", 0);
 #endif
 #endif	/* defined(VISUALIZE_BY_OPENCV) */
 	beacls::IntegerVec showDims;
