@@ -76,17 +76,35 @@ UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(
 	}
 	cudaStreams.resize(num_of_dimensions, NULL);
 	if (type == beacls::UVecType_Cuda) {
+#if 0
+		//!< Streams for dimension step wise double buffer 
+		for (size_t target_dimension = 0; target_dimension < num_of_dimensions; ++target_dimension) {
+			if (target_dimension < 2)
+				cudaStreams[target_dimension] = new beacls::CudaStream();
+			else
+				cudaStreams[target_dimension] = cudaStreams[target_dimension%2];
+		}
+#else
 		std::for_each(cudaStreams.begin(), cudaStreams.end(), [](auto& rhs) {
 			rhs = new beacls::CudaStream();
 		});
+#endif
 	}
 }
 UpwindFirstWENO5a_impl::~UpwindFirstWENO5a_impl() {
 	if (type == beacls::UVecType_Cuda) {
+#if 0
+		const size_t end_offset = std::min<size_t>(cudaStreams.size(), 2);
+		std::for_each(cudaStreams.begin(), cudaStreams.begin() + end_offset, [](auto& rhs) {
+			if (rhs) delete rhs;
+			rhs = NULL;
+		});
+#else
 		std::for_each(cudaStreams.begin(), cudaStreams.end(), [](auto& rhs) {
 			if (rhs) delete rhs;
 			rhs = NULL;
 		});
+#endif
 	}
 	if (cache) delete cache;
 	if (upwindFirstENO3aHelper) delete upwindFirstENO3aHelper;
@@ -214,9 +232,19 @@ UpwindFirstWENO5a_impl::UpwindFirstWENO5a_impl(const UpwindFirstWENO5a_impl& rhs
 	}
 	cudaStreams.resize(rhs.cudaStreams.size());
 	if (type == beacls::UVecType_Cuda) {
+#if 0
+		//!< Streams for dimension step wise double buffer 
+		for (size_t target_dimension = 0; target_dimension < cudaStreams.size(); ++target_dimension) {
+			if (target_dimension < 2)
+				cudaStreams[target_dimension] = new beacls::CudaStream();
+			else
+				cudaStreams[target_dimension] = cudaStreams[target_dimension % 2];
+		}
+#else
 		std::for_each(cudaStreams.begin(), cudaStreams.end(), [](auto& rhs) {
 			rhs = new beacls::CudaStream();
 		});
+#endif
 	}
 	tmpBoundedSrc_uvec_vectors.resize(rhs.tmpBoundedSrc_uvec_vectors.size());
 	tmpBoundedSrc_uvecs.resize(rhs.tmpBoundedSrc_uvecs.size());
