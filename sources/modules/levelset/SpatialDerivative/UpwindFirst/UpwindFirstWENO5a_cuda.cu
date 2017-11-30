@@ -315,7 +315,7 @@ void UpwindFirstWENO5a_execute_dim1_cuda2 (
 		num_of_threads_z, num_of_threads_y, num_of_threads_x,
 		num_of_blocks_y, num_of_blocks_x,
 		first_dimension_loop_size, loop_length, num_of_slices,
-		1, 8, 1, 128
+		1, 8, 1, 512
 		);
 	dim3 num_of_blocks((unsigned int)num_of_blocks_x, (unsigned int)num_of_blocks_y);
 	dim3 num_of_threads((unsigned int)num_of_threads_x, (unsigned int)num_of_threads_y, (unsigned int)num_of_threads_z);
