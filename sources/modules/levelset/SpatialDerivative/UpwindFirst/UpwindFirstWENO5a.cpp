@@ -740,7 +740,6 @@ void calc_deriv_dimLET2(
 				const T smoothR_0 = calcSmooth0(D1_src_1, D1_src_2, D1_src_3);
 				const T smoothR_1 = calcSmooth1(D1_src_2, D1_src_3, D1_src_4);
 				const T smoothR_2 = calcSmooth2(D1_src_3, D1_src_4, D1_src_5);
-				const T epsilon = (T)1e-6;
 
 				const size_t dst_index = first_dimension_loop_index + dst_offset;
 				T epsilonL, epsilonR;
