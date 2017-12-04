@@ -24,16 +24,8 @@ void kernel_Dissipation(
 	const size_t loop_length) {
 	extern __shared__ uint8_t shared_area[];
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)&shared_area;
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	size_t i = (blockIdx.x*(blockSize)+tid);

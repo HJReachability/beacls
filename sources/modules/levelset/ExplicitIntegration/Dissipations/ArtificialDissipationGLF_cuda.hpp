@@ -34,6 +34,36 @@ void dev_max(T& dst_max, const T& lhs) {
 	}
 }
 
+template<size_t blockSize, typename T, bool vector_alpha, bool updateDerivMinMax>
+inline
+__device__
+T* get_min_data_ptr(T* ptr) {
+	if (updateDerivMinMax) {
+		if (vector_alpha)
+			return (T*)&ptr[blockSize];
+		else
+			return ptr;
+	}
+	else {
+		return NULL;
+	}
+}
+template<size_t blockSize, typename T, bool vector_alpha, bool updateDerivMinMax>
+inline
+__device__
+T* get_max_data_ptr(T* ptr) {
+	if (updateDerivMinMax) {
+		if (vector_alpha)
+			return (T*)&ptr[blockSize * 2];
+		else
+			return (T*)&ptr[blockSize];
+	}
+	else {
+		return NULL;
+	}
+}
+
+
 void ArtificialDissipationGLF_execute_cuda
 (
 	beacls::UVec& diss_uvec,
