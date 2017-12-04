@@ -33,16 +33,8 @@ void kernel_Dissipation_start(
 	std::vector<uint8_t>& shared_area
 	) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	size_t i = (blockIdx.x*(blockSize)+tid);
@@ -85,16 +77,8 @@ void kernel_Dissipation_step1024(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -113,16 +97,8 @@ void kernel_Dissipation_step512(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -141,16 +117,8 @@ void kernel_Dissipation_step256(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -169,16 +137,8 @@ void kernel_Dissipation_step128(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -197,16 +157,8 @@ void kernel_Dissipation_step64(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -225,16 +177,8 @@ void kernel_Dissipation_step32(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -253,16 +197,8 @@ void kernel_Dissipation_step16(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -281,16 +217,8 @@ void kernel_Dissipation_step8(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -309,16 +237,8 @@ void kernel_Dissipation_step4(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -337,16 +257,8 @@ void kernel_Dissipation_step2(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -369,16 +281,8 @@ void kernel_Dissipation_step1(
 	std::vector<uint8_t>& shared_area
 ) {
 	FLOAT_TYPE* s_max_a_data = (FLOAT_TYPE*)shared_area.data();
-	FLOAT_TYPE* s_min_data;
-	FLOAT_TYPE* s_max_data;
-	if (updateDerivMinMax) {
-		s_min_data = (FLOAT_TYPE*)&s_max_a_data[blockSize];
-		s_max_data = (FLOAT_TYPE*)&s_min_data[blockSize];
-	}
-	else {
-		s_min_data = NULL;
-		s_max_data = NULL;
-	}
+	FLOAT_TYPE* s_min_data = get_min_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
+	FLOAT_TYPE* s_max_data = get_max_data_ptr<blockSize, FLOAT_TYPE, vector_alpha, updateDerivMinMax>(s_max_a_data);
 
 	const size_t tid = threadIdx.x;
 	if (updateDerivMinMax || vector_alpha) {
@@ -516,7 +420,6 @@ void launch_kernel_Dissipation(
 
 	std::vector<uint8_t> shared_area(smemSize);
 	dim3 gridDim = num_of_threads;
-
 	switch (num_of_threads_x) {
 	case 1024:
 		kernel_Dissipation_launcher<1024, vector_alpha, dim0, updateDerivMinMax>(
