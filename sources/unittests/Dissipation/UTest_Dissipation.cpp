@@ -257,6 +257,7 @@ bool run_UTest_Dissipation(
 	for_each(derivMins.begin(), derivMins.end(), ([](auto& rhs) { rhs.clear(); }));
 	for_each(derivMaxs.begin(), derivMaxs.end(), ([](auto& rhs) { rhs.clear(); }));
 	do {
+		std::fill(executeAgains.begin(), executeAgains.end(), false);
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -352,7 +353,6 @@ bool run_UTest_Dissipation(
 					FLOAT_TYPE* diss_line_ptr = beacls::UVec_<FLOAT_TYPE>(tmp_diss).ptr();
 					FLOAT_TYPE* results_ptr = beacls::UVec_<FLOAT_TYPE>(results).ptr();
 					memcpy(results_ptr + expected_result_offset, diss_line_ptr, slices_result_size * sizeof(FLOAT_TYPE));
-					executeAgains[parallel_line_index] = false;
 				}
 				else {
 					executeAgains[parallel_line_index] = true;
