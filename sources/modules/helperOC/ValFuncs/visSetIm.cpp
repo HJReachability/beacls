@@ -34,7 +34,7 @@ namespace helperOC {
 	static bool plot(
 		cv::Mat& dst_img,
 		const cv::Mat& src_img,
-		const beacls::FloatVec& x0,
+		const beacls::FloatVec& v0,
 		const beacls::FloatVec& data,
 		const std::vector<float>& color,
 		const cv::Size dsize = cv::Size(),
@@ -44,8 +44,8 @@ namespace helperOC {
 	static bool contour(
 		cv::Mat& dst_img,
 		const cv::Mat& src_img,
-		const beacls::FloatVec& x0,
-		const beacls::FloatVec& x1,
+		const beacls::FloatVec& v0,
+		const beacls::FloatVec& v1,
 		const beacls::FloatVec& data,
 		const beacls::IntegerVec& Ns,
 		const beacls::FloatVec& level = beacls::FloatVec(),
@@ -58,7 +58,7 @@ namespace helperOC {
 static bool helperOC::plot(
 	cv::Mat& dst_img,
 	const cv::Mat& src_img,
-	const beacls::FloatVec& x0,
+	const beacls::FloatVec& v0,
 	const beacls::FloatVec& data,
 	const std::vector<float>& color,
 	const cv::Size dsize,
@@ -104,9 +104,9 @@ static bool helperOC::plot(
 	}
 	cv::polylines(tmp_img, nodes, true, color_s, thickness, cv::LINE_AA);
 
-	auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(x0.cbegin(), x0.cend());
-	const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
-	const int height = (int)std::round(x0_range * actual_fy);
+	auto v0MinMax = beacls::minmax_value<FLOAT_TYPE>(v0.cbegin(), v0.cend());
+	const FLOAT_TYPE v0_range = v0MinMax.second - v0MinMax.first;
+	const int height = (int)std::round(v0_range);
 	cv::resize(tmp_img, dst_img, cv::Size(tmp_img.size().width, height));
 	cv::copyMakeBorder(tmp_img, tmp_img, top_margin, bottom_margin, left_margin, right_margin, cv::BORDER_CONSTANT, cv::Scalar(255, 255, 255));
 	dst_img.convertTo(dst_img, CV_8UC3, 255);
@@ -115,8 +115,8 @@ static bool helperOC::plot(
 static bool helperOC::contour(
 	cv::Mat& dst_img,
 	const cv::Mat& src_img,
-	const beacls::FloatVec& x0,
-	const beacls::FloatVec& x1,
+	const beacls::FloatVec& v0,
+	const beacls::FloatVec& v1,
 	const beacls::FloatVec& data,
 	const beacls::IntegerVec& Ns,
 	const beacls::FloatVec& level,
@@ -134,14 +134,14 @@ static bool helperOC::contour(
 	data_img.convertTo(data_img, CV_32FC1);
 	data_img = data_img.reshape(1, (int)Ns[1]);
 
-	auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(x0.cbegin(), x0.cend());
-	auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(x1.cbegin(), x1.cend());
-	const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
-	const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
-
-	const double org_width = x0_range;
-	const double org_height = x1_range;
-	double actual_fx = 1.;
+	auto v0MinMax = beacls::minmax_value<FLOAT_TYPE>(v0.cbegin(), v0.cend());
+	auto v1MinMax = beacls::minmax_value<FLOAT_TYPE>(v1.cbegin(), v1.cend());
+	const FLOAT_TYPE v0_range = v0MinMax.second - v0MinMax.first;
+	const FLOAT_TYPE v1_range = v1MinMax.second - v1MinMax.first;
+	const int width = (int)std::ceil(v0_range);
+	const int height = (int)std::ceil(v1_range);
+	const FLOAT_TYPE left_offset = v0MinMax.first;
+	const FLOAT_TYPE top_offset = v1MinMax.first;
 	double actual_fy = 1.;
 	cv::Size size;
 	if ((dsize.height != 0) && (dsize.width != 0)) {
@@ -157,8 +157,6 @@ static bool helperOC::contour(
 	const int width = size.width;
 	const int height = size.height;
 
-	const FLOAT_TYPE left_offset = x0MinMax.first;
-	const FLOAT_TYPE top_offset = x1MinMax.first;
 
 	cv::Mat tmp_img;
 	cv::Size margined_size(width + left_margin + right_margin, height + top_margin + bottom_margin);
@@ -217,14 +215,14 @@ bool helperOC::visSetIm_single(
 
 	switch (gDim) {
 	case 1:
-		plot(dst_img, fliped_src, g->get_xs(0), data, color, dsize, fx, fy);
+		plot(dst_img, fliped_src, g->get_vs(0), data, color, dsize, fx, fy);
 		break;
 	case 2:
 		if (level.empty()) {
-			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), beacls::FloatVec{ (FLOAT_TYPE)0 }, color, dsize, fx, fy);
+			contour(dst_img, fliped_src, g->get_vs(0), g->get_vs(1), data, g->get_Ns(), beacls::FloatVec{(FLOAT_TYPE)0}, color, dsize, fx, fy);
 		}
 		else {
-			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), level, color, dsize, fx, fy);
+			contour(dst_img, fliped_src, g->get_vs(0), g->get_vs(1), data, g->get_Ns(), level, color, dsize, fx, fy);
 		}
 		break;
 	case 3:
