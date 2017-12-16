@@ -19,6 +19,7 @@
 #include <iostream>
 #include <cstring>
 #include <utility>
+#include <Core/UVec.hpp>
 using namespace std::rel_ops;
 
 
@@ -155,6 +156,12 @@ namespace levelset {
 			const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const;
 		PREFIX_VC_DLL
 			const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const;
+		PREFIX_VC_DLL
+			void get_xs(
+				beacls::UVec& x_uvec,
+				const size_t dimension,
+				const size_t start_index = 0,
+				const size_t length = 0) const;
 		const std::vector<FLOAT_TYPE>& get_axis() const;
 		const std::vector<size_t>& get_shape() const;
 

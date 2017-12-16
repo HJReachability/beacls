@@ -143,11 +143,10 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 			const int top_margin = 25;
 			const int bottom_margin = 25;
 			const int thickness = 1;
-			const beacls::FloatVec& xs0 = grid->get_xs(0);
-			const beacls::FloatVec& xs1 = grid->get_xs(1);
-
-			const auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(xs0.cbegin(), xs0.cend());
-			const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(xs1.cbegin(), xs1.cend());
+			const beacls::FloatVec& vs0 = grid->get_vs(0);
+			const beacls::FloatVec& vs1 = grid->get_vs(1);
+			const auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(vs0.cbegin(), vs0.cend());
+			const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(vs1.cbegin(), vs1.cend());
 			const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
 			const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
 

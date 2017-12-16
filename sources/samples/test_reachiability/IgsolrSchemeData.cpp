@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <typeinfo>
+#include <Core/UVec.hpp>
 
 IgsolrSchemeData::IgsolrSchemeData(
 	const beacls::IntegerVec &gridcounts,
@@ -131,8 +132,18 @@ bool IgsolrSchemeData::hamFunc(
 	const size_t length
 	) const {
 	const levelset::HJI_Grid *hji_grid = get_grid();
+#if 0
 	const beacls::FloatVec &xs1 = hji_grid->get_xs(1);
 	const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
+#else
+	beacls::UVec x1_uvec;
+	beacls::UVec x2_uvec;
+	hji_grid->get_xs(x1_uvec, 1, begin_index, length);
+	hji_grid->get_xs(x2_uvec, 2, begin_index, length);
+	const FLOAT_TYPE* xs1_ptr = beacls::UVec_<const FLOAT_TYPE>(x1_uvec).ptr();
+	const FLOAT_TYPE* xs2_ptr = beacls::UVec_<const FLOAT_TYPE>(x2_uvec).ptr();
+#endif
+
 	beacls::reallocateAsSrc(hamValue_uvec, derivs[0]);
 	FLOAT_TYPE* hamValue = beacls::UVec_<FLOAT_TYPE>(hamValue_uvec).ptr();
 	const FLOAT_TYPE* deriv0 = beacls::UVec_<FLOAT_TYPE>(derivs[0]).ptr();
@@ -145,6 +156,7 @@ bool IgsolrSchemeData::hamFunc(
 		FLOAT_TYPE u_limit_value = (kp_deriv2 >= 0) ? u_max : u_min;
 		FLOAT_TYPE deriv1_i = deriv1[i];
 		FLOAT_TYPE d_limit_value = (deriv1_i >= 0) ? d_min[begin_index + i] : d_max[begin_index + i];
+#if 0
 		FLOAT_TYPE xs2_i = xs2[begin_index + i];
 
 		FLOAT_TYPE deriv0_i = deriv0[i];
@@ -155,6 +167,18 @@ bool IgsolrSchemeData::hamFunc(
 			+ -pre_calc_value2 * deriv2_i
 			+ kp_deriv2 * u_limit_value
 			+ deriv1_i * d_limit_value);
+#else
+		FLOAT_TYPE xs2_i = xs2_ptr[i];
+
+		FLOAT_TYPE deriv0_i = deriv0[i];
+		FLOAT_TYPE pre_calc_value1 = k_t * xs2_i * xs2_i + g;
+		FLOAT_TYPE pre_calc_value2 = k_p * xs2_i;
+		hamValue[i] = -(xs1_ptr[i] * deriv0_i
+			+ pre_calc_value1 * deriv1_i
+			+ -pre_calc_value2 * deriv2_i
+			+ kp_deriv2 * u_limit_value
+			+ deriv1_i * d_limit_value);
+#endif
 	}
 	return true;
 
@@ -177,25 +201,47 @@ bool IgsolrSchemeData::partialFunc(
 	switch (dim) {
 	case 0:
 	{
-		const beacls::FloatVec& xs1 = hji_grid->get_xs(1);
+#if 0
+		const beacls::FloatVec &xs1 = hji_grid->get_xs(1);
 		for (size_t i = 0; i<length; ++i) {
 			alphas[i] = HjiFabs<FLOAT_TYPE>(xs1[begin_index + i]);
 		}
+#else
+		beacls::UVec x1_uvec;
+		hji_grid->get_xs(x1_uvec, 1, begin_index, length);
+		const FLOAT_TYPE* xs1_ptr = beacls::UVec_<const FLOAT_TYPE>(x1_uvec).ptr();
+		for (size_t i = 0; i<length; ++i) {
+			alphas[i] = HjiFabs<FLOAT_TYPE>(xs1_ptr[i]);
+		}
+#endif
 	}
 	break;
 	case 1:
 	{
-		const beacls::FloatVec& xs2 = hji_grid->get_xs(2);
+#if 0
+		const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
 		for (size_t i = 0; i<length; ++i) {
 			const FLOAT_TYPE tmp = HjiMax(HjiFabs<FLOAT_TYPE>(d_max[begin_index + i]), HjiFabs<FLOAT_TYPE>(d_min[begin_index + i]));
 			const FLOAT_TYPE xs2_i = xs2[begin_index + i];
 			const FLOAT_TYPE tmp2 = k_t * xs2_i * xs2_i + g;
 			alphas[i] = HjiFabs<FLOAT_TYPE>(tmp2) + tmp;
 		}
+#else
+		beacls::UVec x2_uvec;
+		hji_grid->get_xs(x2_uvec, 2, begin_index, length);
+		const FLOAT_TYPE* xs2_ptr = beacls::UVec_<const FLOAT_TYPE>(x2_uvec).ptr();
+		for (size_t i = 0; i<length; ++i) {
+			const FLOAT_TYPE tmp = HjiMax(HjiFabs<FLOAT_TYPE>(d_max[begin_index + i]), HjiFabs<FLOAT_TYPE>(d_min[begin_index + i]));
+			const FLOAT_TYPE xs2_i = xs2_ptr[i];
+			const FLOAT_TYPE tmp2 = k_t * xs2_i * xs2_i + g;
+			alphas[i] = HjiFabs<FLOAT_TYPE>(tmp2) + tmp;
+		}
+#endif
 	}
 	break;
 	case 2:
 	{
+#if 0
 		const beacls::FloatVec& xs2 = hji_grid->get_xs(2);
 		FLOAT_TYPE fabs_kp = HjiFabs<FLOAT_TYPE>(k_p);
 		const FLOAT_TYPE tmp = HjiMax(HjiFabs<FLOAT_TYPE>(u_max), HjiFabs<FLOAT_TYPE>(u_min));
@@ -203,6 +249,17 @@ bool IgsolrSchemeData::partialFunc(
 			const FLOAT_TYPE tmp2 = k_p * xs2[begin_index + i];
 			alphas[i] = HjiFabs<FLOAT_TYPE>(tmp2) + fabs_kp * tmp;
 		}
+#else
+		beacls::UVec x2_uvec;
+		hji_grid->get_xs(x2_uvec, 2, begin_index, length);
+		const FLOAT_TYPE* xs2_ptr = beacls::UVec_<const FLOAT_TYPE>(x2_uvec).ptr();
+		FLOAT_TYPE fabs_kp = HjiFabs<FLOAT_TYPE>(k_p);
+		const FLOAT_TYPE tmp = HjiMax(HjiFabs<FLOAT_TYPE>(u_max), HjiFabs<FLOAT_TYPE>(u_min));
+		for (size_t i = 0; i<length; ++i) {
+			const FLOAT_TYPE tmp2 = k_p * xs2_ptr[i];
+			alphas[i] = HjiFabs<FLOAT_TYPE>(tmp2) + fabs_kp * tmp;
+		}
+#endif
 	}
 	break;
 	default:

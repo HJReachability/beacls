@@ -16,6 +16,7 @@
 #include <levelset/BoundaryCondition/BoundaryCondition.hpp>
 #include <levelset/BoundaryCondition/AddGhostExtrapolate.hpp>
 #include <levelset/BoundaryCondition/AddGhostPeriodic.hpp>
+#include <Core/UVec.hpp>
 using namespace levelset;
 
 template<typename T>
@@ -643,6 +644,82 @@ bool HJI_Grid_impl::processGrid(
 
 	return true;
 }
+void HJI_Grid_impl::calc_xs(
+	beacls::UVec& x_uvec,
+	const size_t dimension,
+	const size_t start_index,
+	const size_t length) const {
+	size_t modified_length;
+	size_t num_of_elements = get_sum_of_elems();
+	if (length > 0) {
+		if (start_index + length < num_of_elements) {
+			modified_length = length;
+		}
+		else {
+			modified_length = num_of_elements - start_index;
+		}
+	}
+	else {
+		modified_length = num_of_elements;
+	}
+
+
+	x_uvec.resize(modified_length);
+	beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvec).vec();
+
+	//! Transposing copy
+	size_t inner_dimensions_loop_size = 1;
+	size_t target_dimension_loop_size = 1;
+	size_t outer_dimensions_loop_size = 1;
+	for (size_t target_dimension = 0; target_dimension < dimension; ++target_dimension) {
+		inner_dimensions_loop_size *= Ns[target_dimension];
+	}
+	target_dimension_loop_size = Ns[dimension];
+	for (size_t target_dimension = dimension + 1; target_dimension < num_of_dimensions; ++target_dimension) {
+		outer_dimensions_loop_size *= Ns[target_dimension];
+	}
+	if (inner_dimensions_loop_size == 1) {
+		for (size_t outer_dimensions_loop_index = 0; outer_dimensions_loop_index < outer_dimensions_loop_size; ++outer_dimensions_loop_index) {
+			size_t outer_index_term = outer_dimensions_loop_index * target_dimension_loop_size;
+			std::copy(vss[dimension].cbegin(), vss[dimension].cend(), xs_ptr->begin() + outer_index_term);
+		}
+	}
+	else {
+		for (size_t outer_dimensions_loop_index = 0; outer_dimensions_loop_index < outer_dimensions_loop_size; ++outer_dimensions_loop_index) {
+			size_t outer_index_term = outer_dimensions_loop_index * target_dimension_loop_size * inner_dimensions_loop_size;
+			for (size_t target_dimension_loop_index = 0; target_dimension_loop_index < target_dimension_loop_size; ++target_dimension_loop_index) {
+				const size_t target_index_term = target_dimension_loop_index * inner_dimensions_loop_size;
+				const size_t dst_offset = outer_index_term + target_index_term;
+				const FLOAT_TYPE vs_val = vss[dimension][target_dimension_loop_index];
+				std::fill(xs_ptr->begin() + dst_offset, xs_ptr->begin() + dst_offset + inner_dimensions_loop_size, vs_val);
+			}
+		}
+	}
+}
+void HJI_Grid_impl::get_xs(
+	beacls::UVec& x_uvec,
+	const size_t dimension,
+	const size_t start_index,
+	const size_t length) const {
+	size_t modified_length;
+	size_t num_of_elements = get_sum_of_elems();
+	if (length > 0) {
+		if (start_index + length < num_of_elements) {
+			modified_length = length;
+		}
+		else {
+			modified_length = num_of_elements - start_index;
+		}
+	}
+	else {
+		modified_length = num_of_elements;
+	}
+	beacls::UVecDepth depth = beacls::type_to_depth<FLOAT_TYPE>();
+	if (x_uvec.type() == beacls::UVecType_Invalid) x_uvec = beacls::UVec(depth, beacls::UVecType_Vector, modified_length);
+	else if (x_uvec.size() != modified_length) x_uvec.resize(modified_length);
+	beacls::copyHostPtrToUVecAsync(x_uvec, xss[dimension].data() + start_index, modified_length);
+}
+
 HJI_Grid::HJI_Grid(
 ) {
 	pimpl = new HJI_Grid_impl();
@@ -753,6 +830,13 @@ const std::vector<FLOAT_TYPE>& HJI_Grid::get_vs(const size_t dimension) const {
 const std::vector<FLOAT_TYPE>& HJI_Grid::get_xs(const size_t dimension) const {
 	if (pimpl) return pimpl->get_xs(dimension);
 	else return dummy_float_type_vector;
+}
+void HJI_Grid::get_xs(
+	beacls::UVec& x_uvec,
+	const size_t dimension,
+	const size_t start_index,
+	const size_t length) const {
+	if (pimpl) pimpl->get_xs(x_uvec, dimension, start_index, length);
 }
 const std::vector<FLOAT_TYPE>& HJI_Grid::get_axis() const {
 	if (pimpl) return pimpl->get_axis();

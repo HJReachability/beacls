@@ -46,15 +46,17 @@ bool ShapeCylinder_impl::execute(const HJI_Grid *grid, beacls::FloatVec& data)
 	const size_t num_of_elements = grid->get_numel();
 
 	data.assign(num_of_elements,0);
+	const size_t begin_index = 0;
+	const size_t length = 0;
 
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 		if (std::all_of(ignoreDims.cbegin(), ignoreDims.cend(), 
 			[dimension](const auto& rhs) { return rhs != dimension; })) {
-			const beacls::FloatVec &xs = grid->get_xs(dimension);
-
+			beacls::UVec x_uvec;
+			grid->get_xs(x_uvec, dimension, begin_index, length);
+			const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvec).vec();
 			FLOAT_TYPE center_d = modified_center[dimension];
-			std::transform(xs.cbegin(), xs.cend(), data.begin(), data.begin(), 
-				([center_d](const auto &xs_i, const auto &data_i) {
+			std::transform(xs_ptr->cbegin(), xs_ptr->cend(), data.begin(), data.begin(), ([center_d](const auto &xs_i, const auto &data_i) {
 				return data_i + std::pow((xs_i - center_d), 2);
 			}));
 		}
