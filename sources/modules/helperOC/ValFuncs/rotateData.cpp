@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <Core/UVec.hpp>
 
 bool helperOC::rotateData(
 	beacls::FloatVec& dataOut,
@@ -16,15 +17,22 @@ bool helperOC::rotateData(
 	const beacls::Interpolate_Type interp_method
 	)
 {
-	const beacls::FloatVec& xs_pdims0 = g->get_xs(pdims[0]);
-	const beacls::FloatVec& xs_pdims1 = g->get_xs(pdims[1]);
-	std::vector<beacls::FloatVec> rxss(xs_pdims0.size());
-	rxss[pdims[0]].resize(xs_pdims0.size());
-	rxss[pdims[1]].resize(xs_pdims1.size());
+	const size_t begin_index = 0;
+	const size_t length = 0;
+	beacls::UVec xs_pdims0_uvec;
+	beacls::UVec xs_pdims1_uvec;
+	g->get_xs(xs_pdims0_uvec, pdims[0], begin_index, length);
+	g->get_xs(xs_pdims1_uvec, pdims[0], begin_index, length);
+	const beacls::FloatVec* xs_pdims0_ptr = beacls::UVec_<FLOAT_TYPE>(xs_pdims0_uvec).vec();
+	const beacls::FloatVec* xs_pdims1_ptr = beacls::UVec_<FLOAT_TYPE>(xs_pdims1_uvec).vec();
+
+	std::vector<beacls::FloatVec> rxss(xs_pdims0_ptr->size());
+	rxss[pdims[0]].resize(xs_pdims0_ptr->size());
+	rxss[pdims[1]].resize(xs_pdims1_ptr->size());
 
 	//!< Get a list of new indices
 	//!< Multiply by rotation matrix for position dimensions
-	std::transform(xs_pdims0.cbegin(), xs_pdims0.cend(), xs_pdims1.cbegin(), rxss.begin(), [theta, pdims, adims](const auto& lhs, const auto& rhs) {
+	std::transform(xs_pdims0_ptr->cbegin(), xs_pdims0_ptr->cend(), xs_pdims1_ptr->cbegin(), rxss.begin(), [theta, pdims, adims](const auto& lhs, const auto& rhs) {
 		beacls::FloatVec res(2+adims.size());
 		res[pdims[0]] = std::cos(-theta) * lhs - sin(-theta) * rhs;
 		res[pdims[1]] = std::sin(-theta) * lhs + cos(-theta) * rhs;
@@ -32,10 +40,13 @@ bool helperOC::rotateData(
 	});
 	//!< Translate in angle
 	if (!adims.empty()) {
-		std::for_each(adims.cbegin(), adims.cend(), [theta, &rxss, g](const auto& rhs) {
+		std::for_each(adims.cbegin(), adims.cend(), [theta, &rxss, g, begin_index, length](const auto& rhs) {
 			const size_t adim = rhs;
-			const beacls::FloatVec& xs_adim = g->get_xs(rhs);
-			std::transform(xs_adim.cbegin(), xs_adim.cend(), rxss.begin(), rxss.begin(), [theta, adim](const auto& lhs, auto& rhs) {
+
+			beacls::UVec xs_adim_uvec;
+			g->get_xs(xs_adim_uvec, adim, begin_index, length);
+			const beacls::FloatVec* xs_adim_ptr = beacls::UVec_<FLOAT_TYPE>(xs_adim_uvec).vec();
+			std::transform(xs_adim_ptr->cbegin(), xs_adim_ptr->cend(), rxss.begin(), rxss.begin(), [theta, adim](const auto& lhs, auto& rhs) {
 				rhs[adim] = lhs - theta;
 				return rhs;
 			});

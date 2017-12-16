@@ -133,16 +133,22 @@ bool TermLaxFriedrichs_impl::execute(
 		x_uvecs.resize(num_of_dimensions);
 		if (enable_user_defined_dynamics_on_gpu && (type == beacls::UVecType_Cuda)) {
 			for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
-				if (x_uvecs[dimension].type() != beacls::UVecType_Cuda) x_uvecs[dimension] = beacls::UVec(depth, beacls::UVecType_Cuda, grid_length);
+				if (x_uvecs[dimension].type() != beacls::UVecType_Cuda)
+					x_uvecs[dimension] = beacls::UVec(depth, beacls::UVecType_Cuda, grid_length);
 				else x_uvecs[dimension].resize(grid_length);
 			}
 		}
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
 			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
 			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
+#if 0
 			const beacls::FloatVec& xs = grid->get_xs(dimension);
 			x_uvecs[dimension].set_cudaStream(cudaStream);
 			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
+#else
+			x_uvecs[dimension].set_cudaStream(cudaStream);
+			grid->get_xs(x_uvecs[dimension], dimension, src_index_term, grid_length);
+#endif
 		}
 	}
 	if (!cacheTag->check_tag(t, loop_begin, slice_length*num_of_slices)) {

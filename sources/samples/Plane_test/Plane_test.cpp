@@ -106,7 +106,11 @@ int main(int argc, char *argv[])
 	extraArgs.targets = targets;
 	extraArgs.obstacles = obstacles;
 	extraArgs.stopInit = pl->get_x();
+#if 1
 	extraArgs.visualize = true;
+#else
+	extraArgs.visualize = false;
+#endif
 	extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0 };
 	extraArgs.plotData.projpt = beacls::FloatVec{ pl->get_x()[2] };
 	extraArgs.deleteLastPlot = true;

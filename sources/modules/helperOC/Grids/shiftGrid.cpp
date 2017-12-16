@@ -31,7 +31,13 @@ levelset::HJI_Grid* helperOC::shiftGrid(
 	std::vector<beacls::FloatVec> shifted_vss(shiftAmount.size());
 	beacls::FloatVec shifted_mins(shiftAmount.size());
 	beacls::FloatVec shifted_maxs(shiftAmount.size());
+	const size_t begin_index = 0;
+	const size_t length = 0;
 	for (size_t dimension = 0; dimension < shiftAmount.size(); ++dimension) {
+		beacls::UVec x_uvec;
+		gIn->get_xs(x_uvec, dimension, begin_index, length);
+		const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvec).vec();
+
 		const beacls::FloatVec& xs = gIn->get_xs(dimension);
 		beacls::FloatVec& shifted_xs = shifted_xss[dimension];
 		beacls::FloatVec& shifted_vs = shifted_vss[dimension];

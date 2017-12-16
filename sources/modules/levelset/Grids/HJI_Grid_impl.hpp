@@ -125,6 +125,16 @@ namespace levelset {
 		const std::vector<std::vector<FLOAT_TYPE> >& get_xss() const { return xss; }
 		const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const { return vss[dimension]; }
 		const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const { return xss[dimension]; }
+		void calc_xs(
+			beacls::UVec& x_uvec,
+			const size_t dimension,
+			const size_t start_index,
+			const size_t length) const;
+		void get_xs(
+			beacls::UVec& x_uvec,
+			const size_t dimension,
+			const size_t start_index,
+			const size_t length) const;
 		const std::vector<FLOAT_TYPE>& get_axis() const { return axis; }
 		const std::vector<size_t>& get_shape() const { return shape; }
 

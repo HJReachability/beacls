@@ -25,9 +25,21 @@ bool Air3DSchemeData::hamFunc(
 	const size_t length
 	) const {
 	const levelset::HJI_Grid *hji_grid = get_grid();
+#if 0
 	const beacls::FloatVec &xs0 = hji_grid->get_xs(0);
 	const beacls::FloatVec &xs1 = hji_grid->get_xs(1);
 	const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
+#else
+	beacls::UVec x0_uvec;
+	beacls::UVec x1_uvec;
+	beacls::UVec x2_uvec;
+	hji_grid->get_xs(x0_uvec, 0, begin_index, length);
+	hji_grid->get_xs(x1_uvec, 1, begin_index, length);
+	hji_grid->get_xs(x2_uvec, 2, begin_index, length);
+	const FLOAT_TYPE* xs0_ptr = beacls::UVec_<const FLOAT_TYPE>(x0_uvec).ptr();
+	const FLOAT_TYPE* xs1_ptr = beacls::UVec_<const FLOAT_TYPE>(x1_uvec).ptr();
+	const FLOAT_TYPE* xs2_ptr = beacls::UVec_<const FLOAT_TYPE>(x2_uvec).ptr();
+#endif
 	beacls::reallocateAsSrc(hamValue_uvec, derivs[0]);
 	FLOAT_TYPE* hamValue = beacls::UVec_<FLOAT_TYPE>(hamValue_uvec).ptr();
 	const FLOAT_TYPE* deriv0 = beacls::UVec_<FLOAT_TYPE>(derivs[0]).ptr();
@@ -37,9 +49,15 @@ bool Air3DSchemeData::hamFunc(
 		FLOAT_TYPE deriv0_i = deriv0[i];
 		FLOAT_TYPE deriv1_i = deriv1[i];
 		FLOAT_TYPE deriv2_i = deriv2[i];
+#if 0
 		FLOAT_TYPE xs0_i = xs0[begin_index + i];
 		FLOAT_TYPE xs1_i = xs1[begin_index + i];
 		FLOAT_TYPE xs2_i = xs2[begin_index + i];
+#else
+		FLOAT_TYPE xs0_i = xs0_ptr[i];
+		FLOAT_TYPE xs1_i = xs1_ptr[i];
+		FLOAT_TYPE xs2_i = xs2_ptr[i];
+#endif
 		FLOAT_TYPE cos_xs2_i = std::cos(xs2_i);
 		FLOAT_TYPE sin_xs2_i = std::sin(xs2_i);
 		hamValue[i] = -(-velocityA * deriv0_i
@@ -72,24 +90,51 @@ bool Air3DSchemeData::partialFunc(
 	{
 		FLOAT_TYPE vA = this->velocityA;
 		FLOAT_TYPE vB = this->velocityB;
+#if 0
 		const beacls::FloatVec &xs1 = hji_grid->get_xs(1);
 		const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
 		for (size_t i = 0; i<length; ++i) {
 			alphas[i] = HjiFabs(-vA
-				+ vB * std::cos(xs2[i+ begin_index]))
-				+ iA * HjiFabs<FLOAT_TYPE>(xs1[i+ begin_index]);
+				+ vB * std::cos(xs2[i + begin_index]))
+				+ iA * HjiFabs<FLOAT_TYPE>(xs1[i + begin_index]);
 		}
+#else
+		beacls::UVec x1_uvec;
+		beacls::UVec x2_uvec;
+		hji_grid->get_xs(x1_uvec, 1, begin_index, length);
+		hji_grid->get_xs(x2_uvec, 2, begin_index, length);
+		const FLOAT_TYPE* xs1_ptr = beacls::UVec_<const FLOAT_TYPE>(x1_uvec).ptr();
+		const FLOAT_TYPE* xs2_ptr = beacls::UVec_<const FLOAT_TYPE>(x2_uvec).ptr();
+		for (size_t i = 0; i<length; ++i) {
+			alphas[i] = HjiFabs(-vA
+				+ vB * std::cos(xs2_ptr[i]))
+				+ iA * HjiFabs<FLOAT_TYPE>(xs1_ptr[i]);
+		}
+#endif
 	}
 	break;
 	case 1:
 	{
 		FLOAT_TYPE vB = this->velocityB;
+#if 0
 		const beacls::FloatVec &xs0 = hji_grid->get_xs(0);
 		const beacls::FloatVec &xs2 = hji_grid->get_xs(2);
 		for (size_t i = 0; i<length; ++i) {
-			alphas[i] = HjiFabs(vB * std::sin(xs2[i+begin_index]))
+			alphas[i] = HjiFabs(vB * std::sin(xs2[i + begin_index]))
 				+ iA * HjiFabs<FLOAT_TYPE>(xs0[i + begin_index]);
 		}
+#else
+		beacls::UVec x0_uvec;
+		beacls::UVec x2_uvec;
+		hji_grid->get_xs(x0_uvec, 0, begin_index, length);
+		hji_grid->get_xs(x2_uvec, 2, begin_index, length);
+		const FLOAT_TYPE* xs0_ptr = beacls::UVec_<const FLOAT_TYPE>(x0_uvec).ptr();
+		const FLOAT_TYPE* xs2_ptr = beacls::UVec_<const FLOAT_TYPE>(x2_uvec).ptr();
+		for (size_t i = 0; i<length; ++i) {
+			alphas[i] = HjiFabs(vB * std::sin(xs2_ptr[i]))
+				+ iA * HjiFabs<FLOAT_TYPE>(xs0_ptr[i]);
+		}
+#endif
 	}
 	break;
 	case 2:
