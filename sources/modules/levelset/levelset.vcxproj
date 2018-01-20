@@ -282,6 +282,7 @@ popd</Command>
     <ClCompile Include="ExplicitIntegration\Terms\TermLaxFriedrichs_cuda_dummy.cpp" />
     <ClCompile Include="ExplicitIntegration\Terms\TermRestrictUpdate.cpp" />
     <ClCompile Include="Grids\HJI_Grid.cpp" />
+    <ClCompile Include="Grids\HJI_Grid_cuda_dummy.cpp" />
     <ClCompile Include="InitialConditions\BasicShapes\ShapeCylinder.cpp" />
     <ClCompile Include="InitialConditions\BasicShapes\ShapeHyperplaneByPoint.cpp" />
     <ClCompile Include="InitialConditions\BasicShapes\ShapeRectangleByCenter.cpp" />
@@ -366,6 +367,7 @@ popd</Command>
     <ClInclude Include="ExplicitIntegration\Terms\TermLaxFriedrichs_cuda.hpp" />
     <ClInclude Include="ExplicitIntegration\Terms\TermLaxFriedrichs_impl.hpp" />
     <ClInclude Include="ExplicitIntegration\Terms\TermRestrictUpdate_impl.hpp" />
+    <ClInclude Include="Grids\HJI_Grid_cuda.hpp" />
     <ClInclude Include="Grids\HJI_Grid_impl.hpp" />
     <ClInclude Include="InitialConditions\BasicShapes\ShapeCylinder_impl.hpp" />
     <ClInclude Include="InitialConditions\BasicShapes\ShapeHyperplaneByPoint_impl.hpp" />
@@ -391,8 +393,14 @@ popd</Command>
     <CudaCompile Include="Core\UVec_cuda.cu" />
     <CudaCompile Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_cuda.cu" />
     <CudaCompile Include="ExplicitIntegration\Terms\TermLaxFriedrichs_cuda.cu" />
+    <CudaCompile Include="Grids\HJI_Grid_cuda.cu" />
     <CudaCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstENO3aHelper_cuda.cu" />
-    <CudaCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a_cuda.cu" />
+    <CudaCompile Include="SpatialDerivative\UpwindFirst\UpwindFirstWENO5a_cuda.cu">
+      <MaxRegCount Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</MaxRegCount>
+      <MaxRegCount Condition="'$(Configuration)|$(Platform)'=='Release|x64'">64</MaxRegCount>
+      <MaxRegCount Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">64</MaxRegCount>
+      <MaxRegCount Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">64</MaxRegCount>
+    </CudaCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

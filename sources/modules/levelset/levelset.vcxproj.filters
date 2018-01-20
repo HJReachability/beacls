@@ -129,6 +129,9 @@
     <ClCompile Include="Core\CacheTag.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Grids\HJI_Grid_cuda_dummy.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\builds\includes\typedef.hpp">
@@ -374,6 +377,9 @@
     <ClInclude Include="..\..\..\builds\includes\levelset\ExplicitIntegration\PartialFunction.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Grids\HJI_Grid_cuda.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="ExplicitIntegration\Dissipations\ArtificialDissipationGLF_cuda.cu">
@@ -389,6 +395,9 @@
       <Filter>ソース ファイル</Filter>
     </CudaCompile>
     <CudaCompile Include="Core\UVec_cuda.cu">
+      <Filter>ソース ファイル</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Grids\HJI_Grid_cuda.cu">
       <Filter>ソース ファイル</Filter>
     </CudaCompile>
   </ItemGroup>

@@ -27,6 +27,7 @@ namespace levelset {
 		std::vector<FLOAT_TYPE> dxs;
 		std::vector<FLOAT_TYPE> dxInvs;
 		std::vector<std::vector<FLOAT_TYPE> > vss;
+		mutable beacls::UVec v_uvec;
 		std::vector<std::vector<FLOAT_TYPE> > xss;
 		std::vector<FLOAT_TYPE> axis;
 		std::vector<size_t> shape;
@@ -133,6 +134,10 @@ namespace levelset {
 		void get_xs(
 			beacls::UVec& x_uvec,
 			const size_t dimension,
+			const size_t start_index,
+			const size_t length) const;
+		void get_xss(
+			std::vector<beacls::UVec>&  x_uvecs,
 			const size_t start_index,
 			const size_t length) const;
 		const std::vector<FLOAT_TYPE>& get_axis() const { return axis; }

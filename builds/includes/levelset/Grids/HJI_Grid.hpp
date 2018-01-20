@@ -160,6 +160,11 @@ namespace levelset {
 				const size_t dimension,
 				const size_t start_index = 0,
 				const size_t length = 0) const;
+		PREFIX_VC_DLL
+			void get_xss(
+				std::vector<beacls::UVec>&  x_uvecs,
+				const size_t start_index = 0,
+				const size_t length = 0) const;
 		const std::vector<FLOAT_TYPE>& get_axis() const;
 		const std::vector<size_t>& get_shape() const;
 
