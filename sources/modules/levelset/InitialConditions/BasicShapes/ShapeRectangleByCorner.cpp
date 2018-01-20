@@ -30,6 +30,7 @@ bool ShapeRectangleByCorner_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 	size_t num_of_dimensions = grid->get_num_of_dimensions();
 	const size_t num_of_elements = grid->get_sum_of_elems();
 	data.resize(num_of_elements);
+#if 0
 	const std::vector<beacls::FloatVec > &xss = grid->get_xss();
 	for (size_t i = 0; i<num_of_elements; ++i) {
 		FLOAT_TYPE len_upper2data = xss[0][i] - upper[0];
@@ -45,6 +46,27 @@ bool ShapeRectangleByCorner_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 			data[i] = HjiMax(data[i], len_lower2data);
 		}
 	}
+#else
+	std::vector<beacls::UVec> x_uvecs;
+	grid->get_xss(x_uvecs);
+	std::vector<const FLOAT_TYPE*> x_ptrs(num_of_dimensions);
+	std::transform(x_uvecs.cbegin(), x_uvecs.cend(), x_ptrs.begin(), [](const auto rhs) {
+		return beacls::UVec_<const FLOAT_TYPE>(rhs).ptr();
+	});
+	for (size_t i = 0; i<num_of_elements; ++i) {
+		FLOAT_TYPE len_upper2data0 = x_ptrs[0][i] - upper[0];
+		FLOAT_TYPE len_lower2data0 = lower[0] - x_ptrs[0][i];
+		FLOAT_TYPE val = HjiMax(len_upper2data0, len_lower2data0);
+		for (size_t dimension = 1; dimension<num_of_dimensions; ++dimension) {
+			FLOAT_TYPE xs = x_ptrs[dimension][i];
+			FLOAT_TYPE len_upper2data = xs - upper[dimension];
+			FLOAT_TYPE len_lower2data = lower[dimension] - xs;
+			val = HjiMax(val, len_upper2data);
+			val = HjiMax(val, len_lower2data);
+		}
+		data[i] = val;
+	}
+#endif
 	return true;
 }
 
