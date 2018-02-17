@@ -87,7 +87,7 @@ namespace helperOC {
         beacls::IntegerVec dims;    //!< Dimensions that are active
     public:
         /*
-        @brief Constructor. Creates a plane object with a unique ID,
+        @brief Constructor. Creates a Dubins Car object with a unique ID,
             state x, and reachable set information reachInfo
         Dynamics:
             \dot{x}_1 = v * cos(x_3) + d1
@@ -101,7 +101,7 @@ namespace helperOC {
         @param  [in]        dMax    maximum turn rate
         @param  [in]        va  Vehicle A Speeds
         @param  [in]        vd  Vehicle B Speeds
-        @return a Plane object
+        @return a Dubins Car object
         */
         PREFIX_VC_DLL
             P5D_Dubins(
@@ -136,14 +136,14 @@ namespace helperOC {
         @brief Helper function for optimal inputs
         */
         PREFIX_VC_DLL
-            bool Plane4D::optInput_i_cell_helper(
+            bool optInput_i_cell_helper(
                 beacls::FloatVec& uOpt_i,
                 const std::vector<const FLOAT_TYPE* >& derivs,
                 const beacls::IntegerVec& deriv_sizes,
                 const helperOC::DynSys_UMode_Type uMode,
                 const size_t src_target_dim_index,
                 const beacls::FloatVec& uExtr_i
-            ) const
+            ) const;
         /*
         @brief Optimal control function
         */
@@ -170,6 +170,25 @@ namespace helperOC {
                 const beacls::IntegerVec& deriv_sizes,
                 const helperOC::DynSys_DMode_Type dMode
             ) const;
+        /*
+        @brief Helper function for dynamics
+        */
+        bool P5D_Dubins::dynamics_cell_helper(
+            std::vector<beacls::FloatVec >& dxs,
+            const beacls::FloatVec::const_iterator& state_x_rel,
+            const beacls::FloatVec::const_iterator& state_y_rel,
+            const beacls::FloatVec::const_iterator& state_theta_rel,
+            const beacls::FloatVec::const_iterator& state_v,
+            const beacls::FloatVec::const_iterator& state_w,
+            const std::vector<beacls::FloatVec >& us,
+            const std::vector<beacls::FloatVec >& ds,
+            const size_t size_x_rel,
+            const size_t size_y_rel,
+            const size_t size_theta_rel,
+            const size_t size_v,
+            const size_t size_w,
+            const size_t dim
+        ) const;
         /*
         @brief Dynamics of the P5D_Dubins system
         */
