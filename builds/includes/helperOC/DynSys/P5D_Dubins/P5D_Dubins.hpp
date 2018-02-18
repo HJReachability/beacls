@@ -71,17 +71,17 @@ namespace helperOC {
     public:
     protected:
         // Control bounds of this vehicle
-        beacls::FloatVec aRange          // Linear acceleration
-        FLOAT_TYPE alphaMax              // Angular acceleration
+        beacls::FloatVec aRange;          // Linear acceleration
+        FLOAT_TYPE alphaMax;              // Angular acceleration
 
         // Vehicle speeds
-        FLOAT_TYPE vOther
+        FLOAT_TYPE vOther;
 
         // Control bounds of other vehicle (at origin)
-        FLOAT_TYPE wMax     // Turn rate
+        FLOAT_TYPE wMax;     // Turn rate
     
         // Disturbance bounds
-        beacls::FloatVec dMax     // 4D
+        beacls::FloatVec dMax;     // 4D
     
     
         beacls::IntegerVec dims;    //!< Dimensions that are active
@@ -106,11 +106,12 @@ namespace helperOC {
         PREFIX_VC_DLL
             P5D_Dubins(
                 const beacls::FloatVec& x,
-                const aRange = [-0.15, 0.15],
-                const alphaMax = 3.0,
-                const vOther = 0.1,
-                const wMax = 2.0,
-                const dMax = [0.02, 0.02, 0.2, 0.02],
+                const beacls::FloatVec& aRange = beacls::FloatVec{-0.15, 0.15 },
+                const FLOAT_TYPE alphaMax = 3.0,
+                const FLOAT_TYPE vOther = 0.1,
+                const FLOAT_TYPE wMax = 2.0,
+                const beacls::FloatVec& dMax = beacls::FloatVec{
+                    0.02, 0.02, 0.2, 0.02},
                 const beacls::IntegerVec& dims = beacls::IntegerVec{ 0,1,2,3,4 }
         );
         PREFIX_VC_DLL
@@ -173,7 +174,7 @@ namespace helperOC {
         /*
         @brief Helper function for dynamics
         */
-        bool P5D_Dubins::dynamics_cell_helper(
+        bool dynamics_cell_helper(
             std::vector<beacls::FloatVec >& dxs,
             const beacls::FloatVec::const_iterator& state_x_rel,
             const beacls::FloatVec::const_iterator& state_y_rel,
@@ -255,10 +256,11 @@ namespace helperOC {
         */
         P5D_Dubins(const P5D_Dubins& rhs) :
             DynSys(rhs),
-            uMax(rhs.uMax), //!< Control bounds
-            dMax(rhs.dMax), //!< Control bounds
-            va(rhs.va), //!< Vehicle Speeds
-            vb(rhs.vb), //!< Vehicle Speeds
+            aRange(rhs.aRange),
+            alphaMax(rhs.alphaMax),
+            vOther(rhs.vOther),
+            wMax(rhs.wMax),
+            dMax(rhs.dMax),
             dims(rhs.dims)  //!< Dimensions that are active
         {}
     };
