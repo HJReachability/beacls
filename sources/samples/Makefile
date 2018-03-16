@@ -6,6 +6,7 @@ all:
 	cd Plane_test && make all
 	cd PlaneCAvoid_test && make all
 	cd Quad4D_test && make all
+	cd P5D_Dubins_RS && make all
 
 time: all
 	cd test_reachiability && make time
