@@ -134,16 +134,28 @@ namespace helperOC {
             return new P5D_Dubins(*this);
         }
         /*
-        @brief Helper function for optimal inputs
+        @brief Helper function for optimal control components
         */
         PREFIX_VC_DLL
-            bool optInput_i_cell_helper(
+            bool optCtrl_i_cell_helper(
                 beacls::FloatVec& uOpt_i,
                 const std::vector<const FLOAT_TYPE* >& derivs,
                 const beacls::IntegerVec& deriv_sizes,
                 const helperOC::DynSys_UMode_Type uMode,
                 const size_t src_target_dim_index,
                 const beacls::FloatVec& uExtr_i
+            ) const;
+        /*
+        @brief Helper function for optimal disturbance components
+        */
+        PREFIX_VC_DLL
+            bool optDstb_i_cell_helper(
+                beacls::FloatVec& dOpt_i,
+                const std::vector<const FLOAT_TYPE* >& derivs,
+                const beacls::IntegerVec& deriv_sizes,
+                const helperOC::DynSys_DMode_Type dMode,
+                const size_t src_target_dim_index,
+                const beacls::FloatVec& dExtr_i
             ) const;
         /*
         @brief Optimal control function

@@ -52,12 +52,12 @@ using namespace helperOC;
 
 
 P5D_Dubins::P5D_Dubins(
-    const beacls::FloatVec& x,  // state of tracker (relative to planner's pose)
-    const aRange                // tracker's linear acceleration bounds
-    const alphaMax              // tracker's maximum angular acceleration
-    const vOther                // planner's speed
-    const wMax                  // planner's maximum angular velocity
-    const dMax                  // maximum disturbance on tracker's dynamics
+    const beacls::FloatVec& x,      // state of tracker (relative to planner)
+    const beacls::FloatVec& aRange, // tracker's linear acceleration bounds
+    const FLOAT_TYPE alphaMax,      // tracker's maximum angular acceleration
+    const FLOAT_TYPE vOther,        // planner's speed
+    const FLOAT_TYPE wMax,          // planner's maximum angular velocity
+    const beacls::FloatVec& dMax,   // maximum disturbance on tracker's dynamics
     const beacls::IntegerVec& dims
 ) : DynSys(5, // states: [x_rel, y_rel, theta_rel, v, w]
            2, // controls: [a, alpha] (linear and angular acceleration)
@@ -91,11 +91,11 @@ P5D_Dubins::P5D_Dubins(
     dMax(beacls::FloatVec()),
     dims(beacls::IntegerVec()) {
     beacls::IntegerVec dummy;
-    load_vector(aRange, std::string("aRange"), true, fs, variable_ptr);  
+    load_vector(aRange, std::string("aRange"), dummy, true, fs, variable_ptr);  
     load_value(alphaMax, std::string("alphaMax"), true, fs, variable_ptr);  
     load_value(vOther, std::string("vOther"), true, fs, variable_ptr);  
     load_value(wMax, std::string("wMax"), true, fs, variable_ptr);  
-    load_vector(dMax, std::string("dMax"), true, fs, variable_ptr);  
+    load_vector(dMax, std::string("dMax"), dummy, true, fs, variable_ptr);  
     load_vector(dims, std::string("dims"), dummy, true, fs, variable_ptr);
 }
 
@@ -146,7 +146,7 @@ bool P5D_Dubins::save(
 }
 
 
-bool P5D_Dubins::optInput_i_cell_helper(
+bool P5D_Dubins::optCtrl_i_cell_helper(
     beacls::FloatVec& uOpt_i, // Relevant component i of the optimal input
     const std::vector<const FLOAT_TYPE* >& derivs,
     const beacls::IntegerVec& deriv_sizes,
@@ -180,6 +180,40 @@ bool P5D_Dubins::optInput_i_cell_helper(
 } 
 
 
+bool P5D_Dubins::optDstb_i_cell_helper(
+    beacls::FloatVec& dOpt_i, // Relevant component i of the optimal input
+    const std::vector<const FLOAT_TYPE* >& derivs,
+    const beacls::IntegerVec& deriv_sizes,
+    const helperOC::DynSys_DMode_Type dMode,
+    const size_t src_target_dim_index, // Relevant state j affected by input i
+    const beacls::FloatVec& dExtr_i // [u_minimizer_xj_dot, u_maximizer_xj_dot]
+) const {
+    if (src_target_dim_index < dims.size()) {
+        const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
+        const size_t length = deriv_sizes[src_target_dim_index];
+        if (length == 0 || deriv_j == NULL) return false;
+        dOpt_i.resize(length);
+        switch (dMode) {
+        case helperOC::DynSys_DMode_Max:
+            for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
+                dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[1] : dExtr_i[0];
+            }
+            break;
+        case helperOC::DynSys_DMode_Min:
+            for (size_t ii = 0; ii < length; ++ii) {
+                dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[0] : dExtr_i[1];
+            }
+            break;
+        case helperOC::DynSys_DMode_Invalid:
+        default:
+            std::cerr << "Unknown dMode!: " << dMode << std::endl;
+            return false;
+        }
+    }
+    return true;
+} 
+
+
 bool P5D_Dubins::optCtrl(
     std::vector<beacls::FloatVec >& uOpts,
     const FLOAT_TYPE,
@@ -198,9 +232,9 @@ bool P5D_Dubins::optCtrl(
     // Call helper to determine optimal value for each control component
     // (we feed the relevant state component affected by each input as well as
     //  the input values that maximize and minimize this state's derivative).
-    result &= optInput_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
+    result &= optCtrl_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
         modified_uMode, find_val(dims, 3), aRange);
-    result &= optInput_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
+    result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
         modified_uMode, find_val(dims, 4), {-alphaMax, alphaMax});
     return result;
 }
@@ -223,41 +257,16 @@ bool P5D_Dubins::optDstb(
     // Call helper to determine optimal value for each disturbance component
     // (we feed the relevant state component affected by each input as well as
     //  the input values that maximize and minimize this state's derivative).
-    result &= optDstb0_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes,
+    result &= optDstb_i_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes,
         modified_dMode, find_val(dims, 0), {-dMax[0],dMax[0]});
-    result &= optDstb1_cell_helper(dOpts[1], deriv_ptrs, deriv_sizes,
+    result &= optDstb_i_cell_helper(dOpts[1], deriv_ptrs, deriv_sizes,
         modified_dMode, find_val(dims, 1), {-dMax[1],dMax[1]});
-    result &= optDstb1_cell_helper(dOpts[2], deriv_ptrs, deriv_sizes,
+    result &= optDstb_i_cell_helper(dOpts[2], deriv_ptrs, deriv_sizes,
         modified_dMode, find_val(dims, 2), {-dMax[2],dMax[2]});
-    result &= optDstb1_cell_helper(dOpts[3], deriv_ptrs, deriv_sizes,
+    result &= optDstb_i_cell_helper(dOpts[3], deriv_ptrs, deriv_sizes,
         modified_dMode, find_val(dims, 3), {-dMax[3],dMax[3]});
-    result &= optDstb1_cell_helper(dOpts[4], deriv_ptrs, deriv_sizes,
+    result &= optDstb_i_cell_helper(dOpts[4], deriv_ptrs, deriv_sizes,
         modified_dMode, find_val(dims, 4), {-dMax[4],dMax[4]});
-    // Optimal planner control (typically evasive)
-    const j0 = find_val(dims, 0);
-    const j1 = find_val(dims, 1);
-    const j2 = find_val(dims, 2);
-    dOpts[5].resize(length);
-    switch (modified_dMode) {
-    case helperOC::DynSys_UMode_Max:
-        for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
-            dOpts[5][ii] = ( // net Hamiltonian contribution of planner input
-                deriv[j0][ii].*y[j1][ii]  - deriv[j1].*y[j0] - deriv[j2] >= 0) ?
-                wMax : -wMax;
-        }
-        break;
-    case helperOC::DynSys_UMode_Min:
-        for (size_t ii = 0; ii < length; ++ii) {
-            dOpts[5][ii] = ( // net Hamiltonian contribution of planner input
-                deriv[j0][ii].*y[j1][ii]  - deriv[j1].*y[j0] - deriv[j2] >= 0) ?
-                -wMax : wMax;
-        }
-        break;
-    case helperOC::DynSys_UMode_Invalid:
-    default:
-        std::cerr << "Unknown uMode!: " << uMode << std::endl;
-        return false;
-    }
     return result;
 }
 
