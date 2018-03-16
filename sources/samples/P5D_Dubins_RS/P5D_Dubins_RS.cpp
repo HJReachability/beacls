@@ -149,9 +149,10 @@ int main(int argc, char *argv[])
 	beacls::FloatVec TTR;
 	std::vector<beacls::FloatVec > P, derivL, derivR;
 
-	// JFF: CONSIDER THIS - Return signs to standard negative-inside convention
-	// for(size_t i = 0; i < data0.size(); i++) data0[i] = -data0[i];
-	// for(size_t i = 0; i < data.size(); i++) data[i] = -data[i]; //<-- error
+	// Return signs to standard negative-inside convention
+	for(size_t i = 0; i < data0.size(); i++) data0[i] = -data0[i];
+	for(size_t t = 0; t < data.size(); t++)
+		for(size_t i = 0; i < data[t].size(); i++) data[t][i] = -data[t][i];
 
 
 	// Convert to TTR
