@@ -689,7 +689,10 @@ void HJI_Grid::set_axis(const std::vector<FLOAT_TYPE>& a) {
 void HJI_Grid::set_shape(const std::vector<size_t>& a) {
 	if (pimpl) pimpl->set_shape(a);
 }
-
+size_t HJI_Grid::get_numel() const {
+	if (pimpl) return pimpl->get_numel();
+	else return 0;
+}
 size_t HJI_Grid::get_sum_of_elems() const {
 	if (pimpl) return pimpl->get_sum_of_elems();
 	else return 0;

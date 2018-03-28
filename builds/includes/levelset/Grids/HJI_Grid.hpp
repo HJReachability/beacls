@@ -105,6 +105,8 @@ namespace levelset {
 		PREFIX_VC_DLL
 			bool operator==(const HJI_Grid& rhs) const;
 		PREFIX_VC_DLL
+			size_t get_numel() const;			
+		PREFIX_VC_DLL
 			size_t get_sum_of_elems() const;
 		PREFIX_VC_DLL
 			size_t get_num_of_dimensions() const;
