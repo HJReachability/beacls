@@ -14,10 +14,12 @@ ShapeCylinder_impl::ShapeCylinder_impl(
 	ignoreDims(ignoreDims),
 	center(center),
 	radius(radius) {
+
 }
 
 ShapeCylinder_impl::~ShapeCylinder_impl() {
 }
+
 
 bool ShapeCylinder_impl::execute(const HJI_Grid *grid, beacls::FloatVec& data) 
   const {
@@ -39,7 +41,7 @@ bool ShapeCylinder_impl::execute(const HJI_Grid *grid, beacls::FloatVec& data)
 		modified_center = center;
 	}
 
-	beacls::IntegerVec N = grid->get_Ns();
+  beacls::IntegerVec N = grid->get_Ns();
 
 	const size_t num_of_elements = grid->get_numel();
 
@@ -62,21 +64,23 @@ bool ShapeCylinder_impl::execute(const HJI_Grid *grid, beacls::FloatVec& data)
 		return std::sqrt(data_i) - radius;
 	}));
 	return true;
+
 }
 
 ShapeCylinder::ShapeCylinder(
-	const beacls::IntegerVec& ignoreDims,
-	const beacls::FloatVec& center,
-	const FLOAT_TYPE radius
+  const beacls::IntegerVec& ignoreDims,
+  const beacls::FloatVec& center,
+  const FLOAT_TYPE radius
 ) {
-	pimpl = new ShapeCylinder_impl(ignoreDims, center, radius);
+  pimpl = new ShapeCylinder_impl(ignoreDims, center, radius);
 }
 
 ShapeCylinder::~ShapeCylinder() {
-	if (pimpl) delete pimpl;
+  if (pimpl) delete pimpl;
 }
 
 bool ShapeCylinder::execute(
+
 	const HJI_Grid *grid, beacls::FloatVec& data) const {
 	if (pimpl) {
 		return pimpl->execute(grid, data);
@@ -87,8 +91,9 @@ bool ShapeCylinder::execute(
 }
 ShapeCylinder::ShapeCylinder(const ShapeCylinder& rhs): 
   pimpl(rhs.pimpl->clone()) {
+
 };
 
 ShapeCylinder* ShapeCylinder::clone() const {
-	return new ShapeCylinder(*this);
+  return new ShapeCylinder(*this);
 };
