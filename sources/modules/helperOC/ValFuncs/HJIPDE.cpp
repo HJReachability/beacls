@@ -809,7 +809,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
           std::vector<beacls::FloatVec> datas_vec(datas.size());
           std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
           save_vector_of_vectors(datas_vec, std::string("data"), Ns, false, 
-            ave_filename_fs);
+              save_filename_fs);
         } 
         else {
           save_vector(y, std::string("y"), Ns, false, save_filename_fs);
