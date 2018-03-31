@@ -808,12 +808,16 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
         else if (!keepLast) {
           std::vector<beacls::FloatVec> datas_vec(datas.size());
           std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
-          save_vector_of_vectors(datas_vec, std::string("data"), Ns, false, save_filename_fs);
-        } else {
+          save_vector_of_vectors(datas_vec, std::string("data"), Ns, false, 
+            ave_filename_fs);
+        } 
+        else {
           save_vector(y, std::string("y"), Ns, false, save_filename_fs);
         }
-        save_vector(dst_tau, std::string("tau"),beacls::IntegerVec(),true, save_filename_fs);
-        save_value(static_cast<FLOAT_TYPE>(ilast), std::string("ilast"),true, save_filename_fs);
+        save_vector(dst_tau, std::string("tau"),beacls::IntegerVec(),true, 
+          save_filename_fs);
+        save_value(static_cast<FLOAT_TYPE>(ilast), std::string("ilast"), true, 
+          save_filename_fs);
         beacls::closeMatFStream(save_filename_fs);
       }
     }
@@ -854,12 +858,15 @@ bool HJIPDE_impl::get_datas(std::vector<beacls::FloatVec >& dst_datas,
     const size_t num_of_elements = grid->get_sum_of_elems();
     dst_datas.resize(src_tau.size());
     beacls::IntegerVec dummy;
-    beacls::MatFStream* tmp_file_fs = beacls::openMatFStream(tmp_filename, beacls::MatOpenMode_Read);
+    beacls::MatFStream* tmp_file_fs = 
+      beacls::openMatFStream(tmp_filename, beacls::MatOpenMode_Read);
     if (tmp_file_fs) {
-      beacls::MatVariable* tmp_datas_variable = beacls::openMatVariable(tmp_file_fs, std::string("tmp"));
+      beacls::MatVariable* tmp_datas_variable = 
+        beacls::openMatVariable(tmp_file_fs, std::string("tmp"));
       if (tmp_datas_variable) {
         for (size_t i = 0; i < src_tau.size(); ++i) {
-          if (!load_vector(dst_datas[i], std::string(),dummy, false, tmp_file_fs, tmp_datas_variable, i)) {
+          if (!load_vector(dst_datas[i], std::string(),dummy, false, 
+              tmp_file_fs, tmp_datas_variable, i)) {
             dst_datas[i].resize(num_of_elements, 0);
           }
         }

@@ -1163,16 +1163,16 @@ HJI_Grid* HJI_Grid::clone(const bool cloneAll) const {
 	}
 }
 template<typename T>
-bool save_vector_impl(
-	const std::vector<T> &src_vector,
-	const std::string &variable_name,
-	const std::vector<size_t>& Ns,
-	const bool quiet,
-	beacls::MatFStream* fs,
-	beacls::MatVariable* parent,
-	const size_t cell_index,
-	const bool compress) {
-	enum matio_compression compress_flag = (compress) ? MAT_COMPRESSION_ZLIB : MAT_COMPRESSION_NONE;
+bool save_vector_impl(	const std::vector<T> &src_vector,
+		const std::string &variable_name,
+		const std::vector<size_t>& Ns,
+		const bool quiet,
+		beacls::MatFStream* fs,
+		beacls::MatVariable* parent,
+		const size_t cell_index,
+		const bool compress) {
+	enum matio_compression compress_flag = (compress) ? 
+	  MAT_COMPRESSION_ZLIB : MAT_COMPRESSION_NONE;
 
 	if (src_vector.empty()) {
 		if (quiet) return true;
@@ -1191,7 +1191,9 @@ bool save_vector_impl(
 		dims_vec.resize(1);
 		dims_vec[0] = src_vector.size();
 	}
-	matvar_t *matvar = Mat_VarCreate(variable_name.c_str(), get_matio_classes<T>(), get_matio_types<T>(), rank, dims_vec.data(), const_cast<T*>(src_vector.data()), 0);
+	matvar_t *matvar = Mat_VarCreate(variable_name.c_str(), 
+		  get_matio_classes<T>(), get_matio_types<T>(), rank, dims_vec.data(), 
+		  const_cast<T*>(src_vector.data()), 0);
 	if (!matvar) {
 		std::cerr << "Error: cannot create mat variable: " << variable_name.c_str() << std::endl;
 		return false;
