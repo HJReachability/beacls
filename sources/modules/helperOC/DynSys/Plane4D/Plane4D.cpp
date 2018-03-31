@@ -299,13 +299,16 @@ bool Plane4D::dynamics(
 	bool result = true;
 	if (dst_target_dim == std::numeric_limits<size_t>::max()) {
 		for (size_t dim = 0; dim < dims.size(); ++dim) {
-			result &= dynamics_cell_helper(dx, x_ites2, x_ites3, us, ds, x_sizes[src_target_dim2_index], x_sizes[src_target_dim3_index], dim);
+			result &= dynamics_cell_helper(dx, x_ites2, x_ites3, us, ds, 
+				x_sizes[src_target_dim2_index], x_sizes[src_target_dim3_index], dim);
 		}
 	}
 	else
 	{
 		if (dst_target_dim < dims.size())
-			result &= dynamics_cell_helper(dx, x_ites2, x_ites3, us, ds, x_sizes[src_target_dim2_index], x_sizes[src_target_dim3_index], dst_target_dim);
+			result &= dynamics_cell_helper(dx, x_ites2, x_ites3, us, ds, 
+				x_sizes[src_target_dim2_index], x_sizes[src_target_dim3_index], 
+				dst_target_dim);
 		else {
 			std::cerr << "Invalid target dimension for dynamics: " << dst_target_dim << std::endl;
 			result = false;
