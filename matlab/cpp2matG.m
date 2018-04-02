@@ -14,14 +14,17 @@ for i=1:length(gCPP.bdry_type)
   end
 end
 
-g = createGrid(gCPP.min, gCPP.max, gCPP.N, pdDims);
+process = false;
+low_mem = true;
+g = createGrid(gCPP.min, gCPP.max, gCPP.N, pdDims, process, low_mem);
 
 if nargin == 2 && nargout == 2
   % Data
-  data = zeros([size(dataCPP{1}) length(dataCPP)]);
+  data = zeros(size(dataCPP{1}));
   clns = repmat({':'}, 1, g.dim);
   for i = 1:length(dataCPP)
     data(clns{:}, i) = dataCPP{i};
+    dataCPP{i} = [];
   end
 end
 end
