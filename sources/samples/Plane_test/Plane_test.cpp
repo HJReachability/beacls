@@ -43,27 +43,27 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	bool useCuda = true;
-	// if (argc >= 5) {
-	// 	useCuda = (atoi(argv[4]) == 0) ? false : true;
-	// }
+	bool useCuda = false;
+	if (argc >= 5) {
+		useCuda = (atoi(argv[4]) == 0) ? false : true;
+	}
 	int num_of_threads = 0;
 	if (argc >= 6) {
 		num_of_threads = atoi(argv[5]);
 	}
-	int num_of_gpus = 2;
-	// if (argc >= 7) {
-	// 	num_of_gpus = atoi(argv[6]);
-	// }
+	int num_of_gpus = 0;
+	if (argc >= 7) {
+		num_of_gpus = atoi(argv[6]);
+	}
 	size_t line_length_of_chunk = 1;
 	if (argc >= 8) {
 		line_length_of_chunk = atoi(argv[7]);
 	}
 
 	bool enable_user_defined_dynamics_on_gpu = true;
-	// if (argc >= 9) {
-	// 	enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
-	// }
+	if (argc >= 9) {
+		enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
+	}
 	//!< Plane parameters
 	const beacls::FloatVec initState{ 
 		  (FLOAT_TYPE)100, (FLOAT_TYPE)75, (FLOAT_TYPE)(45 * M_PI / 180) };
