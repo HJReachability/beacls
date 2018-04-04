@@ -12,10 +12,10 @@ set OPENCV_DEBUG_BINS=opencv_world%OPENCV_VER%d.dll
 set OPENCV_RELEASE_BINS=opencv_world%OPENCV_VER%.dll
 set SOLUTION_FILE=beacls.sln
 
-if exsit C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe (
+if exist C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe (
   set VS_EDITION=Enterprise
 ) else (
-  if exsit C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\IDE\devenv.exe (
+  if exist C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\IDE\devenv.exe (
     set VS_EDITION=Professional
   ) else (
     set VS_EDITION=Community
