@@ -1,6 +1,6 @@
 GPU_ON = Y
-VISUALIZE_ON = Y
-GUI_ON = Y
+VISUALIZE_ON = N
+GUI_ON = N
 FILESYSTEM_ON = N
 STATIC_ON = N
 PROFILE_ON = N
@@ -18,7 +18,7 @@ USE_LAST_DERIV_MIN_MAX = 0
 USE_USER_DEFINED_GPU_DYNSYS_FUNC = 1
 MODEL_SIZE = 0
 USE_TEMP_FILE = 0
-NVCC = /home/cuda-9.1/bin/nvcc
+NVCC = /usr/bin/nvcc
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 INSTALL_DIR = $(PWD)/../../../builds
