@@ -101,22 +101,11 @@ int main(int argc, char *argv[])
 	FLOAT_TYPE wMax = 1;
 	beacls::FloatVec aranges{ (FLOAT_TYPE)0.5, 1 };
 
-	levelset::ShapeRectangleByCenter *shape = new levelset::ShapeRectangleByCenter(center, widths);
+	levelset::ShapeRectangleByCenter *shape = 
+	  new levelset::ShapeRectangleByCenter(center, widths);
 
-	levelset::AddGhostExtrapolate *addGhostExtrapolate = new levelset::AddGhostExtrapolate();
-	levelset::AddGhostPeriodic *addGhostPeriodic = new levelset::AddGhostPeriodic();
-	std::vector<levelset::BoundaryCondition*> boundaryConditions(num_of_dimensions);
-	boundaryConditions[0] = addGhostExtrapolate;
-	boundaryConditions[1] = addGhostExtrapolate;
-	boundaryConditions[2] = addGhostPeriodic;
-	boundaryConditions[3] = addGhostExtrapolate;
-
-	levelset::HJI_Grid *hJI_Grid = new levelset::HJI_Grid(
-		num_of_dimensions);
-	hJI_Grid->set_mins(mins);
-	hJI_Grid->set_maxs(maxs);
-	hJI_Grid->set_boundaryConditions(boundaryConditions);
-	hJI_Grid->set_Ns(Ns);
+  levelset::HJI_Grid* hJI_Grid = helperOC::createGrid(mins, maxs, Ns, 
+  	beacls::IntegerVec{2});	
 
 	if (!hJI_Grid->processGrid()) {
 		return -1;
@@ -125,7 +114,8 @@ int main(int argc, char *argv[])
 	ApproximationAccuracy_Type accuracy = ApproximationAccuracy_veryHigh;
 //	ApproximationAccuracy_Type accuracy = ApproximationAccuracy_high;
 
-	const beacls::UVecType type = useCuda ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
+	const beacls::UVecType type = useCuda ? 
+	  beacls::UVecType_Cuda : beacls::UVecType_Vector;
 
 	// Choose spatial derivative approimation at appropriate level of accuracy.
 	levelset::SpatialDerivative *spatialDerivative = NULL;
@@ -148,7 +138,8 @@ int main(int argc, char *argv[])
 	}
 
 
-	levelset::ArtificialDissipationGLF *dissipation = new levelset::ArtificialDissipationGLF();
+	levelset::ArtificialDissipationGLF *dissipation = 
+	  new levelset::ArtificialDissipationGLF();
 
 	std::vector<levelset::PostTimestep_Exec_Type*> postTimestep_Execs;
 	levelset::Integrator *integrator;
@@ -251,8 +242,6 @@ int main(int argc, char *argv[])
 	if (integrator) delete integrator;
 	if (hJI_Grid) delete hJI_Grid;
 	if (shape) delete shape;
-	if (addGhostExtrapolate) delete addGhostExtrapolate;
-	if (addGhostPeriodic) delete addGhostPeriodic;
 	if (spatialDerivative) delete spatialDerivative;
 
 	return 0;

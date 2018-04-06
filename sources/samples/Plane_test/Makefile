@@ -18,7 +18,7 @@ USE_LAST_DERIV_MIN_MAX = 1
 USE_USER_DEFINED_GPU_DYNSYS_FUNC = 1
 MODEL_SIZE = 0
 USE_TEMP_FILE = 0
-NVCC = /usr/local/cuda-8.0/bin/nvcc
+NVCC = /usr/local/cuda-9.1/bin/nvcc
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 INSTALL_DIR = $(PWD)/../../../builds
@@ -35,7 +35,6 @@ else
 	HOSTCC  = g++
 	OPENMP_ON = Y
 endif
-
 
 BEACLS_DIR = $(INSTALL_DIR)
 BEACLS_INC_DIR = $(BEACLS_DIR)/include
