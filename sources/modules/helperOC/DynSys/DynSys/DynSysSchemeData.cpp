@@ -183,19 +183,18 @@ bool getOptDstb(
 }
 
 static
-bool getDynamics(
-	std::vector<beacls::FloatVec >& dxs,
-	const DynSys* dynSys,
-	const FLOAT_TYPE t,
-	const std::vector<beacls::FloatVec::const_iterator >& xs_ites,
-	std::vector<beacls::FloatVec >& us,
-	std::vector<beacls::FloatVec >& ds,
-	const beacls::IntegerVec& x_sizes,
-	const size_t dim = std::numeric_limits<size_t>::max()
-) {
+bool getDynamics(std::vector<beacls::FloatVec >& dxs,
+		const DynSys* dynSys,
+		const FLOAT_TYPE t,
+		const std::vector<beacls::FloatVec::const_iterator >& xs_ites,
+		std::vector<beacls::FloatVec >& us,
+		std::vector<beacls::FloatVec >& ds,
+		const beacls::IntegerVec& x_sizes,
+		const size_t dim = std::numeric_limits<size_t>::max() ) {
 	const size_t nx = dynSys->get_nx();
 	dxs.resize(nx);
-	if (!dynSys->dynamics(dxs, t, xs_ites, us, ds, x_sizes, dim)) return false;
+	if (!dynSys->dynamics(dxs, t, xs_ites, us, ds, x_sizes, dim)) 
+		return false;
 	return true;
 }
 bool DynSysSchemeData::hamFunc(
@@ -209,18 +208,23 @@ bool DynSysSchemeData::hamFunc(
 	const levelset::HJI_Grid *hji_grid = get_grid();
 
 	// Custom derivative for MIE
-	const std::vector<beacls::UVec>& custom_derivs = (!MIEderivs.empty()) ? MIEderivs : derivs;
+	const std::vector<beacls::UVec>& custom_derivs = (!MIEderivs.empty()) ? 
+	    MIEderivs : derivs;
 	const std::vector<beacls::FloatVec >& xs = hji_grid->get_xss();
 	std::vector<beacls::FloatVec::const_iterator > xs_ites(xs.size());
-	std::transform(xs.cbegin(), xs.cend(), xs_ites.begin(), ([begin_index](const auto& rhs) { return rhs.cbegin() + begin_index; }));
+	std::transform(xs.cbegin(), xs.cend(), xs_ites.begin(), 
+		  ([begin_index](const auto& rhs) { return rhs.cbegin() + begin_index; }));
 	beacls::IntegerVec x_sizes(xs.size());
 	std::fill(x_sizes.begin(), x_sizes.end(), length);
 
 	std::vector<beacls::FloatVec >& us = ws->us;
-	if (!getOptCtrl(us, dynSys, uIns, t, xs_ites, custom_derivs, x_sizes, uMode)) return false;
+	if (!getOptCtrl(us, dynSys, uIns, t, xs_ites, custom_derivs, x_sizes, uMode)) 
+		return false;
 
 	std::vector<beacls::FloatVec >& ds = ws->ds;
-	if (!getOptDstb(ds, dynSys, dIns, t, xs_ites, custom_derivs, x_sizes, dMode)) return false;
+	if (!getOptDstb(ds, dynSys, dIns, t, xs_ites, custom_derivs, x_sizes, dMode)) 
+		return false;
+
 	hamValue_uvec.resize(length);
 	FLOAT_TYPE TIderiv = 0;
 	std::vector<beacls::UVec> modified_derivs(custom_derivs.size());
@@ -262,15 +266,26 @@ bool DynSysSchemeData::hamFunc(
 	//!< Plug optimal control into dynamics to compute Hamiltonian
 
 	std::vector<beacls::FloatVec >& dxs = ws->dxs;
-	if (!getDynamics(dxs, dynSys, t, xs_ites, us, ds, x_sizes)) return false;
+	if (!getDynamics(dxs, dynSys, t, xs_ites, us, ds, x_sizes)) 
+		return false;
 
-	if (hamValue_uvec.type() != beacls::UVecType_Vector) hamValue_uvec = beacls::UVec(beacls::type_to_depth<FLOAT_TYPE>(), beacls::UVecType_Vector, length);
-	else hamValue_uvec.resize(length);
+	if (hamValue_uvec.type() != beacls::UVecType_Vector)
+	  hamValue_uvec = beacls::UVec(beacls::type_to_depth<FLOAT_TYPE>(), 
+	  	  beacls::UVecType_Vector, length);
+	else
+		hamValue_uvec.resize(length);
+
 	beacls::FloatVec& hamValue = *(beacls::UVec_<FLOAT_TYPE>(hamValue_uvec).vec());
 	for (size_t dimension = 0; dimension < dxs.size(); ++dimension) {
-		const beacls::UVec& custom_deriv = (!modified_derivs[dimension].empty()) ? modified_derivs[dimension] : custom_derivs[dimension];
-		const FLOAT_TYPE* custom_deriv_ptr = beacls::UVec_<FLOAT_TYPE>(custom_deriv).ptr();
+		const beacls::UVec& custom_deriv = 
+		    (!modified_derivs[dimension].empty()) ? 
+		    modified_derivs[dimension] : custom_derivs[dimension];
+
+		const FLOAT_TYPE* custom_deriv_ptr = 
+		    beacls::UVec_<FLOAT_TYPE>(custom_deriv).ptr();
+
 		const beacls::FloatVec& dx = dxs[dimension];
+
 		if (dimension == 0) {
 			for (size_t index = 0; index < length; ++index) {
 				hamValue[index] = custom_deriv_ptr[index] * dx[index];
