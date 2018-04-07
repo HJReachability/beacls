@@ -25,7 +25,10 @@ namespace helperOC {
 			const std::vector<float>& color,
 			const beacls::FloatVec& level,
 			const bool applyLight = true,
-			const size_t sliceDim = std::numeric_limits<size_t>::max()
+			const size_t sliceDim = std::numeric_limits<size_t>::max(),
+			const cv::Size dsize = cv::Size(),
+			const double fx = 0.,
+			const double fy = 0.
 		);
 
 	static bool plot(
@@ -33,7 +36,10 @@ namespace helperOC {
 		const cv::Mat& src_img,
 		const beacls::FloatVec& x0,
 		const beacls::FloatVec& data,
-		const std::vector<float>& color
+		const std::vector<float>& color,
+		const cv::Size dsize = cv::Size(),
+		const double fx = 0.,
+		const double fy = 0.
 		);
 	static bool contour(
 		cv::Mat& dst_img,
@@ -43,15 +49,21 @@ namespace helperOC {
 		const beacls::FloatVec& data,
 		const beacls::IntegerVec& Ns,
 		const beacls::FloatVec& level = beacls::FloatVec(),
-		const std::vector<float>& color = std::vector<float>{0,0,255}
-		);
+		const std::vector<float>& color = std::vector<float>{0,0,255},
+		const cv::Size dsize = cv::Size(),
+		const double fx = 0.,
+		const double fy = 0.
+	);
 };
 static bool helperOC::plot(
 	cv::Mat& dst_img,
 	const cv::Mat& src_img,
 	const beacls::FloatVec& x0,
 	const beacls::FloatVec& data,
-	const std::vector<float>& color
+	const std::vector<float>& color,
+	const cv::Size dsize,
+	const double fx,
+	const double fy
 ) {
 	const int left_margin = 50;
 	const int right_margin = 50;
@@ -61,7 +73,21 @@ static bool helperOC::plot(
 	const FLOAT_TYPE range = minMax.second - minMax.first;
 	const FLOAT_TYPE min_value = minMax.first;
 	cv::Mat tmp_img;
-	cv::Size size((int)data.size(), (int)std::ceil(range));
+	const double org_width = (double)data.size();
+	const double org_height = (double)std::ceil(range);
+	double actual_fx = 1.;
+	double actual_fy = 1.;
+	cv::Size size;
+	if ((dsize.height != 0) && (dsize.width != 0)) {
+		actual_fx = (double)dsize.width / org_width;
+		actual_fy = (double)dsize.height / org_height;
+		size = dsize;
+	}
+	else {
+		actual_fx = fx != 0 ? fx : 1.;
+		actual_fy = fy != 0 ? fy : 1.;
+		size = cv::Size((int)std::ceil(org_width * actual_fx), (int)std::ceil(org_height * actual_fy));
+	}
 	int type = CV_8UC3;
 	if (!src_img.empty() && (src_img.size() == size) && src_img.type() == type) {
 		tmp_img = src_img.clone();
@@ -74,13 +100,13 @@ static bool helperOC::plot(
 	const int thickness = 1;
 	std::vector<cv::Point> nodes(data.size());
 	for (size_t x = 0; x < data.size();++x){
-		nodes[x] = cv::Point((int)x, (int)std::round(data[x] - min_value));
+		nodes[x] = cv::Point((int)x * actual_fx, (int)std::round((data[x] - min_value) * actual_fy));
 	}
 	cv::polylines(tmp_img, nodes, true, color_s, thickness, cv::LINE_AA);
 
 	auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(x0.cbegin(), x0.cend());
 	const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
-	const int height = (int)std::round(x0_range);
+	const int height = (int)std::round(x0_range * actual_fy);
 	cv::resize(tmp_img, dst_img, cv::Size(tmp_img.size().width, height));
 	cv::copyMakeBorder(tmp_img, tmp_img, top_margin, bottom_margin, left_margin, right_margin, cv::BORDER_CONSTANT, cv::Scalar(255, 255, 255));
 	dst_img.convertTo(dst_img, CV_8UC3, 255);
@@ -94,7 +120,10 @@ static bool helperOC::contour(
 	const beacls::FloatVec& data,
 	const beacls::IntegerVec& Ns,
 	const beacls::FloatVec& level,
-	const std::vector<float>& color
+	const std::vector<float>& color,
+	const cv::Size dsize,
+	const double fx,
+	const double fy
 ) {
 	const int left_margin = 25;
 	const int right_margin = 25;
@@ -109,14 +138,30 @@ static bool helperOC::contour(
 	auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(x1.cbegin(), x1.cend());
 	const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
 	const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
-	const int width = (int)std::ceil(x0_range);
-	const int height = (int)std::ceil(x1_range);
+
+	const double org_width = x0_range;
+	const double org_height = x1_range;
+	double actual_fx = 1.;
+	double actual_fy = 1.;
+	cv::Size size;
+	if ((dsize.height != 0) && (dsize.width != 0)) {
+		actual_fx = (double)dsize.width / org_width;
+		actual_fy = (double)dsize.height / org_height;
+		size = dsize;
+	}
+	else {
+		actual_fx = fx != 0 ? fx : 1.;
+		actual_fy = fy != 0 ? fy : 1.;
+		size = cv::Size((int)std::ceil(org_width * actual_fx), (int)std::ceil(org_height * actual_fy));
+	}
+	const int width = size.width;
+	const int height = size.height;
+
 	const FLOAT_TYPE left_offset = x0MinMax.first;
 	const FLOAT_TYPE top_offset = x1MinMax.first;
 
 	cv::Mat tmp_img;
 	cv::Size margined_size(width+left_margin+right_margin, height+top_margin+bottom_margin);
-	cv::Size size(width, height);
 	int type = CV_8UC3;
 	if (!src_img.empty() && (src_img.size() == margined_size) && src_img.type() == type) {
 		tmp_img = src_img.clone();
@@ -130,15 +175,15 @@ static bool helperOC::contour(
 	const int thickness = 1;
 	cv::Scalar color_s(color[0], color[1], color[2]);
 	cv::Rect roi_rect(left_margin, top_margin, scaled_data_img.size().width, scaled_data_img.size().height);
-	std::for_each(level.cbegin(), level.cend(), [&scaled_data_img, &tmp_img, &thickness, &color_s, &roi_rect, &left_offset, &top_offset](const auto& rhs) {
+	std::for_each(level.cbegin(), level.cend(), [&scaled_data_img, &tmp_img, &thickness, &color_s, &roi_rect, &left_offset, &top_offset, &actual_fx, &actual_fy](const auto& rhs) {
 		std::vector<std::vector<cv::Point>> contours;
 		cv::Mat lowprecision_img;
 		cv::threshold(scaled_data_img, lowprecision_img, (double)rhs, 255, cv::THRESH_BINARY);
 		lowprecision_img.convertTo(lowprecision_img, CV_8UC1);
 		cv::findContours(lowprecision_img, contours, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
-		std::for_each(contours.cbegin(), contours.cend(), [&color_s, &tmp_img, &thickness, &roi_rect, &left_offset, &top_offset](const auto contour) {
+		std::for_each(contours.cbegin(), contours.cend(), [&color_s, &tmp_img, &thickness, &roi_rect, &left_offset, &top_offset, &actual_fx, &actual_fy](const auto contour) {
 			std::vector<cv::Point> offseted_contour(contour.size());
-			std::transform(contour.cbegin(), contour.cend(), offseted_contour.begin(), [&left_offset, &top_offset](const auto& rhs) {
+			std::transform(contour.cbegin(), contour.cend(), offseted_contour.begin(), [&left_offset, &top_offset, &actual_fx, &actual_fy](const auto& rhs) {
 				return cv::Point(rhs.x, rhs.y);
 			});
 			cv::polylines(tmp_img(roi_rect), offseted_contour, true, color_s, thickness, cv::LINE_AA);
@@ -157,7 +202,10 @@ bool helperOC::visSetIm_single(
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,
 	const bool applyLight,
-	const size_t sliceDim
+	const size_t sliceDim,
+	const cv::Size dsize,
+	const double fx,
+	const double fy
 ) {
 	//!<  Slice last dimension by default
 	const size_t gDim = g->get_num_of_dimensions();
@@ -169,14 +217,14 @@ bool helperOC::visSetIm_single(
 
 	switch (gDim) {
 	case 1:
-		plot(dst_img, fliped_src, g->get_xs(0), data, color);
+		plot(dst_img, fliped_src, g->get_xs(0), data, color, dsize, fx, fy);
 		break;
 	case 2:
 		if (level.empty()) {
-			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), beacls::FloatVec{(FLOAT_TYPE)0}, color);
+			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), beacls::FloatVec{(FLOAT_TYPE)0}, color, dsize, fx, fy);
 		}
 		else {
-			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), level, color);
+			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), level, color, dsize, fx, fy);
 		}
 		break;
 	case 3:
@@ -199,7 +247,10 @@ bool  helperOC::visSetIm(
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,
 	const bool deleteLastPlot,
-	const std::string& fig_filename
+	const std::string& fig_filename,
+	const cv::Size dsize,
+	const double fx,
+	const double fy
 ) {
 	//!< Default parameters and input check
 	if (!g) {
@@ -214,7 +265,7 @@ bool  helperOC::visSetIm(
 	if (g_sum_of_elements == data.size()) {
 		//!< Visualize a single set
 		dst_imgs.resize(1);
-		visSetIm_single(dst_imgs[0], src_img, g, data, color, level, deleteLastPlot);
+		visSetIm_single(dst_imgs[0], src_img, g, data, color, level, deleteLastPlot, std::numeric_limits<size_t>::max(), dsize, fx, fy);
 		if (save_png) {
 			cv::imwrite(fig_filename, dst_imgs[0]);
 		}
@@ -231,11 +282,11 @@ bool  helperOC::visSetIm(
 				dst_imgs.resize(1);
 				beacls::FloatVec data_i(data.cbegin() + g_sum_of_elements*i, data.cbegin() + g_sum_of_elements*(i + 1));
 				dst_imgs[0] = cv::Mat(src_img.size(), src_img.type(), cv::Scalar(255, 255, 255));
-				visSetIm_single(dst_imgs[0], dst_imgs[0], g, data_i, color, level, deleteLastPlot, applyLight);
+				visSetIm_single(dst_imgs[0], dst_imgs[0], g, data_i, color, level, deleteLastPlot, applyLight, dsize, fx, fy);
 			}
 			else {
 				beacls::FloatVec data_i(data.cbegin() + g_sum_of_elements*i, data.cbegin() + g_sum_of_elements*(i + 1));
-				visSetIm_single(dst_imgs[i], src_img, g, data_i, color, level, deleteLastPlot, applyLight);
+				visSetIm_single(dst_imgs[i], src_img, g, data_i, color, level, deleteLastPlot, applyLight, dsize, fx, fy);
 			}
 #if defined(VISUALIZE_WITH_GUI)
 			cv::imshow(fig_filename, dst_imgs[i]);
@@ -260,7 +311,10 @@ bool  helperOC::visSetIm(
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,
 	const bool deleteLastPlot,
-	const std::string& fig_filename
+	const std::string& fig_filename,
+	const cv::Size dsize,
+	const double fx,
+	const double fy
 ) {
 	//!< Default parameters and input check
 	if (!g) {
@@ -270,16 +324,15 @@ bool  helperOC::visSetIm(
 	if (!fig_filename.empty()) {
 		save_png = true;
 	}
-
 	const size_t g_sum_of_elements = g->get_sum_of_elems();
 	if (g_sum_of_elements == data.size()) {
 		//!< Visualize a single set
 		if (deleteLastPlot) {
 			dst_img = cv::Mat(src_img.size(), src_img.type(), cv::Scalar(255, 255, 255));
-			visSetIm_single(dst_img, dst_img, g, data, color, level, deleteLastPlot);
+			visSetIm_single(dst_img, dst_img, g, data, color, level, deleteLastPlot, std::numeric_limits<size_t>::max(), dsize, fx, fy);
 		}
 		else {
-			visSetIm_single(dst_img, src_img, g, data, color, level, deleteLastPlot);
+			visSetIm_single(dst_img, src_img, g, data, color, level, deleteLastPlot, std::numeric_limits<size_t>::max(), dsize, fx, fy);
 		}
 		if (save_png) {
 			cv::imwrite(fig_filename, dst_img);
@@ -295,11 +348,11 @@ bool  helperOC::visSetIm(
 			if (deleteLastPlot) {
 				dst_img = cv::Mat(src_img.size(), src_img.type(), cv::Scalar(255, 255, 255));
 				beacls::FloatVec data_i(data.cbegin() + g_sum_of_elements*i, data.cbegin() + g_sum_of_elements*(i + 1));
-				visSetIm_single(dst_img, dst_img, g, data_i, color, level, deleteLastPlot, applyLight);
+				visSetIm_single(dst_img, dst_img, g, data_i, color, level, deleteLastPlot, applyLight, dsize, fx, fy);
 			}
 			else {
 				beacls::FloatVec data_i(data.cbegin() + g_sum_of_elements*i, data.cbegin() + g_sum_of_elements*(i + 1));
-				visSetIm_single(dst_img, src_img, g, data_i, color, level, deleteLastPlot, applyLight);
+				visSetIm_single(dst_img, src_img, g, data_i, color, level, deleteLastPlot, applyLight, dsize, fx, fy);
 			}
 #if defined(VISUALIZE_WITH_GUI)
 			cv::imshow(fig_filename, dst_img);

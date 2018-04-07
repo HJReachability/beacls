@@ -257,6 +257,9 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
   cv::Mat HJIPDE_img;
   cv::Mat HJIPDE_initial_img;
   if (extraArgs.visualize) {
+	  const cv::Size dsize = extraArgs.visualize_size.size() == 2 ? cv::Size((int)extraArgs.visualize_size[0], (int)extraArgs.visualize_size[1]) : cv::Size();
+	  const double fx = extraArgs.fx;
+	  const double fy = extraArgs.fy;
     beacls::IntegerVec plotDimsIdx;
     if (!extraArgs.plotData.plotDims.empty()) {
       // Dimensions to visualize
@@ -289,8 +292,8 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
         });
       }
       const beacls::FloatVec* obstacle_ptr = obstacle_i ? obstacle_i : &tmp_obstacle;
-      if (all_of(plotDims.cbegin(), plotDims.cend(), [](const auto& rhs) { return rhs != 0; })) {
-        helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, grid, *obstacle_ptr, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0});
+	  if (all_of(plotDims.cbegin(), plotDims.cend(), [](const auto& rhs) { return rhs != 0; })) {
+        helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, grid, *obstacle_ptr, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, beacls::FloatVec(), true, std::string(), dsize, fx, fy);
       }
       else {
         levelset::HJI_Grid* gPlot;
@@ -301,7 +304,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
         std::fill(proj_types.begin(), proj_types.end(), helperOC::Projection_Vector);
         gPlot = helperOC::proj(obsPlot, grid, *obstacle_ptr, negatedPlotDims, proj_types, projpt);
         // visSetIm
-        helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, gPlot, obsPlot, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0});
+        helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, gPlot, obsPlot, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, beacls::FloatVec(), true, std::string(), dsize, fx, fy);
         if (gPlot) delete gPlot;
       }
     }
@@ -317,16 +320,32 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
         }
       }
 
-
       const beacls::FloatVec&xs0 = grid->get_xs(plotDimsIdx[0]);
       const beacls::FloatVec&xs1 = grid->get_xs(plotDimsIdx[1]);
       const auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(xs0.cbegin(), xs0.cend());
       const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(xs1.cbegin(), xs1.cend());
       const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
       const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
-      const int width = (int)std::ceil(x0_range);
-      const int height = (int)std::ceil(x1_range);
-      cv::Size margined_size(width + left_margin + right_margin, height + top_margin + bottom_margin);
+
+	  const double org_width = x0_range;
+	  const double org_height = x1_range;
+	  double actual_fx = 1.;
+	  double actual_fy = 1.;
+	  cv::Size size;
+	  if ((dsize.height != 0) && (dsize.width != 0)) {
+		  actual_fx = (double)dsize.width / org_width;
+		  actual_fy = (double)dsize.height / org_height;
+		  size = dsize;
+	  }
+	  else {
+		  actual_fx = fx != 0 ? fx : 1.;
+		  actual_fy = fy != 0 ? fy : 1.;
+		  size = cv::Size((int)std::ceil(org_width * actual_fx), (int)std::ceil(org_height * actual_fy));
+	  }
+
+	  const int width = size.width;
+	  const int height = size.height;
+	  cv::Size margined_size(width + left_margin + right_margin, height + top_margin + bottom_margin);
       const FLOAT_TYPE left_offset = x0MinMax.first;
       const FLOAT_TYPE top_offset = x1MinMax.first;
       if (HJIPDE_initial_img.empty()) {
@@ -339,8 +358,8 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
         int baseline = 0;
         cv::Size textSize = cv::getTextSize(star_str, cv::FONT_HERSHEY_SIMPLEX, fontScale, thickness, &baseline);
         cv::putText(HJIPDE_initial_img, star_str,
-          cv::Point((int32_t)std::round(projectedInit[0] - textSize.width / 2. + left_margin-left_offset),
-            (int32_t)::std::round(height - projectedInit[1] + textSize.height / 2. + top_margin-top_offset)),
+          cv::Point((int32_t)std::round(projectedInit[0] * actual_fx - textSize.width / 2. + left_margin-left_offset),
+            (int32_t)::std::round(height - projectedInit[1] * actual_fy + textSize.height / 2. + top_margin-top_offset)),
           cv::FONT_HERSHEY_SIMPLEX, fontScale,
           cv::Scalar{ 255,0,0 }, thickness, cv::LINE_AA);
       }
@@ -751,11 +770,14 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
       }
       const beacls::FloatVec& dataPlot = (projDims == 0) ? y : tmp_dataPlot;
       const beacls::FloatVec& obsPlot = (projDims == 0) ? *obstacle_ptr : tmp_obsPlot;
-      helperOC::visSetIm(HJIPDE_img, HJIPDE_initial_img, gPlot, dataPlot, std::vector<float>{0, 0, 255}, RS_level, false);
+	  const cv::Size dsize = extraArgs.visualize_size.size() == 2 ? cv::Size((int)extraArgs.visualize_size[0], (int)extraArgs.visualize_size[1]) : cv::Size();
+	  const double fx = extraArgs.fx;
+	  const double fy = extraArgs.fy;
+	  helperOC::visSetIm(HJIPDE_img, HJIPDE_initial_img, gPlot, dataPlot, std::vector<float>{0, 0, 255}, RS_level, false, std::string(), dsize, fx, fy);
       if (!HJIPDE_img.empty()) {
 
         if (obsMode == HJIPDE::ObsModeType_TimeVarying) {
-          helperOC::visSetIm(HJIPDE_img, HJIPDE_img, gPlot, obsPlot, std::vector<float>{0, 0, 0}, beacls::FloatVec{0},false);
+          helperOC::visSetIm(HJIPDE_img, HJIPDE_img, gPlot, obsPlot, std::vector<float>{0, 0, 0}, beacls::FloatVec{0},false, std::string(), dsize, fx, fy);
         }
         std::stringstream now_string;
         now_string << tNow;
@@ -771,7 +793,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
           cv::Scalar{ 0,0,0 }, thickness, cv::LINE_AA);
 
 #if defined(VISUALIZE_WITH_GUI)
-        cv::imshow("HJIPDE", HJIPDE_img);
+		cv::imshow("HJIPDE", HJIPDE_img);
         cv::waitKey(1);
 #endif
         if (!extraArgs.fig_filename.empty()) {
