@@ -33,8 +33,8 @@ namespace helperOC {
 #if defined(VISUALIZE_BY_OPENCV)
 	/**
 	@brief	Code for quickly visualizing level sets
-	@param	[out]	dst_imgs	vector of output images; these have the size dsize (when it is non-zero) or the size computed from src.size(), fx, and fy; the type of dst is the same as of src. 
-	@param	[in]	src_img		input image. 
+	@param	[out]	dst_imgs	vector of output images; these have the size dsize (when it is non-zero) or the size computed from src.size(), fx, and fy; the type of dst is the same as of src.
+	@param	[in]	src_img		input image.
 	@param	[in]	g			grid structure
 	@param	[in]	data		value function corresponding to grid g
 	@param	[in]	color		(defaults to red)
@@ -62,8 +62,8 @@ namespace helperOC {
 		);
 	/**
 	@brief	Code for quickly visualizing level sets
-	@param	[out]	dst_img		output image; it has the size dsize (when it is non-zero) or the size computed from src.size(), fx, and fy; the type of dst is the same as of src. 
-	@param	[in]	src_img		input image. 
+	@param	[out]	dst_img		output image; it has the size dsize (when it is non-zero) or the size computed from src.size(), fx, and fy; the type of dst is the same as of src.
+	@param	[in]	src_img		input image.
 	@param	[in]	g			grid structure
 	@param	[in]	data		value function corresponding to grid g
 	@param	[in]	color		(defaults to red)

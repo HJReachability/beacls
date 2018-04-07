@@ -40,7 +40,7 @@ namespace helperOC {
 		const cv::Size dsize = cv::Size(),
 		const double fx = 0.,
 		const double fy = 0.
-		);
+	);
 	static bool contour(
 		cv::Mat& dst_img,
 		const cv::Mat& src_img,
@@ -49,7 +49,7 @@ namespace helperOC {
 		const beacls::FloatVec& data,
 		const beacls::IntegerVec& Ns,
 		const beacls::FloatVec& level = beacls::FloatVec(),
-		const std::vector<float>& color = std::vector<float>{0,0,255},
+		const std::vector<float>& color = std::vector<float>{ 0,0,255 },
 		const cv::Size dsize = cv::Size(),
 		const double fx = 0.,
 		const double fy = 0.
@@ -99,7 +99,7 @@ static bool helperOC::plot(
 
 	const int thickness = 1;
 	std::vector<cv::Point> nodes(data.size());
-	for (size_t x = 0; x < data.size();++x){
+	for (size_t x = 0; x < data.size(); ++x) {
 		nodes[x] = cv::Point((int)x * actual_fx, (int)std::round((data[x] - min_value) * actual_fy));
 	}
 	cv::polylines(tmp_img, nodes, true, color_s, thickness, cv::LINE_AA);
@@ -161,7 +161,7 @@ static bool helperOC::contour(
 	const FLOAT_TYPE top_offset = x1MinMax.first;
 
 	cv::Mat tmp_img;
-	cv::Size margined_size(width+left_margin+right_margin, height+top_margin+bottom_margin);
+	cv::Size margined_size(width + left_margin + right_margin, height + top_margin + bottom_margin);
 	int type = CV_8UC3;
 	if (!src_img.empty() && (src_img.size() == margined_size) && src_img.type() == type) {
 		tmp_img = src_img.clone();
@@ -209,7 +209,7 @@ bool helperOC::visSetIm_single(
 ) {
 	//!<  Slice last dimension by default
 	const size_t gDim = g->get_num_of_dimensions();
-	size_t modifiedSliceDim = (sliceDim != std::numeric_limits<size_t>::max()) ? sliceDim : gDim -1;
+	size_t modifiedSliceDim = (sliceDim != std::numeric_limits<size_t>::max()) ? sliceDim : gDim - 1;
 	cv::Mat fliped_src;
 	if (!src_img.empty()) {
 		cv::flip(src_img, fliped_src, 0);
@@ -221,7 +221,7 @@ bool helperOC::visSetIm_single(
 		break;
 	case 2:
 		if (level.empty()) {
-			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), beacls::FloatVec{(FLOAT_TYPE)0}, color, dsize, fx, fy);
+			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), beacls::FloatVec{ (FLOAT_TYPE)0 }, color, dsize, fx, fy);
 		}
 		else {
 			contour(dst_img, fliped_src, g->get_xs(0), g->get_xs(1), data, g->get_Ns(), level, color, dsize, fx, fy);

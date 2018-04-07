@@ -54,7 +54,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 	const HJIPDE_extraArgs& extraArgs,
 	const helperOC::DynSys_UMode_Type uMode,
 	const size_t subSamples
-) {
+	) {
 	const bool visualize = extraArgs.visualize;
 
 	const helperOC::ExecParameters execParameters = extraArgs.execParameters;
@@ -214,7 +214,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 			if (g2D) delete g2D;
 		}
 
-		if (tEarliest == (tauLength-1)) {
+		if (tEarliest == (tauLength - 1)) {
 			//!< Trajectory has entered the target
 			break;
 		}
@@ -241,7 +241,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 				x_sizes[dimension] = 1;
 			}
 			if (derivs.size() != deriv.size()) derivs.resize(deriv.size());
-			for (size_t dimension = 0; dimension < deriv.size();++dimension){
+			for (size_t dimension = 0; dimension < deriv.size(); ++dimension) {
 				derivs[dimension] = deriv[dimension].data();
 			};
 			if (deriv_sizes.size() != derivs.size()) deriv_sizes.resize(derivs.size());
@@ -256,7 +256,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 		if (iter < traj.size()) traj[iter] = dynSys->get_x();
 	}
 	//!< Delete unused indices
-	const size_t traj_size = iter < tau.size() ? iter :tau.size();
+	const size_t traj_size = iter < tau.size() ? iter : tau.size();
 	traj.resize(traj_size);
 	traj_tau.resize(traj_size);
 	std::copy(tau.cbegin(), tau.cbegin() + traj_size, traj_tau.begin());
@@ -273,7 +273,7 @@ bool helperOC::ComputeOptTraj::operator()(
 	const HJIPDE_extraArgs& extraArgs,
 	const helperOC::DynSys_UMode_Type uMode,
 	const size_t subSamples
-) {
+	) {
 	if (pimpl) pimpl->operator()(traj, traj_tau, grid, data, tau, dynSys, extraArgs, uMode, subSamples);
 	return false;
 }
