@@ -138,10 +138,11 @@ static bool helperOC::contour(
 	auto v1MinMax = beacls::minmax_value<FLOAT_TYPE>(v1.cbegin(), v1.cend());
 	const FLOAT_TYPE v0_range = v0MinMax.second - v0MinMax.first;
 	const FLOAT_TYPE v1_range = v1MinMax.second - v1MinMax.first;
-	const int width = (int)std::ceil(v0_range);
-	const int height = (int)std::ceil(v1_range);
+	const int org_width = (int)std::ceil(v0_range);
+	const int org_height = (int)std::ceil(v1_range);
 	const FLOAT_TYPE left_offset = v0MinMax.first;
 	const FLOAT_TYPE top_offset = v1MinMax.first;
+	double actual_fx = 1.;
 	double actual_fy = 1.;
 	cv::Size size;
 	if ((dsize.height != 0) && (dsize.width != 0)) {
