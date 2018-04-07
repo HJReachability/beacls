@@ -110,6 +110,9 @@ int main(int argc, char *argv[])
 	extraArgs.obstacles = obstacles;
 	extraArgs.stopInit = pl->get_x();
 	extraArgs.visualize = true;
+	extraArgs.visualize_size = beacls::IntegerVec{ 640, 640 };
+//	extraArgs.fx = 4.;
+//	extraArgs.fy = 2.;
 	extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0 };
 	extraArgs.plotData.projpt = beacls::FloatVec{ pl->get_x()[2] };
 	extraArgs.deleteLastPlot = true;
@@ -139,7 +142,7 @@ int main(int argc, char *argv[])
 
 		g->save_grid(std::string("g"), fs);
 		if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), Ns, false, fs);
+		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
 	}
 	//!< Compute optimal trajectory
 	extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
