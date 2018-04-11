@@ -24,53 +24,71 @@ Plane::Plane(
 	beacls::IntegerVec{2}),	//!< velocity dimensions
 	wMax(wMax), vrange(vrange), dMax(dMax) {
 	if (x.size() != 3) {
-		std::cerr << "Error: " << __func__ << " : Initial state does not have right dimension!" << std::endl;
+		std::cerr << "Error: " << __func__ << 
+		  " : Initial state does not have right dimension!" << std::endl;
 	}
 
 	DynSys::set_x(x);
 	DynSys::push_back_xhist(x);
-
 }
+
 Plane::Plane(
-	beacls::MatFStream* fs,
-	beacls::MatVariable* variable_ptr
-) :
-	DynSys(fs, variable_ptr),
-	wMax(0),
-	vrange(beacls::FloatVec()),
-	dMax(beacls::FloatVec())
-{
+		beacls::MatFStream* fs,
+		beacls::MatVariable* variable_ptr):
+		DynSys(fs, variable_ptr),
+		wMax(0),
+		vrange(beacls::FloatVec()),
+		dMax(beacls::FloatVec()) {
+
 	beacls::IntegerVec dummy;
 	load_value(wMax, std::string("wMax"), true, fs, variable_ptr);
 	load_vector(vrange, std::string("vrange"), dummy, true, fs, variable_ptr);
 	load_vector(dMax, std::string("dMax"), dummy, true, fs, variable_ptr);
 }
+
 Plane::~Plane() {
 }
+
 bool Plane::operator==(const Plane& rhs) const {
 	if (this == &rhs) return true;
 	else if (!DynSys::operator==(rhs)) return false;
 	else if (wMax != rhs.wMax) return false;	//!< Angular control bounds
-	else if ((vrange.size() != rhs.vrange.size()) || !std::equal(vrange.cbegin(), vrange.cend(), rhs.vrange.cbegin())) return false;	//!< Speed control bounds
-	else if ((dMax.size() != rhs.dMax.size()) || !std::equal(dMax.cbegin(), dMax.cend(), rhs.dMax.cbegin())) return false;	//!< Disturbance
+	else if ((vrange.size() != rhs.vrange.size()) ||
+		  !std::equal(vrange.cbegin(), vrange.cend(), rhs.vrange.cbegin())) {
+		return false;	//!< Speed control bounds
+	}
+	
+	else if ((dMax.size() != rhs.dMax.size()) || 
+	  !std::equal(dMax.cbegin(), dMax.cend(), rhs.dMax.cbegin())) {
+	  return false;	//!< Disturbance
+  }
+
 	else return true;
 }
+
 bool Plane::operator==(const DynSys& rhs) const {
 	if (this == &rhs) return true;
 	else if (typeid(*this) != typeid(rhs)) return false;
 	else return operator==(dynamic_cast<const Plane&>(rhs));
 }
+
 bool Plane::save(
-	beacls::MatFStream* fs,
-	beacls::MatVariable* variable_ptr
-) {
+		beacls::MatFStream* fs,
+		beacls::MatVariable* variable_ptr) {
 	bool result = DynSys::save(fs, variable_ptr);
 
 	result &= save_value(wMax, std::string("wMax"), true, fs, variable_ptr);
-	if (!vrange.empty()) result &= save_vector(vrange, std::string("vrange"), beacls::IntegerVec(), true, fs, variable_ptr);
-	if (!dMax.empty()) result &= save_vector(dMax, std::string("dMax"), beacls::IntegerVec(), true, fs, variable_ptr);
+	if (!vrange.empty()) {
+		result &= save_vector(vrange, std::string("vrange"), beacls::IntegerVec(), 
+			true, fs, variable_ptr);
+	}
+	if (!dMax.empty()) {
+		result &= save_vector(dMax, std::string("dMax"), beacls::IntegerVec(), 
+			true, fs, variable_ptr);
+	}
 	return result;
 }
+
 bool Plane::getVelocity(beacls::FloatVec& v, std::vector<beacls::FloatVec>& vhist) const {
 	DynSys::getVelocity(v, vhist);
 	//!< Plane is a special case, since speed is one of the controls
@@ -127,15 +145,17 @@ bool Plane::uniformDstb(std::vector<beacls::FloatVec> &ds) const {
 }
 
 bool Plane::optCtrl(
-	std::vector<beacls::FloatVec >& uOpts,
-	const FLOAT_TYPE,
-	const std::vector<beacls::FloatVec::const_iterator >& y_ites,
-	const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
-	const beacls::IntegerVec& y_sizes,
-	const beacls::IntegerVec& deriv_sizes,
-	const helperOC::DynSys_UMode_Type uMode
-) const {
-	const helperOC::DynSys_UMode_Type modified_uMode = (uMode == helperOC::DynSys_UMode_Default) ? helperOC::DynSys_UMode_Max : uMode;
+		std::vector<beacls::FloatVec>& uOpts,
+		const FLOAT_TYPE,
+		const std::vector<beacls::FloatVec::const_iterator>& y_ites,
+		const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
+		const beacls::IntegerVec& y_sizes,
+		const beacls::IntegerVec& deriv_sizes,
+		const helperOC::DynSys_UMode_Type uMode) const {
+
+	const helperOC::DynSys_UMode_Type modified_uMode = 
+	  (uMode == helperOC::DynSys_UMode_Default) ? 
+	  helperOC::DynSys_UMode_Max : uMode;
 	const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
 	const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
 	const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
@@ -291,6 +311,7 @@ bool Plane::dynamics_cell_helper(
 		result = false;
 		break;
 	}
+
 	return result;
 }
 
