@@ -228,3 +228,11 @@ ModelManifest.xml
 *.db-wal
 *.db
 *.db-shm
+
+*.4
+
+*.0
+
+*.status
+
+*.3

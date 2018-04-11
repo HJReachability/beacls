@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 
 		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
-		beacls::IntegerVec{41,41,21}, beacls::IntegerVec{2});
+		beacls::IntegerVec{51,51,51}, beacls::IntegerVec{2});
 
 	std::vector<beacls::FloatVec > targets(1);
 	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacles[0].begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 
 	//!< Compute reachable set
-	const FLOAT_TYPE tMax = 200;
+	const FLOAT_TYPE tMax = 15;
 	const FLOAT_TYPE dt = 0.25;
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
