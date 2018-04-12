@@ -67,8 +67,10 @@ P5D_Dubins::P5D_Dubins(
     ),
     aRange(aRange), alphaMax(alphaMax), vOther(vOther),
     wMax(wMax), dMax(dMax), dims(dims) {
+    std::cout << "Constructed P5D_Dubins object with:" << std::endl;
+    std::cout << "  " << "N_states: " << x.size() << std::endl;
+    std::cout << "  " << "N_disturbances: " << dMax.size() << std::endl;
     //!< Process control range
-
     if (x.size() != DynSys::get_nx()) {
         std::cerr << "Error: " << __func__ <<
             " : Initial state does not have right dimension!" << std::endl;

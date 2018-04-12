@@ -81,21 +81,30 @@ int main(int argc, char *argv[])
 	}
 	// Create grid
 	beacls::IntegerVec	Ns;
+	std::cout << "Model size option :" << model_size <<std::endl;
 	switch (model_size) {
 	case 0:
-		Ns = beacls::IntegerVec{ 51, 51, 31, 31, 31};
+		Ns = beacls::IntegerVec{ 11, 11, 11, 11, 11};
 		break;
 	case 1:
+		Ns = beacls::IntegerVec{ 31, 31, 21, 21, 21};
+	case 2:
+		break;
+		Ns = beacls::IntegerVec{ 51, 51, 31, 31, 31};
+	case 3:
+		break;
 		Ns = beacls::IntegerVec{ 151, 151, 101, 101, 101};
 		break;
-	case 2:
-	default:
+	case 4:
 		Ns = beacls::IntegerVec{ 501, 501, 301, 301, 301 };
 		break;
-	case 3:
+	default:
 		Ns = beacls::IntegerVec{ 1501, 1501, 1001, 1001, 1001 };
 		break;
 	}
+	std::cout << "Grid dimensions : ["
+		<< Ns[0] << ", " << Ns[0] << ", " << Ns[1] << ", "
+		<< Ns[2] << ", " << Ns[3] << ", " << Ns[4] << "]" << std::endl;
 	levelset::HJI_Grid* g = helperOC::createGrid( // Grid limits (HARD-CODED)
 		beacls::FloatVec{
 				(FLOAT_TYPE)-21, (FLOAT_TYPE)-18, (FLOAT_TYPE)-M_PI,
@@ -145,6 +154,7 @@ int main(int argc, char *argv[])
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > data;
+	std::cout << "Begin HJI PDE Solve." <<std::endl;
 	hjipde->solve(data, stoptau, extraOuts, data0, tau, schemeData, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
 	beacls::FloatVec TTR;
 	std::vector<beacls::FloatVec > P, derivL, derivR;

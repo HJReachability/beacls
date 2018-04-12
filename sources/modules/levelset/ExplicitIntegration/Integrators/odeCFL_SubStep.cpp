@@ -35,6 +35,7 @@ void levelset::odeCFL_SubStep(
 	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu
 ) {
+	std::cout << "Begin execution of odeCFL_SubStep." << std::endl; // JFF DEBUG
 	bool executeAgain = false;
 	std::vector<beacls::FloatVec > originalDerivMins;
 	std::vector<beacls::FloatVec > originalDerivMaxs;
@@ -54,6 +55,7 @@ void levelset::odeCFL_SubStep(
 	do {
 		//! Parallel Body
 		std::vector<OdeCFL_OneSlice*> odeCFL_OneSlices(num_of_parallel_loop_lines);
+		std::cout << "Begin for parallel_line_index loop." << std::endl; // JFF DEBUG
 		for (int parallel_line_index = 0; parallel_line_index < (int)num_of_parallel_loop_lines; ++parallel_line_index) {
 			OdeCFL_OneSlice* odeCFL_OneSlice = new OdeCFL_OneSlice(
 				t,
@@ -79,16 +81,24 @@ void levelset::odeCFL_SubStep(
 			odeCFL_OneSlices[parallel_line_index] = odeCFL_OneSlice;
 			odeCFL_CommandQueues[parallel_line_index%actual_num_of_threas]->push(odeCFL_OneSlice);
 		}
+		std::cout << "End for parallel_line_index loop." << std::endl; // JFF DEBUG
 		std::transform(odeCFL_OneSlices.begin(), odeCFL_OneSlices.end(), executeAgains.begin(), [](auto& rhs) {
+			std::cout << "Begin while !rhs->is_finished loop." << std::endl; // JFF DEBUG
 			while (!rhs->is_finished()) {
+				std::cout << "Evaluated rhs->is_finished." << std::endl; // JFF DEBUG
 				std::this_thread::yield();
+				// JFF FOUND ISSUE: INFINITE LOOP UNTIL SEGMENTATION FAULT! RHS->IS_FINISHED ALWAYS FALSE.
+				// WHAT IS THIS RHS OBJECT AND WHAT IS STD::TRANSFORM DOING?
 			}
+			std::cout << "End while !rhs->is_finished loop." << std::endl; // JFF DEBUG
 			bool result;
 			result = rhs->get_executeAgain();
+			std::cout << "Done get_executeAgain()." << std::endl; // JFF DEBUG
 
 			if (rhs) delete rhs;
 			return result;
 		});
+		std::cout << "Done stransform()." << std::endl; // JFF DEBUG
 		executeAgain = std::any_of(executeAgains.cbegin(), executeAgains.cend(), [](const auto& rhs) { return rhs; });
 		for (auto ite = derivMins.begin(); ite != derivMins.end(); ++ite) {
 			if (ite->size() != 1) ite->resize(1);

@@ -86,18 +86,22 @@ bool HJIPDE_impl::getNumericalFuncs(
   //! accuracy
   switch (accuracy) {
   case helperOC::ApproximationAccuracy_low:
+    std::cout << "Accuracy is low. " << std::endl; // JFF DEBUG
     derivFunc = new levelset::UpwindFirstFirst(grid, type);
     integratorFunc = new levelset::OdeCFL1(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
     break;
   case helperOC::ApproximationAccuracy_medium:
+    std::cout << "Accuracy is medium. " << std::endl; // JFF DEBUG
     derivFunc = new levelset::UpwindFirstENO2(grid, type);
     integratorFunc = new levelset::OdeCFL2(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
     break;
   case helperOC::ApproximationAccuracy_high:
+    std::cout << "Accuracy is high. " << std::endl; // JFF DEBUG
     derivFunc = new levelset::UpwindFirstENO3(grid, type);
     integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
     break;
   case helperOC::ApproximationAccuracy_veryHigh:
+    std::cout << "Accuracy is very high. " << std::endl; // JFF DEBUG
     derivFunc = new levelset::UpwindFirstWENO5(grid, type);
     integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
     break;
@@ -553,10 +557,12 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
       }
 
       beacls::FloatVec tspan{tNow,src_tau[i]};
+      std::cout << "Begin time step (duration: " << tspan[1] << ")." << std::endl;
       tNow = integratorFunc->execute(
         y, tspan, y, modified_schemeData, 
         execParameters.line_length_of_chunk, execParameters.num_of_threads, execParameters.num_of_gpus,
         execParameters.delayedDerivMinMax, execParameters.enable_user_defined_dynamics_on_gpu);
+      std::cout << "End time step." << std::endl;
 
       if (std::any_of(y.cbegin(), y.cend(), [](const auto& rhs) { return std::isnan(rhs); })) {
         char num;
