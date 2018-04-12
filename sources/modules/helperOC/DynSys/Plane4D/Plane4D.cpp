@@ -310,9 +310,9 @@ bool Plane4D::dynamics_cell_helper(
 
   beacls::FloatVec& dx_i = dxs[dim];
   bool result = true;
-
-  switch (dims[dim]) {
-    case 0: {
+  
+  switch (dims[dim]) { // states are (xpos, ypos, heading, velocity)
+      case 0: { // \dot x0 = x3 * cos (x2)
         dx_i.assign(x2_size, 10.);
         // dx_i.resize(x2_size);
 
@@ -323,7 +323,7 @@ bool Plane4D::dynamics_cell_helper(
       }
       break;
 
-    case 1: {
+    case 1: { // \dot x0 = x3 * sin (x2)
         dx_i.assign(x2_size, 10.);
         // dx_i.resize(x2_size);
         // const beacls::FloatVec& ds_1 = ds[1];
@@ -333,16 +333,16 @@ bool Plane4D::dynamics_cell_helper(
       }
       break;
 
-    case 2:
-      dx_i.assign(x2_size, 10.);
-      // dx_i.resize(us[0].size());
-      // std::copy(us[0].cbegin(), us[0].cend(), dx_i.begin());
+    case 2: // \dot x3 = u0
+      // dx_i.assign(x2_size, 10.);
+      dx_i.resize(us[0].size());
+      std::copy(us[0].cbegin(), us[0].cend(), dx_i.begin());
       break;
 
-    case 3:
-      dx_i.assign(x2_size, 10.);
-      // dx_i.resize(us[1].size());
-      // std::copy(us[1].cbegin(), us[1].cend(), dx_i.begin());
+    case 3: // \dot x4 = u1
+      // dx_i.assign(x2_size, 10.);
+      dx_i.resize(us[1].size());
+      std::copy(us[1].cbegin(), us[1].cend(), dx_i.begin());
       break;
 
     default: {
@@ -366,6 +366,7 @@ bool Plane4D::dynamics(
     const beacls::IntegerVec& x_sizes,
     const size_t dst_target_dim) const {
 
+  // printf("x_size = (%zd, %zd, %zd, %zd)\n", x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3]);
   const size_t src_target_dim2_index = find_val(dims, 2);
   const size_t src_target_dim3_index = find_val(dims, 3);
 

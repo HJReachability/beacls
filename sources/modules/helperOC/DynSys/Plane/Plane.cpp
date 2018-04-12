@@ -258,6 +258,9 @@ bool Plane::dynamics_cell_helper(
 	const size_t dx_dim_size = (dim == 2) ? us[1].size() : x_size;
 	dx.resize(dx_dim_size);
 	bool result = true;
+
+	// printf("x_size = %zd\n", x_size);
+
 	switch (dim) {
 	case 0:
 		{
@@ -316,22 +319,32 @@ bool Plane::dynamics_cell_helper(
 }
 
 bool Plane::dynamics(
-	std::vector<beacls::FloatVec >& dxs,
-	const FLOAT_TYPE,
-	const std::vector<beacls::FloatVec::const_iterator >& x_ites,
-	const std::vector<beacls::FloatVec >& us,
-	const std::vector<beacls::FloatVec >& ds,
-	const beacls::IntegerVec& x_sizes,
-	const size_t dst_target_dim
-) const {
-	static const std::vector<beacls::FloatVec >& dummy_ds{ beacls::FloatVec{0},beacls::FloatVec{0},beacls::FloatVec{0} };
-	const std::vector<beacls::FloatVec >& modified_ds = (ds.empty()) ? dummy_ds : ds;
+		std::vector<beacls::FloatVec >& dxs,
+		const FLOAT_TYPE,
+		const std::vector<beacls::FloatVec::const_iterator >& x_ites,
+		const std::vector<beacls::FloatVec >& us,
+		const std::vector<beacls::FloatVec >& ds,
+		const beacls::IntegerVec& x_sizes,
+		const size_t dst_target_dim) const {
+
+	static const std::vector<beacls::FloatVec >& 
+	  dummy_ds{ beacls::FloatVec{0},beacls::FloatVec{0},beacls::FloatVec{0} };
+	const std::vector<beacls::FloatVec >& modified_ds = 
+	  (ds.empty()) ? dummy_ds : ds;
+
 	const size_t src_x_dim_index = 2;
-	const beacls::FloatVec::const_iterator& x_ites_target_dim = x_ites[src_x_dim_index];
+	const beacls::FloatVec::const_iterator& 
+	  x_ites_target_dim = x_ites[src_x_dim_index];
+  
+  // printf("x_size = (%zu, %zu, %zu)\n", x_sizes[0], x_sizes[1], x_sizes[2]);
+
 	if (dst_target_dim == std::numeric_limits<size_t>::max()) {
-		dynamics_cell_helper(dxs[0], x_ites_target_dim, us, modified_ds, x_sizes[src_x_dim_index], 0);
-		dynamics_cell_helper(dxs[1], x_ites_target_dim, us, modified_ds, x_sizes[src_x_dim_index], 1);
-		dynamics_cell_helper(dxs[2], x_ites_target_dim, us, modified_ds, x_sizes[src_x_dim_index], 2);
+		dynamics_cell_helper(dxs[0], x_ites_target_dim, us, modified_ds, 
+			x_sizes[src_x_dim_index], 0);
+		dynamics_cell_helper(dxs[1], x_ites_target_dim, us, modified_ds, 
+			x_sizes[src_x_dim_index], 1);
+		dynamics_cell_helper(dxs[2], x_ites_target_dim, us, modified_ds, 
+			x_sizes[src_x_dim_index], 2);
 	}
 	else
 	{

@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacles[0].begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 
 	//!< Compute reachable set
-	const FLOAT_TYPE tMax = 15;
+	const FLOAT_TYPE tMax = 1;
 	const FLOAT_TYPE dt = 0.25;
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
@@ -144,20 +144,20 @@ int main(int argc, char *argv[])
 		if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
 		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
 	}
-	//!< Compute optimal trajectory
-	extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
-	extraArgs.fig_filename = "Plane_test_Traj";
-	std::vector<beacls::FloatVec > traj;
-	beacls::FloatVec traj_tau;
-	std::vector<beacls::FloatVec > fliped_data(datas.size());
-	std::copy(datas.crbegin(), datas.crend(), fliped_data.begin());
-	helperOC::ComputeOptTraj* computeOptTraj = new helperOC::ComputeOptTraj();
-	computeOptTraj->operator()(traj, traj_tau, g, fliped_data, tau2, pl, extraArgs);
-	if (computeOptTraj) delete computeOptTraj;
-	if (dump_file) {
-		if (!traj.empty()) save_vector_of_vectors(traj, std::string("traj"), beacls::IntegerVec(), false, fs);
-		if (!traj_tau.empty()) save_vector(traj_tau, std::string("traj_tau"), beacls::IntegerVec(), false, fs);
-	}
+	// //!< Compute optimal trajectory
+	// extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
+	// extraArgs.fig_filename = "Plane_test_Traj";
+	// std::vector<beacls::FloatVec > traj;
+	// beacls::FloatVec traj_tau;
+	// std::vector<beacls::FloatVec > fliped_data(datas.size());
+	// std::copy(datas.crbegin(), datas.crend(), fliped_data.begin());
+	// helperOC::ComputeOptTraj* computeOptTraj = new helperOC::ComputeOptTraj();
+	// computeOptTraj->operator()(traj, traj_tau, g, fliped_data, tau2, pl, extraArgs);
+	// if (computeOptTraj) delete computeOptTraj;
+	// if (dump_file) {
+	// 	if (!traj.empty()) save_vector_of_vectors(traj, std::string("traj"), beacls::IntegerVec(), false, fs);
+	// 	if (!traj_tau.empty()) save_vector(traj_tau, std::string("traj_tau"), beacls::IntegerVec(), false, fs);
+	// }
 	beacls::closeMatFStream(fs);
 
 

@@ -40,19 +40,19 @@ TermLaxFriedrichs_impl::TermLaxFriedrichs_impl(const TermLaxFriedrichs_impl& rhs
 	x_uvecs.resize(rhs.x_uvecs.size());
 }
 bool TermLaxFriedrichs_impl::execute(
-	beacls::FloatVec::iterator ydot_ite,
-	beacls::FloatVec& step_bound_invs,
-	const FLOAT_TYPE t,
-	const beacls::FloatVec& y,
-	std::vector<beacls::FloatVec >& derivMins,
-	std::vector<beacls::FloatVec >& derivMaxs,
-	const SchemeData *schemeData,
-	const size_t loop_begin,
-	const size_t loop_length,
-	const size_t num_of_slices,
-	const bool enable_user_defined_dynamics_on_gpu,
-	const bool updateDerivMinMax
-) {
+		beacls::FloatVec::iterator ydot_ite,
+		beacls::FloatVec& step_bound_invs,
+		const FLOAT_TYPE t,
+		const beacls::FloatVec& y,
+		std::vector<beacls::FloatVec >& derivMins,
+		std::vector<beacls::FloatVec >& derivMaxs,
+		const SchemeData *schemeData,
+		const size_t loop_begin,
+		const size_t loop_length,
+		const size_t num_of_slices,
+		const bool enable_user_defined_dynamics_on_gpu,
+		const bool updateDerivMinMax) {
+
 	const HJI_Grid *grid = schemeData->get_grid();
 	SpatialDerivative* spatialDerivative = schemeData->get_spatialDerivative();
 	Dissipation* dissipation = schemeData->get_dissipation();
@@ -64,7 +64,12 @@ bool TermLaxFriedrichs_impl::execute(
 	// Get upwinded and centered derivative approximations.
 
 	size_t f_d_l_size = first_dimension_loop_size;
-	size_t grid_length = num_of_slices*loop_length*f_d_l_size;
+	//size_t grid_length = num_of_slices*loop_length*f_d_l_size;
+	size_t grid_length = grid->get_numel();
+	// printf("(num_of_slices, loop_length, f_d_l_size) = (%zu, %zu, %zu)\n", 
+	// 	num_of_slices, loop_length, f_d_l_size);
+ //  printf("grid_length = %zu\n", grid_length);
+
 	size_t slice_length = loop_length*f_d_l_size;
 	if (ham_uvec.type() != type) ham_uvec = beacls::UVec(depth, type, grid_length);
 	else if (ham_uvec.size() != grid_length) ham_uvec.resize(grid_length);
@@ -132,17 +137,13 @@ bool TermLaxFriedrichs_impl::execute(
 	std::transform(derivMaxs.cbegin(), derivMaxs.cend(), deriv_max_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 	std::transform(derivMins.cbegin(), derivMins.cend(), deriv_min_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 
-	if (!enable_user_defined_dynamics_on_gpu 
-		|| type != beacls::UVecType_Cuda
-		|| !schemeData->hamFunc_cuda(
-			ham_uvec,
-			t,
-			y_uvec,
-			x_uvecs,
-			deriv_c_uvecs,
+	if (!enable_user_defined_dynamics_on_gpu || type != beacls::UVecType_Cuda || 
+		  !schemeData->hamFunc_cuda(ham_uvec,	t, y_uvec, x_uvecs,	deriv_c_uvecs,
 			src_index_term, grid_length)) {
+
 		deriv_c_cpu_uvecs.resize(deriv_c_uvecs.size());
-		std::transform(deriv_c_uvecs.cbegin(), deriv_c_uvecs.cend(), deriv_c_cpu_uvecs.begin(), ([](const auto& rhs) {
+		std::transform(deriv_c_uvecs.cbegin(), deriv_c_uvecs.cend(), 
+			deriv_c_cpu_uvecs.begin(), ([](const auto& rhs) {
 			if (rhs.type() == beacls::UVecType_Cuda) {
 				beacls::UVec tmp; rhs.convertTo(tmp, beacls::UVecType_Vector); return tmp;
 			}

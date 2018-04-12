@@ -64,9 +64,9 @@ int main(int argc, char *argv[])
   if (argc >= 9) {
     enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
   }
-  //!< Plane parameters
+  // Plane parameters
   const beacls::FloatVec initState{(FLOAT_TYPE)100, (FLOAT_TYPE)75, 
-    (FLOAT_TYPE)(45 * M_PI / 180), (FLOAT_TYPE)1.25 };
+    (FLOAT_TYPE)(180 * M_PI / 180), (FLOAT_TYPE)1.25 };
   const FLOAT_TYPE wMax = (FLOAT_TYPE)1;
   const beacls::FloatVec aRange{ (FLOAT_TYPE)(-2), (FLOAT_TYPE)2 };
   const beacls::FloatVec dMax{ (FLOAT_TYPE)0, (FLOAT_TYPE)0 };
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   beacls::FloatVec 
     gmax{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI), (FLOAT_TYPE)3};
   levelset::HJI_Grid* g = helperOC::createGrid(gmin, gmax,
-    beacls::IntegerVec{21,21,21,21}, beacls::IntegerVec{2});
+    beacls::IntegerVec{21,22,23,24}, beacls::IntegerVec{2});
 
   // Target
   std::vector<beacls::FloatVec> targets(1);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
   //!< Compute reachable set
   const FLOAT_TYPE tMax = 15;
-  const FLOAT_TYPE dt = 0.25;
+  const FLOAT_TYPE dt = 0.1;
   beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
   // Dynamical system parameters
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   helperOC::HJIPDE_extraArgs extraArgs;
   helperOC::HJIPDE_extraOuts extraOuts;
   extraArgs.targets = targets;
-  extraArgs.obstacles = obstacles;
+  //extraArgs.obstacles = obstacles;
   extraArgs.stopInit = pl->get_x();
   extraArgs.visualize = true;
   extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0, 0 };
