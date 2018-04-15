@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 	std::cout << "Model size option :" << model_size <<std::endl;
 	switch (model_size) {
 	case 0:
-		Ns = beacls::IntegerVec{ 11, 11, 11, 11, 11};
+		Ns = beacls::IntegerVec{ 3, 3, 3, 3, 3};
 		break;
 	case 1:
 		Ns = beacls::IntegerVec{ 31, 31, 21, 21, 21};
