@@ -324,12 +324,12 @@ bool Plane4D::dynamics_cell_helper(
       break;
 
     case 1: { // \dot x0 = x3 * sin (x2)
-        dx_i.assign(x2_size, 10.);
-        // dx_i.resize(x2_size);
-        // const beacls::FloatVec& ds_1 = ds[1];
-        // for (size_t index = 0; index < x2_size; ++index) {
-        //   dx_i[index] = x_ites3[index]*std::sin(x_ites2[index]) + ds_1[index];
-        // }
+        // dx_i.assign(x2_size, 10.);
+        dx_i.resize(x2_size);
+        const beacls::FloatVec& ds_1 = ds[1];
+        for (size_t index = 0; index < x2_size; ++index) {
+          dx_i[index] = x_ites3[index]*std::sin(x_ites2[index]) + ds_1[index];
+        }
       }
       break;
 

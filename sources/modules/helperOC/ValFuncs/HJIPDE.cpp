@@ -36,18 +36,17 @@ bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
 
 
 bool HJIPDE_impl::getNumericalFuncs(
-	levelset::Dissipation*& dissFunc,
-	levelset::Integrator*& integratorFunc,
-	levelset::SpatialDerivative*& derivFunc,
-	const levelset::HJI_Grid* grid,
-	const levelset::Term* schemeFunc,
-	const helperOC::Dissipation_Type dissType,
-	const helperOC::ApproximationAccuracy_Type accuracy,
-	const FLOAT_TYPE factorCFL,
-	const bool stats,
-	const bool single_step,
-	const beacls::UVecType type
-) const {
+		levelset::Dissipation*& dissFunc,
+		levelset::Integrator*& integratorFunc,
+		levelset::SpatialDerivative*& derivFunc,
+		const levelset::HJI_Grid* grid,
+		const levelset::Term* schemeFunc,
+		const helperOC::Dissipation_Type dissType,
+		const helperOC::ApproximationAccuracy_Type accuracy,
+		const FLOAT_TYPE factorCFL,
+		const bool stats,
+		const bool single_step,
+		const beacls::UVecType type) const {
 	//! Dissipation
 	switch (dissType) {
 	case helperOC::Dissipation_global:
@@ -85,28 +84,32 @@ bool HJIPDE_impl::getNumericalFuncs(
 
 	//! accuracy
 	switch (accuracy) {
-	case helperOC::ApproximationAccuracy_low:
-		derivFunc = new levelset::UpwindFirstFirst(grid, type);
-		integratorFunc = new levelset::OdeCFL1(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_medium:
-		derivFunc = new levelset::UpwindFirstENO2(grid, type);
-		integratorFunc = new levelset::OdeCFL2(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_veryHigh:
-		derivFunc = new levelset::UpwindFirstWENO5(grid, type);
-		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_Invalid:
-	default:
-		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
-		derivFunc = NULL;
-		integratorFunc = NULL;
-		return false;
+		case helperOC::ApproximationAccuracy_low:
+			derivFunc = new levelset::UpwindFirstFirst(grid, type);
+			integratorFunc = new levelset::OdeCFL1(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_medium:
+			derivFunc = new levelset::UpwindFirstENO2(grid, type);
+			integratorFunc = new levelset::OdeCFL2(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_high:
+			derivFunc = new levelset::UpwindFirstENO3(grid, type);
+			integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_veryHigh:
+			derivFunc = new levelset::UpwindFirstWENO5(grid, type);
+			integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_Invalid:
+		default:
+			std::cerr << "Unknown accuracy level " << accuracy << std::endl;
+			derivFunc = NULL;
+			integratorFunc = NULL;
+			return false;
 	}
 	return true;
 }
@@ -123,15 +126,17 @@ static bool calcChange(
 }
 
 bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
-	helperOC::HJIPDE_extraOuts& extraOuts,
-	const std::vector<beacls::FloatVec >& src_datas,
-	const beacls::FloatVec& src_tau,
-	const DynSysSchemeData* schemeData,
-	const HJIPDE::MinWithType minWith,
-	const helperOC::HJIPDE_extraArgs& extraArgs) {
+		helperOC::HJIPDE_extraOuts& extraOuts,
+		const std::vector<beacls::FloatVec >& src_datas,
+		const beacls::FloatVec& src_tau,
+		const DynSysSchemeData* schemeData,
+		const HJIPDE::MinWithType minWith,
+		const helperOC::HJIPDE_extraArgs& extraArgs) {
+
 	const bool quiet = extraArgs.quiet;
 	const helperOC::ExecParameters execParameters = extraArgs.execParameters;
-	const beacls::UVecType execType = (execParameters.useCuda) ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
+	const beacls::UVecType execType = (execParameters.useCuda) ? 
+	  beacls::UVecType_Cuda : beacls::UVecType_Vector;
 
 	const FLOAT_TYPE large = (FLOAT_TYPE)1e6;
 	const FLOAT_TYPE small = (FLOAT_TYPE)1e-4;
@@ -168,8 +173,14 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 			modified_obstacles_s8_ptrs[i] = &extraArgs.obstacles_s8[i];
 		}
 	}
-	const std::vector<const beacls::FloatVec* >& obstacles_ptrs = !extraArgs.obstacles_ptrs.empty() ? extraArgs.obstacles_ptrs : modified_obstacles_ptrs;
-	const std::vector<const std::vector<int8_t>* >& obstacles_s8_ptrs = !extraArgs.obstacles_s8_ptrs.empty() ? extraArgs.obstacles_s8_ptrs : modified_obstacles_s8_ptrs;
+	const std::vector<const beacls::FloatVec* >& obstacles_ptrs = 
+	  !extraArgs.obstacles_ptrs.empty() ? 
+	  extraArgs.obstacles_ptrs : modified_obstacles_ptrs;
+
+	const std::vector<const std::vector<int8_t>* >& obstacles_s8_ptrs = 
+	  !extraArgs.obstacles_s8_ptrs.empty() ? 
+	  extraArgs.obstacles_s8_ptrs : modified_obstacles_s8_ptrs;
+	  
 	const beacls::FloatVec* obstacle_i = NULL;
 	const std::vector<int8_t>* obstacle_s8_i = NULL;
 	if (!obstacles_ptrs.empty()) {
