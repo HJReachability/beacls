@@ -126,13 +126,13 @@ FLOAT_TYPE OdeCFL3_impl::execute(
   const size_t first_dimension_loop_size = (num_of_dimensions >= 1) ? Ns[0] : 1;
   const size_t second_dimension_loop_size = (num_of_dimensions >= 2) ? Ns[1] : 1;
 
-  size_t third_dimension_loop_size = 1;
-  if (num_of_dimensions >= 3) {
-    for (size_t k = 2; k < num_of_dimensions; ++k) {
-      third_dimension_loop_size *= Ns[k];
-    }
-  }
-  // const size_t third_dimension_loop_size = (num_of_dimensions >= 3) ? Ns[2] : 1;
+  // size_t third_dimension_loop_size = 1;
+  // if (num_of_dimensions >= 3) {
+  //   for (size_t k = 2; k < num_of_dimensions; ++k) {
+  //     third_dimension_loop_size *= Ns[k];
+  //   }
+  // }
+  const size_t third_dimension_loop_size = (num_of_dimensions >= 3) ? Ns[2] : 1;
 
   const size_t num_of_lines = num_of_elements / first_dimension_loop_size;
   const size_t num_of_outer_lines = std::accumulate(Ns.cbegin() + 2, Ns.cend(), 

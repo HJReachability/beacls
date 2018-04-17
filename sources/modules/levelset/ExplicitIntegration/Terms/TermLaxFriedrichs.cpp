@@ -68,7 +68,7 @@ bool TermLaxFriedrichs_impl::execute(
 	//size_t grid_length = grid->get_numel();
 	// printf("(num_of_slices, loop_length, f_d_l_size) = (%zu, %zu, %zu)\n", 
 	// 	num_of_slices, loop_length, f_d_l_size);
-  printf("grid_length = %zu\n", grid_length);
+  // printf("grid_length = %zu\n", grid_length);
 
 	size_t slice_length = loop_length*f_d_l_size;
 	if (ham_uvec.type() != type) ham_uvec = beacls::UVec(depth, type, grid_length);
