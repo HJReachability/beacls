@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	
 	helperOC::DynSys_UMode_Type uMode = helperOC::DynSys_UMode_Max;
 
-	beacls::IntegerVec gN{ 65, 61, 65, 61 };
+	beacls::IntegerVec gN{ 25, 25, 25, 25 };
 
 	//!< Time
 	const FLOAT_TYPE tMax = 3;
