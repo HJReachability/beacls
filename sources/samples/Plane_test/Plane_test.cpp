@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
   extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0 };
   extraArgs.plotData.projpt = beacls::FloatVec{ pl->get_x()[2] };
   extraArgs.deleteLastPlot = true;
-  extraArgs.fig_filename = "figs/Plane_test_BRS";
+  extraArgs.fig_filename = "fig/Plane_test_BRS";
 
   extraArgs.execParameters.line_length_of_chunk = line_length_of_chunk;
   extraArgs.execParameters.calcTTR = calculateTTRduringSolving;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 
   //!< Compute optimal trajectory
   extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
-  extraArgs.fig_filename = "Plane_test_Traj";
+  extraArgs.fig_filename = "fig/Plane_test_Traj";
   std::vector<beacls::FloatVec> traj;
   beacls::FloatVec traj_tau;
   std::vector<beacls::FloatVec > fliped_data(datas.size());
