@@ -264,3 +264,5 @@ sources/unittests/HJIPDE_solve/unittest_main
 sources/unittests/SpatialDerivative/unittest_main
 
 sources/unittests/Term/unittest_main
+
+sources/samples/Plane4D_test/Plane4D_test

@@ -313,13 +313,13 @@ bool Plane4D::dynamics_cell_helper(
   
   switch (dims[dim]) { // states are (xpos, ypos, heading, velocity)
       case 0: { // \dot x0 = x3 * cos (x2)
-        dx_i.assign(x2_size, 10.);
-        // dx_i.resize(x2_size);
+        // dx_i.assign(x2_size, 10.);
+        dx_i.resize(x2_size);
 
-        // const beacls::FloatVec& ds_0 = ds[0];
-        // for (size_t index = 0; index < x2_size; ++index) {
-        //   dx_i[index] = x_ites3[index]*std::cos(x_ites2[index]) + ds_0[index];
-        // }
+        const beacls::FloatVec& ds_0 = ds[0];
+        for (size_t index = 0; index < x2_size; ++index) {
+          dx_i[index] = x_ites3[index]*std::cos(x_ites2[index]);// + ds_0[index];
+        }
       }
       break;
 
@@ -328,7 +328,7 @@ bool Plane4D::dynamics_cell_helper(
         dx_i.resize(x2_size);
         const beacls::FloatVec& ds_1 = ds[1];
         for (size_t index = 0; index < x2_size; ++index) {
-          dx_i[index] = x_ites3[index]*std::sin(x_ites2[index]) + ds_1[index];
+          dx_i[index] = x_ites3[index]*std::sin(x_ites2[index]);// + ds_1[index];
         }
       }
       break;
