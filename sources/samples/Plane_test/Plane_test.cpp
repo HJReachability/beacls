@@ -65,7 +65,8 @@ int main(int argc, char *argv[])
 		enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
 	}
 	//!< Plane parameters
-	const beacls::FloatVec initState{ (FLOAT_TYPE)100, (FLOAT_TYPE)75, (FLOAT_TYPE)(220 * M_PI / 180) };
+	const beacls::FloatVec initState{ 
+		  (FLOAT_TYPE)100, (FLOAT_TYPE)75, (FLOAT_TYPE)(45 * M_PI / 180) };
 	const FLOAT_TYPE wMax = (FLOAT_TYPE)1.2;
 	const beacls::FloatVec vrange{ (FLOAT_TYPE)1.1, (FLOAT_TYPE)1.3 };
 	const beacls::FloatVec dMax{ (FLOAT_TYPE)0, (FLOAT_TYPE)0 };
@@ -80,6 +81,9 @@ int main(int argc, char *argv[])
 //	beacls::IntegerVec{ 401,401,201 });
 	std::vector<beacls::FloatVec > targets(1);
 	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
+	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, 
+		  beacls::FloatVec{ 75., 50., 0. }, (FLOAT_TYPE)10).execute(g, targets[0]);
+
 	beacls::FloatVec obs1, obs2;
 	levelset::ShapeRectangleByCorner(beacls::FloatVec{ 300, 250, -inf }, beacls::FloatVec{ 350, 300, inf }).execute(g, obs1);
 	levelset::ShapeRectangleByCorner(beacls::FloatVec{ 5, 5, -inf }, beacls::FloatVec{ 145, 145, inf }).execute(g, obs2);
@@ -89,7 +93,7 @@ int main(int argc, char *argv[])
 	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacles[0].begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 
 	//!< Compute reachable set
-	const FLOAT_TYPE tMax = 500;
+	const FLOAT_TYPE tMax = 200;
 	const FLOAT_TYPE dt = 0.25;
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
@@ -106,11 +110,10 @@ int main(int argc, char *argv[])
 	extraArgs.targets = targets;
 	extraArgs.obstacles = obstacles;
 	extraArgs.stopInit = pl->get_x();
-#if 1
 	extraArgs.visualize = true;
-#else
-	extraArgs.visualize = false;
-#endif
+	extraArgs.visualize_size = beacls::IntegerVec{ 640, 640 };
+//	extraArgs.fx = 4.;
+//	extraArgs.fy = 2.;
 	extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0 };
 	extraArgs.plotData.projpt = beacls::FloatVec{ pl->get_x()[2] };
 	extraArgs.deleteLastPlot = true;

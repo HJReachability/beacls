@@ -5,7 +5,7 @@ set MATIO_DIR=%~dp03rdparty\matio\visual_studio
 set BOOST_DIR=C:\Boost\boost_1_63_0
 set OPENCV_DIR=C:\OpenCV3\opencv3.4.1\opencv\build
 set OPENCV_VER=341
-set OPENCV_VC_TOOLSET=vc14
+set OPENCV_VC_TOOLSET=vc15
 set OPENCV_DEBUG_LIBS=opencv_world%OPENCV_VER%d.lib
 set OPENCV_RELEASE_LIBS=opencv_world%OPENCV_VER%.lib
 set OPENCV_DEBUG_BINS=opencv_world%OPENCV_VER%d.dll
@@ -14,8 +14,18 @@ set CUDA_PATH=$(CUDA_PATH_V9_0)
 set CUDA_LIBS=cudart.lib
 set CUDA_MACRO=WITH_GPU
 set PATH=%~dp0..\builds\x64\Release\bin;%~dp0..\builds\x64\Debug\bin;%PATH%
+set SOLUTION_FILE=beacls.sln
 
-echo Opening "beacls.sln" on Visua Studio 2015
-"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" "beacls.sln"
+if exist C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe (
+  set VS_EDITION=Enterprise
+) else (
+  if exist C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\IDE\devenv.exe (
+    set VS_EDITION=Professional
+  ) else (
+    set VS_EDITION=Community
+  )
+)
+echo Opening "%SOLUTION_FILE%" on Visua Studio 2017 %VS_EDITION%
+"C:\Program Files (x86)\Microsoft Visual Studio\2017\%VS_EDITION%\Common7\IDE\devenv.exe" "%SOLUTION_FILE%"
 
 timeout 5

@@ -79,6 +79,14 @@ namespace levelset {
 		);
 		~HJI_Grid_impl();
 		bool operator==(const HJI_Grid_impl& rhs) const;
+		size_t get_numel() const {
+			size_t num_of_elems = 1;
+			for (size_t i = 0; i < num_of_dimensions; ++i) {
+				num_of_elems *= Ns[i];
+			}
+			return num_of_elems;
+		}
+
 		size_t get_sum_of_elems() const {
 			size_t num_of_elems = 1;
 			for (size_t i = 0; i < num_of_dimensions; ++i) {
@@ -86,6 +94,7 @@ namespace levelset {
 			}
 			return num_of_elems;
 		}
+		
 		void set_num_of_dimensions(size_t a) { num_of_dimensions = a; }
 		void set_mins(const std::vector<FLOAT_TYPE>& a) { mins = a; }
 		void set_maxs(const std::vector<FLOAT_TYPE>& a) { maxs = a; }

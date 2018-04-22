@@ -54,7 +54,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 	const HJIPDE_extraArgs& extraArgs,
 	const helperOC::DynSys_UMode_Type uMode,
 	const size_t subSamples
-) {
+	) {
 	const bool visualize = extraArgs.visualize;
 
 	const helperOC::ExecParameters execParameters = extraArgs.execParameters;
@@ -124,6 +124,9 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 
 		//!< Visualize BRS corresponding to current trajectory point
 		if (visualize) {
+			const cv::Size dsize = extraArgs.visualize_size.size() == 2 ? cv::Size((int)extraArgs.visualize_size[0], (int)extraArgs.visualize_size[1]) : cv::Size();
+			const double fx = extraArgs.fx;
+			const double fy = extraArgs.fy;
 			beacls::FloatVec data2D;
 			beacls::FloatVec trajHide_at_t;
 			std::vector<helperOC::Projection_Type> x_types;
@@ -144,16 +147,35 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 			const beacls::FloatVec& vs1 = grid->get_vs(1);
 			const auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(vs0.cbegin(), vs0.cend());
 			const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(vs1.cbegin(), vs1.cend());
+			const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
 			const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
-			const int height = (int)std::ceil(x1_range);
+
+			const double org_width = x0_range;
+			const double org_height = x1_range;
+			double actual_fx = 1.;
+			double actual_fy = 1.;
+			cv::Size size;
+			if ((dsize.height != 0) && (dsize.width != 0)) {
+				actual_fx = (double)dsize.width / org_width;
+				actual_fy = (double)dsize.height / org_height;
+				size = dsize;
+			}
+			else {
+				actual_fx = fx != 0 ? fx : 1.;
+				actual_fy = fy != 0 ? fy : 1.;
+				size = cv::Size((int)std::ceil(org_width * actual_fx), (int)std::ceil(org_height * actual_fy));
+			}
+
+			const int width = size.width;
+			const int height = size.height;
 			const FLOAT_TYPE left_offset = x0MinMax.first;
 			const FLOAT_TYPE top_offset = x1MinMax.first;
 
-			visSetIm(BRSplot, BRSplot, g2D, data2D);
+			visSetIm(BRSplot, BRSplot, g2D, data2D, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, beacls::FloatVec(), true, std::string(), dsize, fx, fy);
 			if (!BRSplot.empty()) {
 				std::vector<cv::Point> traj_points(iter + 1);
-				std::transform(traj.cbegin(), traj.cbegin() + iter + 1, traj_points.begin(), [&showDims, &left_offset, &top_offset, &height](const auto& rhs) {
-					return cv::Point((int32_t)(rhs[showDims[0]] - left_offset), (int32_t)(height - rhs[showDims[1]] - top_offset));
+				std::transform(traj.cbegin(), traj.cbegin() + iter + 1, traj_points.begin(), [&showDims, &left_offset, &top_offset, &height, &actual_fx, &actual_fy](const auto& rhs) {
+					return cv::Point((int32_t)(rhs[showDims[0]] * actual_fx - left_offset), (int32_t)(height - rhs[showDims[1]] * actual_fy - top_offset));
 				});
 				cv::Rect roi_rect(left_margin, top_margin, BRSplot.size().width - left_margin - right_margin, BRSplot.size().height - top_margin - bottom_margin);
 
@@ -192,7 +214,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 			if (g2D) delete g2D;
 		}
 
-		if (tEarliest == (tauLength-1)) {
+		if (tEarliest == (tauLength - 1)) {
 			//!< Trajectory has entered the target
 			break;
 		}
@@ -219,7 +241,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 				x_sizes[dimension] = 1;
 			}
 			if (derivs.size() != deriv.size()) derivs.resize(deriv.size());
-			for (size_t dimension = 0; dimension < deriv.size();++dimension){
+			for (size_t dimension = 0; dimension < deriv.size(); ++dimension) {
 				derivs[dimension] = deriv[dimension].data();
 			};
 			if (deriv_sizes.size() != derivs.size()) deriv_sizes.resize(derivs.size());
@@ -234,7 +256,7 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 		if (iter < traj.size()) traj[iter] = dynSys->get_x();
 	}
 	//!< Delete unused indices
-	const size_t traj_size = iter < tau.size() ? iter :tau.size();
+	const size_t traj_size = iter < tau.size() ? iter : tau.size();
 	traj.resize(traj_size);
 	traj_tau.resize(traj_size);
 	std::copy(tau.cbegin(), tau.cbegin() + traj_size, traj_tau.begin());
@@ -251,7 +273,7 @@ bool helperOC::ComputeOptTraj::operator()(
 	const HJIPDE_extraArgs& extraArgs,
 	const helperOC::DynSys_UMode_Type uMode,
 	const size_t subSamples
-) {
+	) {
 	if (pimpl) pimpl->operator()(traj, traj_tau, grid, data, tau, dynSys, extraArgs, uMode, subSamples);
 	return false;
 }

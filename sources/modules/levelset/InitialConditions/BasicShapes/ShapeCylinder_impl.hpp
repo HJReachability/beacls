@@ -20,8 +20,7 @@ namespace levelset {
 			const FLOAT_TYPE radius
 		);
 		~ShapeCylinder_impl();
-		bool execute(
-			const HJI_Grid *grid, beacls::FloatVec& data) const;
+		bool execute(const HJI_Grid *grid, beacls::FloatVec& data) const;
 		ShapeCylinder_impl* clone() const {
 			return new ShapeCylinder_impl(*this);
 		};
@@ -36,8 +35,8 @@ namespace levelset {
 		ShapeCylinder_impl(const ShapeCylinder_impl& rhs) :
 			ignoreDims(rhs.ignoreDims),
 			center(rhs.center),
-			radius(rhs.radius)
-		{}
+			radius(rhs.radius) {
+			}
 	};
 };
 #endif	/* __ShapeCylinder_impl_hpp__ */

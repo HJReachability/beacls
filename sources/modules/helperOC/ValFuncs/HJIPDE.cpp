@@ -12,7 +12,7 @@
 #include <helperOC/DynSys/DynSys/DynSysSchemeData.hpp>
 #if defined(VISUALIZE_BY_OPENCV)
 #include <opencv2/opencv.hpp>
-#endif	/* defined(VISUALIZE_BY_OPENCV) */
+#endif  /* defined(VISUALIZE_BY_OPENCV) */
 using namespace helperOC;
 
 HJIPDE_impl::HJIPDE_impl(
@@ -26,11 +26,11 @@ HJIPDE_impl::~HJIPDE_impl() {
 
 bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
 	if (this == &rhs) return true;
-	else if (line_length_of_chunk != rhs.line_length_of_chunk) return false;	//!< Line length of each parallel execution chunks  (0 means set automatically)
-	else if (num_of_threads != rhs.num_of_threads) return false;	//!< Number of CPU Threads (0 means use all logical threads of CPU)
-	else if (num_of_gpus != rhs.num_of_gpus) return false;	//!<	Number of GPUs which (0 means use all GPUs)
+	else if (line_length_of_chunk != rhs.line_length_of_chunk) return false;  //!< Line length of each parallel execution chunks  (0 means set automatically)
+	else if (num_of_threads != rhs.num_of_threads) return false;  //!< Number of CPU Threads (0 means use all logical threads of CPU)
+	else if (num_of_gpus != rhs.num_of_gpus) return false;  //!<  Number of GPUs which (0 means use all GPUs)
 	else if (calcTTR != rhs.calcTTR) return false; //!< calculate TTR during solving
-	else if (delayedDerivMinMax != rhs.delayedDerivMinMax) return false;	//!< Use last step's min/max of derivatives, and skip 2nd pass.
+	else if (delayedDerivMinMax != rhs.delayedDerivMinMax) return false;  //!< Use last step's min/max of derivatives, and skip 2nd pass.
 	else if (useCuda != rhs.useCuda) return false;//!< Execute type CPU Vector or GPU.
 	else if (enable_user_defined_dynamics_on_gpu != rhs.enable_user_defined_dynamics_on_gpu) return false; //!< Flag for user defined dynamics function on gpu
 	else return true;
@@ -145,7 +145,7 @@ static bool calcChange(
 	FLOAT_TYPE& change,
 	const beacls::FloatVec& y,
 	const beacls::FloatVec& y0
-	) {
+) {
 	change = std::inner_product(y.cbegin(), y.cend(), y0.cbegin(), std::fabs(y[0] - y0[0]),
 		([](const auto &lhs, const auto &rhs) { return std::max<FLOAT_TYPE>(lhs, rhs); }),
 		([](const auto &lhs, const auto &rhs) { return std::fabs(lhs - rhs); })
@@ -153,15 +153,13 @@ static bool calcChange(
 	return true;
 }
 
-bool HJIPDE_impl::solve(
-	beacls::FloatVec& dst_tau,
+bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 	helperOC::HJIPDE_extraOuts& extraOuts,
 	const std::vector<beacls::FloatVec >& src_datas,
 	const beacls::FloatVec& src_tau,
 	const DynSysSchemeData* schemeData,
 	const HJIPDE::MinWithType minWith,
-	const helperOC::HJIPDE_extraArgs& extraArgs
-)  {
+	const helperOC::HJIPDE_extraArgs& extraArgs) {
 	const bool quiet = extraArgs.quiet;
 	const helperOC::ExecParameters execParameters = extraArgs.execParameters;
 	const beacls::UVecType execType = (execParameters.useCuda) ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
@@ -272,7 +270,7 @@ bool HJIPDE_impl::solve(
 			return false;
 		}
 		// Extract set of indices at which stopSet is negative
-		for (size_t index = 0; index < stopSet.size();++index) {
+		for (size_t index = 0; index < stopSet.size(); ++index) {
 			if (stopSet[index] < 0) setInds.push_back(index);
 		}
 
@@ -290,6 +288,9 @@ bool HJIPDE_impl::solve(
 	cv::Mat HJIPDE_img;
 	cv::Mat HJIPDE_initial_img;
 	if (extraArgs.visualize) {
+		const cv::Size dsize = extraArgs.visualize_size.size() == 2 ? cv::Size((int)extraArgs.visualize_size[0], (int)extraArgs.visualize_size[1]) : cv::Size();
+		const double fx = extraArgs.fx;
+		const double fy = extraArgs.fy;
 		beacls::IntegerVec plotDimsIdx;
 		if (!extraArgs.plotData.plotDims.empty()) {
 			// Dimensions to visualize
@@ -323,7 +324,7 @@ bool HJIPDE_impl::solve(
 			}
 			const beacls::FloatVec* obstacle_ptr = obstacle_i ? obstacle_i : &tmp_obstacle;
 			if (all_of(plotDims.cbegin(), plotDims.cend(), [](const auto& rhs) { return rhs != 0; })) {
-				helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, grid, *obstacle_ptr, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0});
+				helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, grid, *obstacle_ptr, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, beacls::FloatVec(), true, std::string(), dsize, fx, fy);
 			}
 			else {
 				levelset::HJI_Grid* gPlot;
@@ -334,7 +335,7 @@ bool HJIPDE_impl::solve(
 				std::fill(proj_types.begin(), proj_types.end(), helperOC::Projection_Vector);
 				gPlot = helperOC::proj(obsPlot, grid, *obstacle_ptr, negatedPlotDims, proj_types, projpt);
 				// visSetIm
-				helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, gPlot, obsPlot, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0});
+				helperOC::visSetIm(HJIPDE_initial_img, HJIPDE_initial_img, gPlot, obsPlot, std::vector<float>{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, beacls::FloatVec(), true, std::string(), dsize, fx, fy);
 				if (gPlot) delete gPlot;
 			}
 		}
@@ -356,13 +357,30 @@ bool HJIPDE_impl::solve(
 			const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(vs1.cbegin(), vs1.cend());
 			const FLOAT_TYPE x0_range = x0MinMax.second - x0MinMax.first;
 			const FLOAT_TYPE x1_range = x1MinMax.second - x1MinMax.first;
-			const int width = (int)std::ceil(x0_range);
-			const int height = (int)std::ceil(x1_range);
+
+			const double org_width = x0_range;
+			const double org_height = x1_range;
+			double actual_fx = 1.;
+			double actual_fy = 1.;
+			cv::Size size;
+			if ((dsize.height != 0) && (dsize.width != 0)) {
+				actual_fx = (double)dsize.width / org_width;
+				actual_fy = (double)dsize.height / org_height;
+				size = dsize;
+			}
+			else {
+				actual_fx = fx != 0 ? fx : 1.;
+				actual_fy = fy != 0 ? fy : 1.;
+				size = cv::Size((int)std::ceil(org_width * actual_fx), (int)std::ceil(org_height * actual_fy));
+			}
+
+			const int width = size.width;
+			const int height = size.height;
 			cv::Size margined_size(width + left_margin + right_margin, height + top_margin + bottom_margin);
 			const FLOAT_TYPE left_offset = x0MinMax.first;
 			const FLOAT_TYPE top_offset = x1MinMax.first;
 			if (HJIPDE_initial_img.empty()) {
-				HJIPDE_initial_img = cv::Mat(margined_size, CV_8UC3, cv::Scalar(255,255,255));
+				HJIPDE_initial_img = cv::Mat(margined_size, CV_8UC3, cv::Scalar(255, 255, 255));
 			}
 			const double fontScale = 0.5;
 			const int thickness = 1;
@@ -371,8 +389,8 @@ bool HJIPDE_impl::solve(
 				int baseline = 0;
 				cv::Size textSize = cv::getTextSize(star_str, cv::FONT_HERSHEY_SIMPLEX, fontScale, thickness, &baseline);
 				cv::putText(HJIPDE_initial_img, star_str,
-					cv::Point((int32_t)std::round(projectedInit[0] - textSize.width / 2. + left_margin-left_offset),
-						(int32_t)::std::round(height - projectedInit[1] + textSize.height / 2. + top_margin-top_offset)),
+					cv::Point((int32_t)std::round(projectedInit[0] * actual_fx - textSize.width / 2. + left_margin - left_offset),
+					(int32_t)::std::round(height - projectedInit[1] * actual_fy + textSize.height / 2. + top_margin - top_offset)),
 					cv::FONT_HERSHEY_SIMPLEX, fontScale,
 					cv::Scalar{ 255,0,0 }, thickness, cv::LINE_AA);
 			}
@@ -389,7 +407,7 @@ bool HJIPDE_impl::solve(
 		}
 #endif
 	}
-#endif	/* defined(VISUALIZE_BY_OPENCV) */
+#endif  /* defined(VISUALIZE_BY_OPENCV) */
 
 	// Extract cdynamical system if needed
 
@@ -429,7 +447,7 @@ bool HJIPDE_impl::solve(
 
 	// Initialize PDE solution
 	const size_t num_of_elements = grid->get_sum_of_elems();
-	//	for_each(dst_datas.begin(), dst_datas.end(), ([num_of_elements](auto& rhs) { rhs.resize(num_of_elements,0); }));
+	//  for_each(dst_datas.begin(), dst_datas.end(), ([num_of_elements](auto& rhs) { rhs.resize(num_of_elements,0); }));
 
 	size_t istart;
 	if (src_datas.size() == 1) {
@@ -469,7 +487,7 @@ bool HJIPDE_impl::solve(
 		}
 	}
 	else if (!tmp_filename.empty()) {
-		load_vector(y, std::string(),Ns,false, tmp_file_fs, tmp_datas_variable, istart -1 );
+		load_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, istart - 1);
 	}
 	else if (!keepLast) {
 		if (flip_output) {
@@ -517,9 +535,9 @@ bool HJIPDE_impl::solve(
 			std::cout << "tau(i) = " << std::fixed << std::setprecision(6) << src_tau[i] << std::resetiosflags(std::ios_base::floatfield) << std::endl;
 		}
 		beacls::FloatVec yLastTau;
-		if (stopConverge && 
+		if (stopConverge &&
 			(
-				(src_datas.size() <= (i-1)) &&
+			(src_datas.size() <= (i - 1)) &&
 				tmp_filename.empty() &&
 				keepLast
 				)
@@ -548,14 +566,16 @@ bool HJIPDE_impl::solve(
 					datas.clear();
 					std::deque<beacls::FloatVec >().swap(datas);
 				}
-			} else if (!keepLast) {
+			}
+			else if (!keepLast) {
 				std::vector<beacls::FloatVec> datas_vec(datas.size());
 				std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
 				if (!obstacles_s8_ptrs.empty())
 					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8_ptrs, extraArgs.sdModParams);
 				else
 					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_ptrs, extraArgs.sdModParams);
-			} else {
+			}
+			else {
 				std::cerr << "error : " << __func__ << "SchemeData mod fucntor needs to keep time dependent values." << std::endl;
 				if (tmp_datas_variable) {
 					beacls::closeMatVariable(tmp_datas_variable);
@@ -581,7 +601,7 @@ bool HJIPDE_impl::solve(
 		// Main integration loop to ge to the next tau(i)
 		while (tNow < (src_tau[i] - small)) {
 			beacls::FloatVec yLast;
-			if (minWith == HJIPDE::MinWithType_Zero){
+			if (minWith == HJIPDE::MinWithType_Zero) {
 				yLast = y;
 			}
 
@@ -589,9 +609,9 @@ bool HJIPDE_impl::solve(
 				std::cout << std::fixed << std::setprecision(6) << "  Computing [" << tNow << " " << src_tau[i] << "]..." << std::resetiosflags(std::ios_base::floatfield) << std::endl;
 			}
 
-			beacls::FloatVec tspan{tNow,src_tau[i]};
+			beacls::FloatVec tspan{ tNow,src_tau[i] };
 			tNow = integratorFunc->execute(
-				y, tspan, y, modified_schemeData, 
+				y, tspan, y, modified_schemeData,
 				execParameters.line_length_of_chunk, execParameters.num_of_threads, execParameters.num_of_gpus,
 				execParameters.delayedDerivMinMax, execParameters.enable_user_defined_dynamics_on_gpu);
 
@@ -602,7 +622,7 @@ bool HJIPDE_impl::solve(
 			}
 
 			// Min with zero
-			if (minWith== HJIPDE::MinWithType_Zero) {
+			if (minWith == HJIPDE::MinWithType_Zero) {
 				std::transform(y.cbegin(), y.cend(), yLast.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 			}
 
@@ -638,7 +658,7 @@ bool HJIPDE_impl::solve(
 
 		FLOAT_TYPE change = 0;
 		if (stopConverge) {
-			if (src_datas.size() > (i-1)) {
+			if (src_datas.size() > (i - 1)) {
 				calcChange(change, y, src_datas[i - 1]);
 			}
 			else if (!tmp_filename.empty()) {
@@ -658,7 +678,7 @@ bool HJIPDE_impl::solve(
 		}
 
 		// Reshape value function
-		
+
 		if (!tmp_filename.empty()) {
 			save_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i);
 		}
@@ -706,8 +726,8 @@ bool HJIPDE_impl::solve(
 
 			bool stopSetResult = false;
 			if (!extraArgs.stopSetInclude.empty()) {
-				stopSetResult = std::all_of(setInds.cbegin(), setInds.cend(), [&dataInds](const auto& rhs) { 
-					return (std::find(dataInds.cbegin(), dataInds.cend(), rhs) != dataInds.cend()); 
+				stopSetResult = std::all_of(setInds.cbegin(), setInds.cend(), [&dataInds](const auto& rhs) {
+					return (std::find(dataInds.cbegin(), dataInds.cend(), rhs) != dataInds.cend());
 				});
 			}
 			else {
@@ -728,9 +748,9 @@ bool HJIPDE_impl::solve(
 		if (stopConverge && (change < convergeThreshold)) {
 			extraOuts.stoptau = src_tau[i];
 			if (!low_memory && !keepLast) {
-				datas.resize(i+1);
+				datas.resize(i + 1);
 			}
-			dst_tau.resize(i+1);
+			dst_tau.resize(i + 1);
 			break;
 		}
 
@@ -747,7 +767,7 @@ bool HJIPDE_impl::solve(
 			const size_t projDims = projpt.size();
 			// Basic Checks
 			if ((plotDims.size() != schemeData->get_grid()->get_num_of_dimensions())
-//				|| (projDims != (schemeData->get_grid()->get_num_of_dimensions() - pDims))
+				//        || (projDims != (schemeData->get_grid()->get_num_of_dimensions() - pDims))
 				) {
 				std::cerr << "Mismatch between plot and grid dimensions!" << std::endl;
 			}
@@ -788,11 +808,14 @@ bool HJIPDE_impl::solve(
 			}
 			const beacls::FloatVec& dataPlot = (projDims == 0) ? y : tmp_dataPlot;
 			const beacls::FloatVec& obsPlot = (projDims == 0) ? *obstacle_ptr : tmp_obsPlot;
-			helperOC::visSetIm(HJIPDE_img, HJIPDE_initial_img, gPlot, dataPlot, std::vector<float>{0, 0, 255}, RS_level, false);
+			const cv::Size dsize = extraArgs.visualize_size.size() == 2 ? cv::Size((int)extraArgs.visualize_size[0], (int)extraArgs.visualize_size[1]) : cv::Size();
+			const double fx = extraArgs.fx;
+			const double fy = extraArgs.fy;
+			helperOC::visSetIm(HJIPDE_img, HJIPDE_initial_img, gPlot, dataPlot, std::vector<float>{0, 0, 255}, RS_level, false, std::string(), dsize, fx, fy);
 			if (!HJIPDE_img.empty()) {
 
 				if (obsMode == HJIPDE::ObsModeType_TimeVarying) {
-					helperOC::visSetIm(HJIPDE_img, HJIPDE_img, gPlot, obsPlot, std::vector<float>{0, 0, 0}, beacls::FloatVec{0},false);
+					helperOC::visSetIm(HJIPDE_img, HJIPDE_img, gPlot, obsPlot, std::vector<float>{0, 0, 0}, beacls::FloatVec{ 0 }, false, std::string(), dsize, fx, fy);
 				}
 				std::stringstream now_string;
 				now_string << tNow;
@@ -819,9 +842,9 @@ bool HJIPDE_impl::solve(
 				}
 			}
 
-#else	/* defined(VISUALIZE_BY_OPENCV) */
+#else /* defined(VISUALIZE_BY_OPENCV) */
 			std::cerr << "Warning: " << __func__ << " : visualize is not supported yet." << std::endl;
-#endif	/* defined(VISUALIZE_BY_OPENCV) */
+#endif  /* defined(VISUALIZE_BY_OPENCV) */
 		}
 		if (!extraArgs.save_filename.empty()) {
 			if ((extraArgs.saveFrequency != 0) && ((i % extraArgs.saveFrequency) == 0)) {
@@ -845,12 +868,16 @@ bool HJIPDE_impl::solve(
 				else if (!keepLast) {
 					std::vector<beacls::FloatVec> datas_vec(datas.size());
 					std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
-					save_vector_of_vectors(datas_vec, std::string("data"), Ns, false, save_filename_fs);
-				} else {
+					save_vector_of_vectors(datas_vec, std::string("data"), Ns, false,
+						save_filename_fs);
+				}
+				else {
 					save_vector(y, std::string("y"), Ns, false, save_filename_fs);
 				}
-				save_vector(dst_tau, std::string("tau"),beacls::IntegerVec(),true, save_filename_fs);
-				save_value(static_cast<FLOAT_TYPE>(ilast), std::string("ilast"),true, save_filename_fs);
+				save_vector(dst_tau, std::string("tau"), beacls::IntegerVec(), true,
+					save_filename_fs);
+				save_value(static_cast<FLOAT_TYPE>(ilast), std::string("ilast"), true,
+					save_filename_fs);
 				beacls::closeMatFStream(save_filename_fs);
 			}
 		}
@@ -878,23 +905,24 @@ bool HJIPDE_impl::solve(
 
 	return true;
 }
-bool HJIPDE_impl::get_datas(
-	std::vector<beacls::FloatVec >& dst_datas,
+bool HJIPDE_impl::get_datas(std::vector<beacls::FloatVec >& dst_datas,
 	const beacls::FloatVec& src_tau,
-	const DynSysSchemeData* schemeData
-) const {
+	const DynSysSchemeData* schemeData) const {
 	//!< Load dst_datas from file.
 	if (!tmp_filename.empty()) {
 		const levelset::HJI_Grid* grid = schemeData->get_grid();
 		const size_t num_of_elements = grid->get_sum_of_elems();
 		dst_datas.resize(src_tau.size());
 		beacls::IntegerVec dummy;
-		beacls::MatFStream* tmp_file_fs = beacls::openMatFStream(tmp_filename, beacls::MatOpenMode_Read);
+		beacls::MatFStream* tmp_file_fs =
+			beacls::openMatFStream(tmp_filename, beacls::MatOpenMode_Read);
 		if (tmp_file_fs) {
-			beacls::MatVariable* tmp_datas_variable = beacls::openMatVariable(tmp_file_fs, std::string("tmp"));
+			beacls::MatVariable* tmp_datas_variable =
+				beacls::openMatVariable(tmp_file_fs, std::string("tmp"));
 			if (tmp_datas_variable) {
 				for (size_t i = 0; i < src_tau.size(); ++i) {
-					if (!load_vector(dst_datas[i], std::string(),dummy, false, tmp_file_fs, tmp_datas_variable, i)) {
+					if (!load_vector(dst_datas[i], std::string(), dummy, false,
+						tmp_file_fs, tmp_datas_variable, i)) {
 						dst_datas[i].resize(num_of_elements, 0);
 					}
 				}
@@ -920,7 +948,8 @@ bool HJIPDE_impl::TD2TTR(
 	const FLOAT_TYPE large = 1e6;
 	if (!calculatedTTR.empty()) {
 		TTR = calculatedTTR;
-	}else if (tmp_filename.empty()) {
+	}
+	else if (tmp_filename.empty()) {
 		//!< Input checking
 		if (tau.size() != datas.size()) {
 			std::cerr << "error : " << __func__ << "Grid dimensions must be one less than dimension of time-dependent value function!" << std::endl;
@@ -955,7 +984,7 @@ bool HJIPDE_impl::TD2TTR(
 				}));
 				for (size_t i = 1; i < tau.size(); ++i) {
 					const FLOAT_TYPE tau_i = tau[i];
-					load_vector(data_i, std::string(),dummy, false, tmp_file_fs, tmp_datas_variable, i);
+					load_vector(data_i, std::string(), dummy, false, tmp_file_fs, tmp_datas_variable, i);
 					std::transform(TTR.cbegin(), TTR.cend(), data_i.cbegin(), TTR.begin(), ([tau_i](const auto& lhs, const auto& rhs) {
 						if (rhs <= 0) return std::min<FLOAT_TYPE>(tau_i, lhs);
 						else return lhs;
@@ -989,7 +1018,7 @@ bool HJIPDE::solve(
 	const HJIPDE::MinWithType minWith,
 	const helperOC::HJIPDE_extraArgs& extraArgs
 ) {
-	if (pimpl) return pimpl->solve( stoptau, extraOuts, datas, tau, schemeData, minWith, extraArgs);
+	if (pimpl) return pimpl->solve(stoptau, extraOuts, datas, tau, schemeData, minWith, extraArgs);
 	return false;
 }
 bool HJIPDE::solve(
@@ -1021,18 +1050,16 @@ bool HJIPDE::solve(
 	}
 	return false;
 }
-bool HJIPDE::solve(
-	std::vector<beacls::FloatVec >& dst_datas,
+bool HJIPDE::solve(std::vector<beacls::FloatVec >& dst_datas,
 	beacls::FloatVec& stoptau,
 	helperOC::HJIPDE_extraOuts& extraOuts,
 	const beacls::FloatVec& data,
 	const beacls::FloatVec& tau,
 	const DynSysSchemeData* schemeData,
 	const HJIPDE::MinWithType minWith,
-	const helperOC::HJIPDE_extraArgs& extraArgs
-) {
+	const helperOC::HJIPDE_extraArgs& extraArgs) {
 	if (pimpl) {
-		if (pimpl->solve(stoptau, extraOuts, std::vector<beacls::FloatVec>{data}, tau, schemeData, minWith, extraArgs))	{
+		if (pimpl->solve(stoptau, extraOuts, std::vector<beacls::FloatVec>{data}, tau, schemeData, minWith, extraArgs)) {
 			return get_datas(dst_datas, tau, schemeData);
 		}
 	}
@@ -1043,7 +1070,7 @@ bool HJIPDE::get_datas(
 	const beacls::FloatVec& src_tau,
 	const DynSysSchemeData* schemeData
 ) const {
-	if (pimpl) return pimpl->get_datas(dst_datas, src_tau,schemeData);
+	if (pimpl) return pimpl->get_datas(dst_datas, src_tau, schemeData);
 	return false;
 
 }
