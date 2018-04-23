@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
     beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0,
       (FLOAT_TYPE)0, (FLOAT_TYPE)0});
   
+
   // Dynamical system parameters
   helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData;
   schemeData->set_grid(g);
@@ -133,7 +134,9 @@ int main(int argc, char *argv[])
   std::vector<beacls::FloatVec> targets(1);
   const size_t numel = g->get_numel();
   const size_t num_dim = g->get_num_of_dimensions();
-    
+  
+  targets[0].assign(numel, 0.);
+
   for (size_t dim = 0; dim < num_dim; ++dim) {
     const beacls::FloatVec &xs = g->get_xs(dim);
 
@@ -144,7 +147,7 @@ int main(int argc, char *argv[])
           return tar_i - std::pow(xs_i, 2); });
     }
   }
-
+  
   helperOC::HJIPDE_extraArgs extraArgs;
   helperOC::HJIPDE_extraOuts extraOuts;
   extraArgs.visualize = false;
@@ -162,6 +165,8 @@ int main(int argc, char *argv[])
   beacls::FloatVec stoptau;
   std::vector<beacls::FloatVec> data;
   std::cout << "Begin HJI PDE Solve." <<std::endl;
+
+  
   hjipde->solve(data, stoptau, extraOuts, targets, tau, schemeData, 
     helperOC::HJIPDE::MinWithType_None, extraArgs);
 

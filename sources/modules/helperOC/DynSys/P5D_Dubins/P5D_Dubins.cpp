@@ -72,14 +72,13 @@ P5D_Dubins::P5D_Dubins(
     std::cout << "  " << "N_disturbances: " << dMax.size() << std::endl;
     //!< Process control range
     if (x.size() != DynSys::get_nx()) {
-        std::cerr << "Error: " << __func__ <<
-            " : Initial state does not have right dimension!" << std::endl;
+      std::cerr << "Error: " << __func__ <<
+        " : Initial state does not have right dimension!" << std::endl;
     }
     //!< Process initial state
     DynSys::set_x(x);
     DynSys::push_back_xhist(x);
 }
-
 
 P5D_Dubins::P5D_Dubins(
     beacls::MatFStream* fs,
@@ -300,7 +299,7 @@ bool P5D_Dubins::optDstb(
   // Planning control
   // assume state is a matrix (not a single state)
   const size_t x_size = x_sizes[0]; 
-
+  
   beacls::FloatVec& dOpt5 = dOpts[5];
 
   beacls::FloatVec::const_iterator xs0 = x_ites[0];
@@ -315,7 +314,9 @@ bool P5D_Dubins::optDstb(
   const FLOAT_TYPE w_if_det5_neg =
     (modified_dMode == helperOC::DynSys_DMode_Max) ? -wMax : wMax;
 
+  printf("For loop ");
   for (size_t index = 0; index < x_size; ++index) {
+    printf("%d ", index);
     const FLOAT_TYPE x0 = xs0[index];
     const FLOAT_TYPE x1 = xs1[index];
     const FLOAT_TYPE deriv0 = deriv0_ptr[index];
@@ -425,51 +426,44 @@ bool P5D_Dubins::dynamics(
     const beacls::IntegerVec& x_sizes,
     const size_t dst_target_dim) const {
 
-    // Define indices and iterators for each state dimension.
-    const size_t src_target_dim0_index = find_val(dims, 0);
-    const size_t src_target_dim1_index = find_val(dims, 1);
-    const size_t src_target_dim2_index = find_val(dims, 2);
-    const size_t src_target_dim3_index = find_val(dims, 3);
-    const size_t src_target_dim4_index = find_val(dims, 4);
-    if ((src_target_dim0_index == dims.size()) ||
-        (src_target_dim1_index == dims.size()) ||
-        (src_target_dim2_index == dims.size()) ||
-        (src_target_dim3_index == dims.size()) ||
-        (src_target_dim4_index == dims.size())) {
-      return false;  
-    }
-      
-    const beacls::FloatVec::const_iterator& x_ites0 = 
-      x_ites[src_target_dim0_index];
-    const beacls::FloatVec::const_iterator& x_ites1 = 
-      x_ites[src_target_dim1_index];
-    const beacls::FloatVec::const_iterator& x_ites2 = 
-      x_ites[src_target_dim2_index];
-    const beacls::FloatVec::const_iterator& x_ites3 = 
-      x_ites[src_target_dim3_index];
-    const beacls::FloatVec::const_iterator& x_ites4 = 
-      x_ites[src_target_dim4_index];
+    // // Define indices and iterators for each state dimension.
+    // const size_t src_target_dim0_index = find_val(dims, 0);
+    // const size_t src_target_dim1_index = find_val(dims, 1);
+    // const size_t src_target_dim2_index = find_val(dims, 2);
+    // const size_t src_target_dim3_index = find_val(dims, 3);
+    // const size_t src_target_dim4_index = find_val(dims, 4);
+    // if ((src_target_dim0_index == dims.size()) ||
+    //     (src_target_dim1_index == dims.size()) ||
+    //     (src_target_dim2_index == dims.size()) ||
+    //     (src_target_dim3_index == dims.size()) ||
+    //     (src_target_dim4_index == dims.size())) {
+    //   return false;  
+    // }
+    
+    printf("x_ites size = %d\n", x_ites.size());
+    const beacls::FloatVec::const_iterator& x_ites0 = x_ites[0];
+    const beacls::FloatVec::const_iterator& x_ites1 = x_ites[1];
+    const beacls::FloatVec::const_iterator& x_ites2 = x_ites[2];
+    const beacls::FloatVec::const_iterator& x_ites3 = x_ites[3];
+    const beacls::FloatVec::const_iterator& x_ites4 = x_ites[4];
 
     bool result = true;
     // Compute dynamics for all components.
     if (dst_target_dim == std::numeric_limits<size_t>::max()) {
-      for (size_t dim = 0; dim < dims.size(); ++dim) {
+      for (size_t dim = 0; dim < 5; ++dim) {
         result &= dynamics_cell_helper(
           dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
-            x_sizes[src_target_dim0_index], x_sizes[src_target_dim1_index],
-            x_sizes[src_target_dim2_index], x_sizes[src_target_dim3_index],
-            x_sizes[src_target_dim4_index], dim);
+          x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], dim);
         }
     }
     // Compute dynamics for a single, specified component.
     else
     {
         if (dst_target_dim < dims.size())
-            result &= dynamics_cell_helper(
-                dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
-                x_sizes[src_target_dim0_index], x_sizes[src_target_dim1_index],
-                x_sizes[src_target_dim2_index], x_sizes[src_target_dim3_index],
-                x_sizes[src_target_dim4_index], dst_target_dim);
+          result &= dynamics_cell_helper(
+            dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
+            x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], 
+            dst_target_dim);
         else {
             std::cerr << "Invalid target dimension for dynamics: " <<
                 dst_target_dim << std::endl;

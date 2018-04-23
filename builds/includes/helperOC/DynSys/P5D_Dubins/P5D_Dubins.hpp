@@ -81,7 +81,7 @@ namespace helperOC {
         FLOAT_TYPE wMax;     // Turn rate
     
         // Disturbance bounds
-        beacls::FloatVec dMax;     // 4D
+        beacls::FloatVec dMax;     // 5D
     
     
         beacls::IntegerVec dims;    //!< Dimensions that are active
