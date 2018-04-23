@@ -81,6 +81,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Quad4D_test", "samples\Quad
 		{7C9F9249-AA19-412E-974B-40CCD2C6AB3F} = {7C9F9249-AA19-412E-974B-40CCD2C6AB3F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plane4D_test", "samples\Plane4D_test\Plane4D_test.vcxproj", "{5398693B-A6D1-4495-8475-A314E86EFC0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -201,6 +203,14 @@ Global
 		{06A39CDC-1983-4948-AE9B-B4350B72E5D5}.Release|Win32.Build.0 = Release|Win32
 		{06A39CDC-1983-4948-AE9B-B4350B72E5D5}.Release|x64.ActiveCfg = Release|x64
 		{06A39CDC-1983-4948-AE9B-B4350B72E5D5}.Release|x64.Build.0 = Release|x64
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Debug|Win32.Build.0 = Debug|Win32
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Debug|x64.ActiveCfg = Debug|x64
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Debug|x64.Build.0 = Debug|x64
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Release|Win32.ActiveCfg = Release|Win32
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Release|Win32.Build.0 = Release|Win32
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Release|x64.ActiveCfg = Release|x64
+		{5398693B-A6D1-4495-8475-A314E86EFC0D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
