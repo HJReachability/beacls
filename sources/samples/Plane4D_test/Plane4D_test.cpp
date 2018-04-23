@@ -147,10 +147,10 @@ int main(int argc, char *argv[])
 
     g->save_grid(std::string("g"), fs);
     if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-    if (!tau2.empty()) save_vector(tau2, std::string("tau2"), Ns, false, fs);
+    if (!tau2.empty()) save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
   }
   //!< Compute optimal trajectory
-  extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
+  extraArgs.projDim = beacls::IntegerVec{ 1, 1, 0, 0 };
   extraArgs.fig_filename = "Plane_test_Traj";
   std::vector<beacls::FloatVec > traj;
   beacls::FloatVec traj_tau;
