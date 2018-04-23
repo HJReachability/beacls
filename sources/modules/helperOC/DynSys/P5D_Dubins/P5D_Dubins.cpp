@@ -240,16 +240,20 @@ bool P5D_Dubins::optCtrl(
   uOpts.resize(get_nu());
 
   bool result = true;
-  // Call helper to determine optimal value for each control component
-  // (we feed the relevant state component affected by each input as well as
-  //  the input values that maximize and minimize this state's derivative).
-  result &= optCtrl_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
-      modified_uMode, 3, aRange);
 
-  const beacls::FloatVec& alphaRange{-alphaMax, alphaMax};
-  result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
-      modified_uMode, 4, alphaRange);
-  return result;
+  for (size_t i = 0; i < 2; ++i) {
+    uOpts[i].assign(deriv_sizes[0], 0.);
+  }  
+  // // Call helper to determine optimal value for each control component
+  // // (we feed the relevant state component affected by each input as well as
+  // //  the input values that maximize and minimize this state's derivative).
+  // result &= optCtrl_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
+  //     modified_uMode, 3, aRange);
+
+  // const beacls::FloatVec& alphaRange{-alphaMax, alphaMax};
+  // result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
+  //     modified_uMode, 4, alphaRange);
+  // return result;
 }
 
 
@@ -274,59 +278,62 @@ bool P5D_Dubins::optDstb(
 
   dOpts.resize(get_nd());
   bool result = true;
-  // Call helper to determine optimal value for each disturbance component
-  // (we feed the relevant state component affected by each input as well as
-  //  the input values that maximize and minimize this state's derivative).
 
-  // Disturbances
-  const beacls::FloatVec& dRange0{-dMax[0],dMax[0]};
-  const beacls::FloatVec& dRange1{-dMax[1],dMax[1]};
-  const beacls::FloatVec& dRange2{-dMax[2],dMax[2]};
-  const beacls::FloatVec& dRange3{-dMax[3],dMax[3]};
-  const beacls::FloatVec& dRange4{-dMax[4],dMax[4]};
+  for (size_t i = 0; i < 6; ++i) {
+    dOpts[i].assign(deriv_sizes[0], 0.);
+  }
 
-  result &= optDstb_i_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes,
-      modified_dMode, 0, dRange0);
-  result &= optDstb_i_cell_helper(dOpts[1], deriv_ptrs, deriv_sizes,
-      modified_dMode, 1, dRange1);
-  result &= optDstb_i_cell_helper(dOpts[2], deriv_ptrs, deriv_sizes,
-      modified_dMode, 2, dRange2);
-  result &= optDstb_i_cell_helper(dOpts[3], deriv_ptrs, deriv_sizes,
-      modified_dMode, 3, dRange3);
-  result &= optDstb_i_cell_helper(dOpts[4], deriv_ptrs, deriv_sizes,
-      modified_dMode, 4, dRange4);
+  // // Call helper to determine optimal value for each disturbance component
+  // // (we feed the relevant state component affected by each input as well as
+  // //  the input values that maximize and minimize this state's derivative).
+
+  // // Disturbances
+  // const beacls::FloatVec& dRange0{-dMax[0],dMax[0]};
+  // const beacls::FloatVec& dRange1{-dMax[1],dMax[1]};
+  // const beacls::FloatVec& dRange2{-dMax[2],dMax[2]};
+  // const beacls::FloatVec& dRange3{-dMax[3],dMax[3]};
+  // const beacls::FloatVec& dRange4{-dMax[4],dMax[4]};
+
+  // result &= optDstb_i_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes,
+  //     modified_dMode, 0, dRange0);
+  // result &= optDstb_i_cell_helper(dOpts[1], deriv_ptrs, deriv_sizes,
+  //     modified_dMode, 1, dRange1);
+  // result &= optDstb_i_cell_helper(dOpts[2], deriv_ptrs, deriv_sizes,
+  //     modified_dMode, 2, dRange2);
+  // result &= optDstb_i_cell_helper(dOpts[3], deriv_ptrs, deriv_sizes,
+  //     modified_dMode, 3, dRange3);
+  // result &= optDstb_i_cell_helper(dOpts[4], deriv_ptrs, deriv_sizes,
+  //     modified_dMode, 4, dRange4);
 
   // Planning control
   // assume state is a matrix (not a single state)
-  const size_t x_size = x_sizes[0]; 
+  // const size_t x_size = x_sizes[0]; 
   
-  beacls::FloatVec& dOpt5 = dOpts[5];
+  // beacls::FloatVec& dOpt5 = dOpts[5];
 
-  beacls::FloatVec::const_iterator xs0 = x_ites[0];
-  beacls::FloatVec::const_iterator xs1 = x_ites[1];
+  // beacls::FloatVec::const_iterator xs0 = x_ites[0];
+  // beacls::FloatVec::const_iterator xs1 = x_ites[1];
 
-  const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
-  const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
-  const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
+  // const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
+  // const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
+  // const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
 
-  const FLOAT_TYPE w_if_det5_pos = 
-    (modified_dMode == helperOC::DynSys_DMode_Max) ? wMax : -wMax;
-  const FLOAT_TYPE w_if_det5_neg =
-    (modified_dMode == helperOC::DynSys_DMode_Max) ? -wMax : wMax;
+  // const FLOAT_TYPE w_if_det5_pos = 
+  //   (modified_dMode == helperOC::DynSys_DMode_Max) ? wMax : -wMax;
+  // const FLOAT_TYPE w_if_det5_neg =
+  //   (modified_dMode == helperOC::DynSys_DMode_Max) ? -wMax : wMax;
 
-  printf("For loop ");
-  for (size_t index = 0; index < x_size; ++index) {
-    printf("%d ", index);
-    const FLOAT_TYPE x0 = xs0[index];
-    const FLOAT_TYPE x1 = xs1[index];
-    const FLOAT_TYPE deriv0 = deriv0_ptr[index];
-    const FLOAT_TYPE deriv1 = deriv1_ptr[index];
-    const FLOAT_TYPE deriv2 = deriv2_ptr[index];
+  // for (size_t index = 0; index < x_size; ++index) {
+  //   const FLOAT_TYPE x0 = xs0[index];
+  //   const FLOAT_TYPE x1 = xs1[index];
+  //   const FLOAT_TYPE deriv0 = deriv0_ptr[index];
+  //   const FLOAT_TYPE deriv1 = deriv1_ptr[index];
+  //   const FLOAT_TYPE deriv2 = deriv2_ptr[index];
 
-    const FLOAT_TYPE det5 = deriv0*x1 - deriv1*x0 - deriv2;
+  //   const FLOAT_TYPE det5 = deriv0*x1 - deriv1*x0 - deriv2;
 
-    dOpt5[index] = (det5 >= 0) ? w_if_det5_pos : w_if_det5_neg;
-  }
+  //   dOpt5[index] = (det5 >= 0) ? w_if_det5_pos : w_if_det5_neg;
+  // }
 
   return result;
 }
