@@ -106,19 +106,19 @@ P5D_Dubins::~P5D_Dubins() {}
 
 
 bool P5D_Dubins::operator==(const P5D_Dubins& rhs) const {
-    if (this == &rhs) return true;
-    else if (!DynSys::operator==(rhs)) return false;
-    else if ((aRange.size() != rhs.aRange.size()) ||
-      !std::equal(aRange.cbegin(), aRange.cend(), rhs.aRange.cbegin()))
-        return false;
-    else if (alphaMax != rhs.alphaMax) return false;   
-    else if (vOther != rhs.vOther) return false;    
-    else if (wMax != rhs.wMax) return false;   
-    else if ((dMax.size() != rhs.dMax.size()) || !std::equal(dMax.cbegin(),
-      dMax.cend(), rhs.dMax.cbegin())) return false;
-    else if ((dims.size() != rhs.dims.size()) || !std::equal(dims.cbegin(),
-      dims.cend(), rhs.dims.cbegin())) return false;
-    return true;
+  if (this == &rhs) return true;
+  else if (!DynSys::operator==(rhs)) return false;
+  else if ((aRange.size() != rhs.aRange.size()) ||
+    !std::equal(aRange.cbegin(), aRange.cend(), rhs.aRange.cbegin()))
+      return false;
+  else if (alphaMax != rhs.alphaMax) return false;   
+  else if (vOther != rhs.vOther) return false;    
+  else if (wMax != rhs.wMax) return false;   
+  else if ((dMax.size() != rhs.dMax.size()) || !std::equal(dMax.cbegin(),
+    dMax.cend(), rhs.dMax.cbegin())) return false;
+  else if ((dims.size() != rhs.dims.size()) || !std::equal(dims.cbegin(),
+    dims.cend(), rhs.dims.cbegin())) return false;
+  return true;
 }
 
 
@@ -131,60 +131,65 @@ bool P5D_Dubins::operator==(const DynSys& rhs) const {
 
 bool P5D_Dubins::save(
     beacls::MatFStream* fs,
-    beacls::MatVariable* variable_ptr
-) {
-    bool result = DynSys::save(fs, variable_ptr);
-    if (!aRange.empty()) result &= save_vector(aRange, std::string("aRange"), 
-        beacls::IntegerVec(), true, fs, variable_ptr);
-    result &=
-        save_value(alphaMax, std::string("alphaMax"), true, fs, variable_ptr);
-    result &= save_value(vOther, std::string("vOther"), true, fs, variable_ptr);
-    result &= save_value(wMax, std::string("wMax"), true, fs, variable_ptr);
-    if (!dMax.empty()) result &= save_vector(dMax, std::string("dMax"), 
-        beacls::IntegerVec(), true, fs, variable_ptr);
-    if (!dims.empty()) result &= save_vector(dims, std::string("dims"), 
-        beacls::IntegerVec(), true, fs, variable_ptr);
-    return result;
+    beacls::MatVariable* variable_ptr) {
+
+  bool result = DynSys::save(fs, variable_ptr);
+  if (!aRange.empty()) result &= save_vector(aRange, std::string("aRange"), 
+    beacls::IntegerVec(), true, fs, variable_ptr);
+  result &=
+    save_value(alphaMax, std::string("alphaMax"), true, fs, variable_ptr);
+  result &= save_value(vOther, std::string("vOther"), true, fs, variable_ptr);
+  result &= save_value(wMax, std::string("wMax"), true, fs, variable_ptr);
+  if (!dMax.empty()) result &= save_vector(dMax, std::string("dMax"), 
+    beacls::IntegerVec(), true, fs, variable_ptr);
+  if (!dims.empty()) result &= save_vector(dims, std::string("dims"), 
+    beacls::IntegerVec(), true, fs, variable_ptr);
+  return result;
 }
 
 
 bool P5D_Dubins::optCtrl_i_cell_helper(
     beacls::FloatVec& uOpt_i, // Relevant component i of the optimal input
-    const std::vector<const FLOAT_TYPE* >& derivs,
+    const std::vector<const FLOAT_TYPE*>& derivs,
     const beacls::IntegerVec& deriv_sizes,
     const helperOC::DynSys_UMode_Type uMode,
     const size_t src_target_dim_index, // Relevant state j affected by input i
     const beacls::FloatVec& uExtr_i // [u_minimizer_xj_dot, u_maximizer_xj_dot]
-) const {
-    if (src_target_dim_index < dims.size()) {
-        const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
-        const size_t length = deriv_sizes[src_target_dim_index];
-        if (length == 0 || deriv_j == NULL) return false;
-        uOpt_i.resize(length);
-        switch (uMode) {
-        case helperOC::DynSys_UMode_Max:
-            for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
-                uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[1] : uExtr_i[0];
-            }
-            break;
-        case helperOC::DynSys_UMode_Min:
-            for (size_t ii = 0; ii < length; ++ii) {
-                uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[0] : uExtr_i[1];
-            }
-            break;
-        case helperOC::DynSys_UMode_Invalid:
-        default:
-            std::cerr << "Unknown uMode!: " << uMode << std::endl;
-            return false;
+    ) const {
+
+  if (src_target_dim_index < dims.size()) {
+    const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
+    const size_t length = deriv_sizes[src_target_dim_index];
+
+    if (length == 0 || deriv_j == NULL) return false;
+      uOpt_i.resize(length);
+      switch (uMode) {
+      case helperOC::DynSys_UMode_Max:
+        for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
+          uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[1] : uExtr_i[0];
         }
-    }
-    return true;
+        break;
+     
+      case helperOC::DynSys_UMode_Min:
+        for (size_t ii = 0; ii < length; ++ii) {
+          uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[0] : uExtr_i[1];
+        }
+        break;
+     
+      case helperOC::DynSys_UMode_Invalid:
+     
+      default:
+          std::cerr << "Unknown uMode!: " << uMode << std::endl;
+          return false;
+      }
+  }
+  return true;
 } 
 
 
 bool P5D_Dubins::optDstb_i_cell_helper(
     beacls::FloatVec& dOpt_i, // Relevant component i of the optimal input
-    const std::vector<const FLOAT_TYPE* >& derivs,
+    const std::vector<const FLOAT_TYPE*>& derivs,
     const beacls::IntegerVec& deriv_sizes,
     const helperOC::DynSys_DMode_Type dMode,
     const size_t src_target_dim_index, // Relevant state j affected by input i
@@ -236,8 +241,10 @@ bool P5D_Dubins::optCtrl(
     //  the input values that maximize and minimize this state's derivative).
     result &= optCtrl_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
         modified_uMode, find_val(dims, 3), aRange);
+
+    const beacls::FloatVec alphaRange{-alphaMax, alphaMax};
     result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
-        modified_uMode, find_val(dims, 4), {-alphaMax, alphaMax});
+        modified_uMode, find_val(dims, 4), alphaRange);
     return result;
 }
 
@@ -280,83 +287,78 @@ bool P5D_Dubins::dynamics_cell_helper(
     const beacls::FloatVec::const_iterator& state_theta_rel,
     const beacls::FloatVec::const_iterator& state_v,
     const beacls::FloatVec::const_iterator& state_w,
-    const std::vector<beacls::FloatVec >& us,
-    const std::vector<beacls::FloatVec >& ds,
+    const std::vector<beacls::FloatVec>& us,
+    const std::vector<beacls::FloatVec>& ds,
     const size_t size_x_rel,
     const size_t size_y_rel,
     const size_t size_theta_rel,
     const size_t size_v,
     const size_t size_w,
-    const size_t dim
-) const {
-    beacls::FloatVec& dx_i = dxs[dim];
-    bool result = true;
-    switch (dims[dim]) {
-    case 0:
-        {   // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
-            dx_i.resize(size_x_rel);
-            const beacls::FloatVec& d_x_rel = ds[0];
-            const beacls::FloatVec& wOther = ds[5];
-            for (size_t index = 0; index < size_x_rel; ++index) {
-                dx_i[index] = -vOther +
-                    state_v[index] * std::cos(state_theta_rel[index]) +
-                    wOther[index] * state_y_rel[index] +
-                    d_x_rel[index];
-            }
-        }
-        break;
-    case 1:
-        {   // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
-            dx_i.resize(size_y_rel);
-            const beacls::FloatVec& d_y_rel = ds[1];
-            const beacls::FloatVec& wOther = ds[5];
-            for (size_t index = 0; index < size_y_rel; ++index) {
-                dx_i[index] =
-                    state_v[index] * std::sin(state_theta_rel[index]) -
-                    wOther[index] * state_x_rel[index] +
-                    d_y_rel[index];
-            }
-        }
-        break;
-    case 2:
-        {   // theta_rel_dot = w - wOther
-            dx_i.resize(size_theta_rel);
-            const beacls::FloatVec& d_theta_rel = ds[2];
-            const beacls::FloatVec& wOther = ds[5];
-            for (size_t index = 0; index < size_theta_rel; ++index) {
-                dx_i[index] = state_w[index] - wOther[index] +
-                    d_theta_rel[index];
-            }
-        }
-        break;
-    case 3:
-        {   // v_dot = a + d_v
-            dx_i.resize(size_v);
-            const beacls::FloatVec& d_v = ds[3];
-            const beacls::FloatVec& a = us[0];
-            for (size_t index = 0; index < size_v; ++index) {
-                dx_i[index] = a[index] + d_v[index];
-            }
-        }
-        break;
-    case 4:
-        {   // w_dot = alpha + d_w
-            dx_i.resize(size_w);
-            const beacls::FloatVec& d_w = ds[4];
-            const beacls::FloatVec& alpha = us[1];
-            for (size_t index = 0; index < size_w; ++index) {
-                dx_i[index] = alpha[index] + d_w[index];
-            }
-        }
-        break;
-    default:
-        std::cerr <<
-            "Only dimension 1-5 are defined for dynamics of P5D_Dubins!" <<
-            std::endl;
-        result = false;
-        break;
+    const size_t dim) const {
+  beacls::FloatVec& dx_i = dxs[dim];
+  bool result = true;
+  switch (dims[dim]) {
+  case 0: { // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
+      dx_i.resize(size_x_rel);
+      const beacls::FloatVec& d_x_rel = ds[0];
+      const beacls::FloatVec& wOther = ds[5];
+      for (size_t index = 0; index < size_x_rel; ++index) {
+        dx_i[index] = -vOther +
+          state_v[index] * std::cos(state_theta_rel[index]) +
+          wOther[index] * state_y_rel[index] +
+          d_x_rel[index];
+      } 
     }
-    return result;
+      break;
+  case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
+      dx_i.resize(size_y_rel);
+      const beacls::FloatVec& d_y_rel = ds[1];
+      const beacls::FloatVec& wOther = ds[5];
+      for (size_t index = 0; index < size_y_rel; ++index) {
+        dx_i[index] =
+          state_v[index] * std::sin(state_theta_rel[index]) -
+          wOther[index] * state_x_rel[index] +
+          d_y_rel[index];
+      }
+    }
+      break;
+  case 2:
+      {   // theta_rel_dot = w - wOther
+        dx_i.resize(size_theta_rel);
+        const beacls::FloatVec& d_theta_rel = ds[2];
+        const beacls::FloatVec& wOther = ds[5];
+        for (size_t index = 0; index < size_theta_rel; ++index) {
+          dx_i[index] = state_w[index] - wOther[index] + d_theta_rel[index];
+        }
+      }
+      break;
+  case 3:
+      {   // v_dot = a + d_v
+        dx_i.resize(size_v);
+        const beacls::FloatVec& d_v = ds[3];
+        const beacls::FloatVec& a = us[0];
+        for (size_t index = 0; index < size_v; ++index) {
+          dx_i[index] = a[index] + d_v[index];
+        }
+      }
+      break;
+  case 4: { // w_dot = alpha + d_w
+        dx_i.resize(size_w);
+        const beacls::FloatVec& d_w = ds[4];
+        const beacls::FloatVec& alpha = us[1];
+        for (size_t index = 0; index < size_w; ++index) {
+          dx_i[index] = alpha[index] + d_w[index];
+        }
+      }
+      break;
+  default:
+    std::cerr <<
+      "Only dimension 1-5 are defined for dynamics of P5D_Dubins!" <<
+      std::endl;
+    result = false;
+    break;
+  }
+  return result;
 }
 
 
