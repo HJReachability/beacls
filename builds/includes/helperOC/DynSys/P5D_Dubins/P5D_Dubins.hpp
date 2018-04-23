@@ -111,7 +111,7 @@ namespace helperOC {
                 const FLOAT_TYPE vOther = 0.1,
                 const FLOAT_TYPE wMax = 2.0,
                 const beacls::FloatVec& dMax = beacls::FloatVec{
-                    0.02, 0.02, 0.2, 0.02},
+                    0.02, 0.02, 0., 0.2, 0.02},
                 const beacls::IntegerVec& dims = beacls::IntegerVec{ 0,1,2,3,4 }
         );
         PREFIX_VC_DLL
