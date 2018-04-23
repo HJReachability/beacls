@@ -698,7 +698,9 @@ void HJI_Grid_impl::calc_xs(
 		HJI_Grid_calc_xs_execute_cuda(
 			x_uvec, v_uvec,
 			dimension, start_index, 
-			modified_length, inner_dimensions_loop_size);
+			modified_length, 
+			inner_dimensions_loop_size, 
+			Ns);
 		return;
 	}
 
