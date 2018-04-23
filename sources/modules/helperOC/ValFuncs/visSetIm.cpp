@@ -134,8 +134,6 @@ static bool helperOC::contour(
 	data_img.convertTo(data_img, CV_32FC1);
 	data_img = data_img.reshape(1, (int)Ns[1]);
 
-	const FLOAT_TYPE left_offset = x0MinMax.first;
-	const FLOAT_TYPE top_offset = x1MinMax.first;
 	auto v0MinMax = beacls::minmax_value<FLOAT_TYPE>(v0.cbegin(), v0.cend());
 	auto v1MinMax = beacls::minmax_value<FLOAT_TYPE>(v1.cbegin(), v1.cend());
 	const FLOAT_TYPE v0_range = v0MinMax.second - v0MinMax.first;
@@ -162,8 +160,6 @@ static bool helperOC::contour(
 
 
 	cv::Mat tmp_img;
-	cv::Size margined_size(width+left_margin+right_margin, height+top_margin+bottom_margin);
-	cv::Size size(width, height);
 	cv::Size margined_size(width + left_margin + right_margin, height + top_margin + bottom_margin);
 	int type = CV_8UC3;
 	if (!src_img.empty() && (src_img.size() == margined_size) && src_img.type() == type) {
