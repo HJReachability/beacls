@@ -825,6 +825,9 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 					cv::imwrite(filename, HJIPDE_img);
 				}
 			}
+			if (projDims != 0) {
+				delete gPlot;
+			}
 
 #else /* defined(VISUALIZE_BY_OPENCV) */
 			std::cerr << "Warning: " << __func__ << " : visualize is not supported yet." << std::endl;
