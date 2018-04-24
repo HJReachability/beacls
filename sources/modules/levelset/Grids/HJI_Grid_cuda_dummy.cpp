@@ -39,6 +39,7 @@ void HJI_Grid_calc_xs_execute_cuda_dim0
 	const size_t thread_length_y,
 	const size_t thread_length_x
 ) {
+#if 0
 	switch (dimension) {
 	case 0:
 		memcpy2d(xs_ptr, target_dimension_loop_size, v_ptr, target_dimension_loop_size, target_dimension_loop_size, loop_length);
@@ -60,7 +61,7 @@ void HJI_Grid_calc_xs_execute_cuda_dim0
 			target_dimension_index = 0;
 		}
 	}
-
+#endif
 }
 
 
