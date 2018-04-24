@@ -35,12 +35,20 @@ helperOC::ComputeOptTraj::~ComputeOptTraj()
 }
 
 helperOC::ComputeOptTraj_impl::ComputeOptTraj_impl() :
-	computeGradients(NULL)
+	computeGradients(NULL),
+	windowName("")
 {
 }
 
 helperOC::ComputeOptTraj_impl::~ComputeOptTraj_impl()
 {
+#if defined(VISUALIZE_BY_OPENCV)
+#if defined(VISUALIZE_WITH_GUI)
+	if (!windowName.empty()) {
+		cv::destroyWindow(windowName);
+	}
+#endif
+#endif	/* defined(VISUALIZE_BY_OPENCV) */
 	if (computeGradients) delete computeGradients;
 }
 

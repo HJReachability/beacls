@@ -17,10 +17,18 @@ using namespace helperOC;
 
 HJIPDE_impl::HJIPDE_impl(
 	const std::string& tmp_filename
-) : tmp_filename(tmp_filename), 
+) : tmp_filename(tmp_filename),
+	windowName(""), 
 	numericalFuncs(NULL) {
 }
 HJIPDE_impl::~HJIPDE_impl() {
+#if defined(VISUALIZE_BY_OPENCV)
+#if defined(VISUALIZE_WITH_GUI)
+	if (!windowName.empty()) {
+		cv::destroyWindow(windowName);
+	}
+#endif
+#endif
 	if (numericalFuncs) delete numericalFuncs;
 }
 
@@ -311,7 +319,8 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		deleteLastPlot = extraArgs.deleteLastPlot;
 		//!<   % Initialize the figure for visualization  
 #if defined(VISUALIZE_WITH_GUI)
-		cv::namedWindow("HJIPDE", 0);
+		windowName = std::string("HJIPDE");
+		cv::namedWindow(windowName.c_str(), 0);
 #endif
 		need_light = true;
 		if (obsMode == HJIPDE::ObsModeType_Static) {
@@ -402,7 +411,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		}
 #if defined(VISUALIZE_WITH_GUI)
 		if (!HJIPDE_initial_img.empty()) {
-			cv::imshow("HJIPDE", HJIPDE_initial_img);
+			cv::imshow(windowName.c_str(), HJIPDE_initial_img);
 			cv::waitKey(1);
 		}
 #endif
@@ -831,7 +840,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 					cv::Scalar{ 0,0,0 }, thickness, cv::LINE_AA);
 
 #if defined(VISUALIZE_WITH_GUI)
-				cv::imshow("HJIPDE", HJIPDE_img);
+				cv::imshow(windowName.c_str(), HJIPDE_img);
 				cv::waitKey(1);
 #endif
 				if (!extraArgs.fig_filename.empty()) {
@@ -840,6 +849,9 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 					std::string filename = extraArgs.fig_filename + i_ss.str() + ".png";
 					cv::imwrite(filename, HJIPDE_img);
 				}
+			}
+			if (projDims != 0) {
+				delete gPlot;
 			}
 
 #else /* defined(VISUALIZE_BY_OPENCV) */
