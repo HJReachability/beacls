@@ -156,34 +156,34 @@ bool P5D_Dubins::optCtrl_i_cell_helper(
     const beacls::FloatVec& uExtr_i // [u_minimizer_xj_dot, u_maximizer_xj_dot]
     ) const {
 
-  if (src_target_dim_index < dims.size()) {
-    const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
-    const size_t length = deriv_sizes[src_target_dim_index];
+  // if (src_target_dim_index < dims.size()) {
+  //   const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
+  //   const size_t length = deriv_sizes[src_target_dim_index];
 
-    if (length == 0 || deriv_j == NULL) return false;
+  //   if (length == 0 || deriv_j == NULL) return false;
 
-    uOpt_i.resize(length);
+  //   uOpt_i.resize(length);
     
-    switch (uMode) {
-      case helperOC::DynSys_UMode_Max:
-        for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
-          uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[1] : uExtr_i[0];
-        }
-        break;
+  //   switch (uMode) {
+  //     case helperOC::DynSys_UMode_Max:
+  //       for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
+  //         uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[1] : uExtr_i[0];
+  //       }
+  //       break;
      
-      case helperOC::DynSys_UMode_Min:
-        for (size_t ii = 0; ii < length; ++ii) {
-          uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[0] : uExtr_i[1];
-        }
-        break;
+  //     case helperOC::DynSys_UMode_Min:
+  //       for (size_t ii = 0; ii < length; ++ii) {
+  //         uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[0] : uExtr_i[1];
+  //       }
+  //       break;
      
-      case helperOC::DynSys_UMode_Invalid:
+  //     case helperOC::DynSys_UMode_Invalid:
      
-      default:
-          std::cerr << "Unknown uMode!: " << uMode << std::endl;
-          return false;
-    }
-  }
+  //     default:
+  //         std::cerr << "Unknown uMode!: " << uMode << std::endl;
+  //         return false;
+  //   }
+  // }
   return true;
 } 
 
@@ -196,31 +196,31 @@ bool P5D_Dubins::optDstb_i_cell_helper(
     const size_t src_target_dim_index, // Relevant state j affected by input i
     const beacls::FloatVec& dExtr_i // [u_minimizer_xj_dot, u_maximizer_xj_dot]
     ) const {
-  if (src_target_dim_index < dims.size()) {
-    const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
-    const size_t length = deriv_sizes[src_target_dim_index];
+  // if (src_target_dim_index < dims.size()) {
+  //   const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
+  //   const size_t length = deriv_sizes[src_target_dim_index];
 
-    if (length == 0 || deriv_j == NULL) return false;
+  //   if (length == 0 || deriv_j == NULL) return false;
 
-    dOpt_i.resize(length);
+  //   dOpt_i.resize(length);
 
-    switch (dMode) {
-      case helperOC::DynSys_DMode_Max:
-        for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
-            dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[1] : dExtr_i[0];
-        }
-        break;
-      case helperOC::DynSys_DMode_Min:
-        for (size_t ii = 0; ii < length; ++ii) {
-            dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[0] : dExtr_i[1];
-        }
-        break;
-      case helperOC::DynSys_DMode_Invalid:
-      default:
-        std::cerr << "Unknown dMode!: " << dMode << std::endl;
-        return false;
-    }
-  }
+  //   switch (dMode) {
+  //     case helperOC::DynSys_DMode_Max:
+  //       for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
+  //           dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[1] : dExtr_i[0];
+  //       }
+  //       break;
+  //     case helperOC::DynSys_DMode_Min:
+  //       for (size_t ii = 0; ii < length; ++ii) {
+  //           dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[0] : dExtr_i[1];
+  //       }
+  //       break;
+  //     case helperOC::DynSys_DMode_Invalid:
+  //     default:
+  //       std::cerr << "Unknown dMode!: " << dMode << std::endl;
+  //       return false;
+  //   }
+  // }
   return true;
 } 
 
@@ -447,7 +447,6 @@ bool P5D_Dubins::dynamics(
     //   return false;  
     // }
     
-    printf("x_ites size = %d\n", x_ites.size());
     const beacls::FloatVec::const_iterator& x_ites0 = x_ites[0];
     const beacls::FloatVec::const_iterator& x_ites1 = x_ites[1];
     const beacls::FloatVec::const_iterator& x_ites2 = x_ites[2];
