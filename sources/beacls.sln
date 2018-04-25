@@ -82,6 +82,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Quad4D_test", "samples\Quad
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "P5D_Dubins_RS", "samples\P5D_Dubins_RS\P5D_Dubins_RS.vcxproj", "{87578134-23B7-458B-96CA-7F455294588C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5822BB32-8BBA-4BC6-8DC5-4A3D06552CD5} = {5822BB32-8BBA-4BC6-8DC5-4A3D06552CD5}
+		{7C9F9249-AA19-412E-974B-40CCD2C6AB3F} = {7C9F9249-AA19-412E-974B-40CCD2C6AB3F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
