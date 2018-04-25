@@ -253,7 +253,7 @@ bool P5D_Dubins::optCtrl(
   // const beacls::FloatVec& alphaRange{-alphaMax, alphaMax};
   // result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
   //     modified_uMode, 4, alphaRange);
-  // return result;
+  return result;
 }
 
 

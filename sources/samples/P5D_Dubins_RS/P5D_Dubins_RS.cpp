@@ -88,11 +88,11 @@ int main(int argc, char *argv[])
     break;
   case 1:
     Ns = beacls::IntegerVec{ 31, 31, 21, 21, 21};
+	break;
   case 2:
-    break;
-    Ns = beacls::IntegerVec{ 51, 51, 31, 31, 31};
+    Ns = beacls::IntegerVec{ 51, 51, 31, 31, 31 };
+	break;
   case 3:
-    break;
     Ns = beacls::IntegerVec{ 151, 151, 101, 101, 101};
     break;
   case 4:
