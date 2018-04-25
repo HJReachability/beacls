@@ -238,11 +238,11 @@ bool P5D_Dubins::optCtrl(
     helperOC::DynSys_UMode_Max : uMode;
 
   // Why is this needed? It is found in Plane.cpp
-  // for (size_t dim = 0; dim < 5; ++dim) {
-  //   if (deriv_sizes[0] == 0 || deriv_ptrs[0] == NULL) {
-  //     return false;
-  //   }
-  // }
+  for (size_t dim = 0; dim < 5; ++dim) {
+    if (deriv_sizes[dim] == 0 || deriv_ptrs[dim] == NULL) {
+      return false;
+    }
+  }
 
   uOpts.resize(get_nu());
 
@@ -285,7 +285,7 @@ bool P5D_Dubins::optDstb(
 
   // Why is this needed? It is found in Plane.cpp
   for (size_t dim = 0; dim < 5; ++dim) {
-    if (deriv_sizes[0] == 0 || deriv_ptrs[0] == NULL) {
+    if (deriv_sizes[dim] == 0 || deriv_ptrs[dim] == NULL) {
       return false;
     }
   }
@@ -389,46 +389,46 @@ bool P5D_Dubins::dynamics_cell_helper(
   }
       break;
   case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
-    dx_i.assign(size_y_rel, 1.);
-    // dx_i.resize(size_y_rel);
-    // const beacls::FloatVec& d_y_rel = ds[1];
-    // const beacls::FloatVec& wOther = ds[5];
-    // for (size_t index = 0; index < size_y_rel; ++index) {
-    //   dx_i[index] =
-    //     state_v[index] * std::sin(state_theta_rel[index]) -
-    //     wOther[index] * state_x_rel[index] +
-    //     d_y_rel[index];
-    // }
+    // dx_i.assign(size_y_rel, 1.);
+    dx_i.resize(size_y_rel);
+    const beacls::FloatVec& d_y_rel = ds[1];
+    const beacls::FloatVec& wOther = ds[5];
+    for (size_t index = 0; index < size_y_rel; ++index) {
+      dx_i[index] =
+        state_v[index] * std::sin(state_theta_rel[index]);// -
+        //wOther[index] * state_x_rel[index] +
+        //d_y_rel[index];
+    }
   }
       break;
   case 2: {   // theta_rel_dot = w - wOther
-      dx_i.assign(size_theta_rel, 1.);
-      // dx_i.resize(size_theta_rel);
-      // const beacls::FloatVec& d_theta_rel = ds[2];
-      // const beacls::FloatVec& wOther = ds[5];
-      // for (size_t index = 0; index < size_theta_rel; ++index) {
-      //   dx_i[index] = state_w[index] - wOther[index] + d_theta_rel[index];
-      // }
+      // dx_i.assign(size_theta_rel, 1.);
+      dx_i.resize(size_theta_rel);
+      const beacls::FloatVec& d_theta_rel = ds[2];
+      const beacls::FloatVec& wOther = ds[5];
+      for (size_t index = 0; index < size_theta_rel; ++index) {
+        dx_i[index] = state_w[index];// - wOther[index] + d_theta_rel[index];
+      }
     }
     break;
   case 3: {   // v_dot = a + d_v
-    dx_i.assign(size_v, 1.);
-    // dx_i.resize(size_v);
-    // const beacls::FloatVec& d_v = ds[3];
-    // const beacls::FloatVec& a = us[0];
-    // for (size_t index = 0; index < size_v; ++index) {
-    //   dx_i[index] = a[index] + d_v[index];
-    // }
+    // dx_i.assign(size_v, 1.);
+    dx_i.resize(size_v);
+    const beacls::FloatVec& d_v = ds[3];
+    const beacls::FloatVec& a = us[0];
+    for (size_t index = 0; index < size_v; ++index) {
+      dx_i[index] = 1.;//a[index] + d_v[index];
+    }
     }
     break;
   case 4: { // w_dot = alpha + d_w
-    dx_i.assign(size_w, 1.);
-  //   dx_i.resize(size_w);
-  //   const beacls::FloatVec& d_w = ds[4];
-  //   const beacls::FloatVec& alpha = us[1];
-  //   for (size_t index = 0; index < size_w; ++index) {
-  //     dx_i[index] = alpha[index] + d_w[index];
-  //   }
+    // dx_i.assign(size_w, 1.);
+    dx_i.resize(size_w);
+    const beacls::FloatVec& d_w = ds[4];
+    const beacls::FloatVec& alpha = us[1];
+    for (size_t index = 0; index < size_w; ++index) {
+      dx_i[index] = 1.; //alpha[index] + d_w[index];
+    }
   }
   break;
   default:
