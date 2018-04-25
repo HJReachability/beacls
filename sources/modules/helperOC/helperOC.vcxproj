@@ -35,6 +35,7 @@
     <ClCompile Include="DynSys\DynSys\DynSysSchemeData_cuda_dummy.cpp" />
     <ClCompile Include="DynSys\KinVehicleND\KinVehicleND.cpp" />
     <ClCompile Include="DynSys\KinVehicleND\KinVehicleND_cuda_dummy.cpp" />
+    <ClCompile Include="DynSys\P5D_Dubins\P5D_Dubins.cpp" />
     <ClCompile Include="DynSys\Plane4D\Plane4D.cpp" />
     <ClCompile Include="DynSys\PlaneCAvoid\PlaneCAvoid.cpp" />
     <ClCompile Include="DynSys\PlaneCAvoid\PlaneCAvoid_cuda_dummy.cpp" />
@@ -366,6 +367,5 @@ popd</Command>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />
   </ImportGroup>
 </Project>

@@ -129,6 +129,9 @@
     <ClCompile Include="DynSys\Quad4D\Quad4D_cuda_dummy.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="DynSys\P5D_Dubins\P5D_Dubins.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ValFuncs\HJIPDE_impl.hpp">
@@ -276,6 +279,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DynSys\Quad4D\Quad4D_cuda.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\P5D_Dubins\P5D_Dubins.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
