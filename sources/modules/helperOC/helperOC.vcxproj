@@ -68,6 +68,7 @@
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\DynSys\DynSysSchemeData.hpp" />
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\DynSys\DynSysTypeDef.hpp" />
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\KinVehicleND\KinVehicleND.hpp" />
+    <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\P5D_Dubins\P5D_Dubins.hpp" />
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\Plane4D\Plane4D.hpp" />
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\PlaneCAvoid\PlaneCAvoid.hpp" />
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\Plane\Plane.hpp" />
@@ -365,5 +366,6 @@ popd</Command>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />
   </ImportGroup>
 </Project>
