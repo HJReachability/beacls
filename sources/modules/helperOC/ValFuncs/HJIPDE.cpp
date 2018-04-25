@@ -557,12 +557,12 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
       }
 
       beacls::FloatVec tspan{tNow,src_tau[i]};
-      std::cout << "Begin time step (duration: " << tspan[1] << ")." << std::endl;
+      // std::cout << "Begin time step (duration: " << tspan[1] << ")." << std::endl;
       tNow = integratorFunc->execute(
         y, tspan, y, modified_schemeData, 
         execParameters.line_length_of_chunk, execParameters.num_of_threads, execParameters.num_of_gpus,
         execParameters.delayedDerivMinMax, execParameters.enable_user_defined_dynamics_on_gpu);
-      std::cout << "End time step." << std::endl;
+      // std::cout << "End time step." << std::endl;
 
       if (std::any_of(y.cbegin(), y.cend(), [](const auto& rhs) { return std::isnan(rhs); })) {
         char num;

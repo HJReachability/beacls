@@ -237,6 +237,13 @@ bool P5D_Dubins::optCtrl(
     (uMode == helperOC::DynSys_UMode_Default) ? 
     helperOC::DynSys_UMode_Max : uMode;
 
+  // Why is this needed? It is found in Plane.cpp
+  // for (size_t dim = 0; dim < 5; ++dim) {
+  //   if (deriv_sizes[0] == 0 || deriv_ptrs[0] == NULL) {
+  //     return false;
+  //   }
+  // }
+
   uOpts.resize(get_nu());
 
   bool result = true;
@@ -274,6 +281,13 @@ bool P5D_Dubins::optDstb(
       (modified_dMode != helperOC::DynSys_DMode_Min)) {
     std::cerr << "Unknown dMode!: " << modified_dMode << std::endl;
     return false;
+  }
+
+  // Why is this needed? It is found in Plane.cpp
+  for (size_t dim = 0; dim < 5; ++dim) {
+    if (deriv_sizes[0] == 0 || deriv_ptrs[0] == NULL) {
+      return false;
+    }
   }
 
   dOpts.resize(get_nd());
@@ -354,20 +368,24 @@ bool P5D_Dubins::dynamics_cell_helper(
     const size_t size_w,
     const size_t dim) const {
 
+
+  // printf("%zu %zu %zu %zu %zu %zu\n", size_x_rel, size_y_rel, size_theta_rel, size_v, size_w, ds.size());
+
   beacls::FloatVec& dx_i = dxs[dim];
   bool result = true;
   switch (dims[dim]) {
   case 0: { // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
-    dx_i.assign(size_x_rel, 1.);
-    // dx_i.resize(size_x_rel);
-    // const beacls::FloatVec& d_x_rel = ds[0];
-    // const beacls::FloatVec& wOther = ds[5];
-    // for (size_t index = 0; index < size_x_rel; ++index) {
-    //   dx_i[index] = -vOther +
-    //     state_v[index] * std::cos(state_theta_rel[index]) +
-    //     wOther[index] * state_y_rel[index] +
-    //     d_x_rel[index];
-    // } 
+    // dx_i.assign(size_x_rel, 1.);
+    dx_i.resize(size_x_rel);
+    const beacls::FloatVec& d_x_rel = ds[0];
+    const beacls::FloatVec& wOther = ds[5];
+
+    for (size_t index = 0; index < size_x_rel; ++index) {
+      dx_i[index] = -vOther +
+        state_v[index] * std::cos(state_theta_rel[index]);// +
+        //wOther[index] * state_y_rel[index];// +
+        //d_x_rel[index];
+    }
   }
       break;
   case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
@@ -457,6 +475,7 @@ bool P5D_Dubins::dynamics(
     // Compute dynamics for all components.
     if (dst_target_dim == std::numeric_limits<size_t>::max()) {
       for (size_t dim = 0; dim < 5; ++dim) {
+        // printf("Dimension %zu \n", dim);
         result &= dynamics_cell_helper(
           dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
           x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], dim);
@@ -465,16 +484,19 @@ bool P5D_Dubins::dynamics(
     // Compute dynamics for a single, specified component.
     else
     {
-        if (dst_target_dim < dims.size())
-          result &= dynamics_cell_helper(
-            dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
-            x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], 
-            dst_target_dim);
-        else {
-            std::cerr << "Invalid target dimension for dynamics: " <<
-                dst_target_dim << std::endl;
-            result = false;
-        }
+      if (dst_target_dim < dims.size()) {
+        // printf("Target dimension %zu \n", dst_target_dim);
+        result &= dynamics_cell_helper(
+          dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
+          x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], 
+          dst_target_dim);
+      }
+
+      else {
+        std::cerr << "Invalid target dimension for dynamics: " <<
+            dst_target_dim << std::endl;
+        result = false;
+      }
     }
     return result;
 }

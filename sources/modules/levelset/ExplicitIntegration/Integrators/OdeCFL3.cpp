@@ -105,7 +105,7 @@ FLOAT_TYPE OdeCFL3_impl::execute(
 
 
 	const size_t num_of_elements = grid->get_sum_of_elems();
-	std::cout << "Number of elements in the grid: " << num_of_elements << std::endl; // JFF DEBUG
+	// std::cout << "Number of elements in the grid: " << num_of_elements << std::endl; // JFF DEBUG
 
 	//---------------------------------------------------------------------------
 	// Create cell array with array indices.
@@ -187,7 +187,7 @@ FLOAT_TYPE OdeCFL3_impl::execute(
 	y = y0;
 
 	while ((tspan[1] - t) >= (small * HjiFabs<FLOAT_TYPE>(tspan[1]))) {
-		std::cout << "Begin integration substeps." << std::endl; // JFF DEBUG
+		// std::cout << "Begin integration substeps." << std::endl; // JFF DEBUG
 		//	If there is a terminal event function registered, we need
 		// to maintain the info from the last timestep.
 		if (terminalEvent) {
@@ -223,7 +223,7 @@ FLOAT_TYPE OdeCFL3_impl::execute(
 			delayedDerivMinMax,
 			enable_user_defined_dynamics_on_gpu
 		);
-		std::cout << "Done odeCFL_Substep." << std::endl; // JFF DEBUG
+		// std::cout << "Done odeCFL_Substep." << std::endl; // JFF DEBUG
 		step_bound_invs.assign(num_of_dimensions, 0.);
 		std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), [this](const auto& rhs) {
 			std::transform(rhs.cbegin(), rhs.cend(), step_bound_invs.cbegin(), step_bound_invs.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::max<FLOAT_TYPE>));
@@ -311,7 +311,7 @@ FLOAT_TYPE OdeCFL3_impl::execute(
 			printf("Second substep violated CFL; effective number %lf\n", violation);
 		}
 
-		std::cout << "First substep done." << std::endl; // JFF DEBUG
+		// std::cout << "First substep done." << std::endl; // JFF DEBUG
 		// Take the second substep.
 		const FLOAT_TYPE t2 = t1 + deltaT;
 		// Combine t_n and t_{n+2} to get approximation at t_{n+1/2}

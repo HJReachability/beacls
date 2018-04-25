@@ -35,7 +35,7 @@ void levelset::odeCFL_SubStep(
 	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 	const bool enable_user_defined_dynamics_on_gpu
 ) {
-	std::cout << "Begin execution of odeCFL_SubStep." << std::endl; // JFF DEBUG
+	// std::cout << "Begin execution of odeCFL_SubStep." << std::endl; // JFF DEBUG
 	bool executeAgain = false;
 	std::vector<beacls::FloatVec > originalDerivMins;
 	std::vector<beacls::FloatVec > originalDerivMaxs;
