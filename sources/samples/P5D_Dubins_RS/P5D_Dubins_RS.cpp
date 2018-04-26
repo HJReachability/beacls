@@ -15,9 +15,9 @@
 
 int main(int argc, char *argv[])
 {
-  bool dump_file = false;
+  bool dump_file = true;
   if (argc >= 2) {
-    dump_file = (atoi(argv[1]) == 0) ? false : true;
+    dump_file = (atoi(argv[1]) == 0) ? true : false;
   }
   size_t line_length_of_chunk = 1;
   if (argc >= 3) {
@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
   if (argc >= 14) {
     enable_user_defined_dynamics_on_gpu = (atoi(argv[13]) == 0) ? false : true;
   }
+  
   // Create grid
   beacls::IntegerVec  Ns;
   std::cout << "Model size option :" << model_size <<std::endl;
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 
   beacls::FloatVec stoptau;
   std::vector<beacls::FloatVec> data;
-  std::cout << "Begin HJI PDE Solve." <<std::endl;
+  // std::cout << "Begin HJI PDE Solve." <<std::endl;
 
   
   hjipde->solve(data, stoptau, extraOuts, targets, tau, schemeData, 
@@ -179,22 +180,31 @@ int main(int argc, char *argv[])
   //   if (extractCostates) delete extractCostates;
   // }
 
-  // if (dump_file) {
-  //   std::string P5D_Dubins_RS_RS_filename("P5D_Dubins_RS_RS.mat");
-  //   beacls::MatFStream* P5D_Dubins_RS_RS_fs = beacls::openMatFStream(P5D_Dubins_RS_RS_filename, beacls::MatOpenMode_Write);
-  //   g->save_grid(std::string("g"), P5D_Dubins_RS_RS_fs);
-  //   if (!data.empty()) save_vector_of_vectors(data, std::string("data"), Ns, false, P5D_Dubins_RS_RS_fs);
-  //   if (!tau.empty()) save_vector(tau, std::string("tau"), beacls::IntegerVec(), false, P5D_Dubins_RS_RS_fs);
-  //   if (!P.empty()) save_vector_of_vectors(P, std::string("P"), Ns, false, P5D_Dubins_RS_RS_fs);
-  //   beacls::closeMatFStream(P5D_Dubins_RS_RS_fs);
+  if (dump_file) {
+    std::string P5D_Dubins_RS_RS_filename("P5D_Dubins_RS_RS.mat");
+    beacls::MatFStream* P5D_Dubins_RS_RS_fs = 
+      beacls::openMatFStream(P5D_Dubins_RS_RS_filename, beacls::MatOpenMode_Write);
 
-  //   std::string P5D_Dubins_RS_RS_smaller_filename("P5D_Dubins_RS_RS_smaller.mat");
-  //   beacls::MatFStream* P5D_Dubins_RS_RS_smaller_fs = beacls::openMatFStream(P5D_Dubins_RS_RS_smaller_filename, beacls::MatOpenMode_Write);
-  //   g->save_grid(std::string("g"), P5D_Dubins_RS_RS_smaller_fs);
-  //   if (!P.empty()) save_vector_of_vectors(P, std::string("P"), Ns, false, P5D_Dubins_RS_RS_smaller_fs);
-  //   if (!tau.empty()) save_vector(tau, std::string("tau"), beacls::IntegerVec(), false, P5D_Dubins_RS_RS_smaller_fs);
-  //   beacls::closeMatFStream(P5D_Dubins_RS_RS_smaller_fs);
-  // }
+    g->save_grid(std::string("g"), P5D_Dubins_RS_RS_fs);
+
+    if (!data.empty()) 
+      save_vector_of_vectors(data, std::string("data"), Ns, false, P5D_Dubins_RS_RS_fs);
+
+    if (!tau.empty()) 
+      save_vector(tau, std::string("tau"), beacls::IntegerVec(), false, P5D_Dubins_RS_RS_fs);
+
+    // if (!P.empty()) 
+    //   save_vector_of_vectors(P, std::string("P"), Ns, false, P5D_Dubins_RS_RS_fs);
+
+    beacls::closeMatFStream(P5D_Dubins_RS_RS_fs);
+
+    // std::string P5D_Dubins_RS_RS_smaller_filename("P5D_Dubins_RS_RS_smaller.mat");
+    // beacls::MatFStream* P5D_Dubins_RS_RS_smaller_fs = beacls::openMatFStream(P5D_Dubins_RS_RS_smaller_filename, beacls::MatOpenMode_Write);
+    // g->save_grid(std::string("g"), P5D_Dubins_RS_RS_smaller_fs);
+    // if (!P.empty()) save_vector_of_vectors(P, std::string("P"), Ns, false, P5D_Dubins_RS_RS_smaller_fs);
+    // if (!tau.empty()) save_vector(tau, std::string("tau"), beacls::IntegerVec(), false, P5D_Dubins_RS_RS_smaller_fs);
+    // beacls::closeMatFStream(P5D_Dubins_RS_RS_smaller_fs);
+  }
 
   if (hjipde) delete hjipde;
   if (schemeData) delete schemeData;

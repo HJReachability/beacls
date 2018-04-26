@@ -156,34 +156,36 @@ bool P5D_Dubins::optCtrl_i_cell_helper(
     const beacls::FloatVec& uExtr_i // [u_minimizer_xj_dot, u_maximizer_xj_dot]
     ) const {
 
-  // if (src_target_dim_index < dims.size()) {
-  //   const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
-  //   const size_t length = deriv_sizes[src_target_dim_index];
+  if (src_target_dim_index < dims.size()) {
+    const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
+    const size_t length = deriv_sizes[src_target_dim_index];
 
-  //   if (length == 0 || deriv_j == NULL) return false;
+    if (length == 0 || deriv_j == NULL) 
+      return false;
 
-  //   uOpt_i.resize(length);
+    uOpt_i.resize(length);
     
-  //   switch (uMode) {
-  //     case helperOC::DynSys_UMode_Max:
-  //       for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
-  //         uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[1] : uExtr_i[0];
-  //       }
-  //       break;
+    switch (uMode) {
+      case helperOC::DynSys_UMode_Max:
+        for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
+          uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[1] : uExtr_i[0];
+        }
+        break;
      
-  //     case helperOC::DynSys_UMode_Min:
-  //       for (size_t ii = 0; ii < length; ++ii) {
-  //         uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[0] : uExtr_i[1];
-  //       }
-  //       break;
+      case helperOC::DynSys_UMode_Min:
+        for (size_t ii = 0; ii < length; ++ii) {
+          uOpt_i[ii] = (deriv_j[ii] >= 0) ? uExtr_i[0] : uExtr_i[1];
+        }
+        break;
      
-  //     case helperOC::DynSys_UMode_Invalid:
+      case helperOC::DynSys_UMode_Invalid:
      
-  //     default:
-  //         std::cerr << "Unknown uMode!: " << uMode << std::endl;
-  //         return false;
-  //   }
-  // }
+      default:
+          std::cerr << "Unknown uMode!: " << uMode << std::endl;
+          return false;
+    }
+  }
+
   return true;
 } 
 
@@ -196,31 +198,33 @@ bool P5D_Dubins::optDstb_i_cell_helper(
     const size_t src_target_dim_index, // Relevant state j affected by input i
     const beacls::FloatVec& dExtr_i // [u_minimizer_xj_dot, u_maximizer_xj_dot]
     ) const {
-  // if (src_target_dim_index < dims.size()) {
-  //   const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
-  //   const size_t length = deriv_sizes[src_target_dim_index];
+  
+  if (src_target_dim_index < dims.size()) {
+    const FLOAT_TYPE* deriv_j = derivs[src_target_dim_index];
+    const size_t length = deriv_sizes[src_target_dim_index];
 
-  //   if (length == 0 || deriv_j == NULL) return false;
+    if (length == 0 || deriv_j == NULL) 
+      return false;
 
-  //   dOpt_i.resize(length);
+    dOpt_i.resize(length);
 
-  //   switch (dMode) {
-  //     case helperOC::DynSys_DMode_Max:
-  //       for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
-  //           dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[1] : dExtr_i[0];
-  //       }
-  //       break;
-  //     case helperOC::DynSys_DMode_Min:
-  //       for (size_t ii = 0; ii < length; ++ii) {
-  //           dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[0] : dExtr_i[1];
-  //       }
-  //       break;
-  //     case helperOC::DynSys_DMode_Invalid:
-  //     default:
-  //       std::cerr << "Unknown dMode!: " << dMode << std::endl;
-  //       return false;
-  //   }
-  // }
+    switch (dMode) {
+      case helperOC::DynSys_DMode_Max:
+        for (size_t ii = 0; ii < length; ++ii) { // iterate over grid
+            dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[1] : dExtr_i[0];
+        }
+        break;
+      case helperOC::DynSys_DMode_Min:
+        for (size_t ii = 0; ii < length; ++ii) {
+            dOpt_i[ii] = (deriv_j[ii] >= 0) ? dExtr_i[0] : dExtr_i[1];
+        }
+        break;
+      case helperOC::DynSys_DMode_Invalid:
+      default:
+        std::cerr << "Unknown dMode!: " << dMode << std::endl;
+        return false;
+    }
+  }
   return true;
 } 
 
@@ -248,18 +252,15 @@ bool P5D_Dubins::optCtrl(
 
   bool result = true;
 
-  for (size_t i = 0; i < 2; ++i) {
-    uOpts[i].assign(deriv_sizes[0], 0.);
-  }  
-  // // Call helper to determine optimal value for each control component
-  // // (we feed the relevant state component affected by each input as well as
-  // //  the input values that maximize and minimize this state's derivative).
-  // result &= optCtrl_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
-  //     modified_uMode, 3, aRange);
+  // Call helper to determine optimal value for each control component
+  // (we feed the relevant state component affected by each input as well as
+  //  the input values that maximize and minimize this state's derivative).
+  result &= optCtrl_i_cell_helper(uOpts[0], deriv_ptrs, deriv_sizes,
+      modified_uMode, 3, aRange);
 
-  // const beacls::FloatVec& alphaRange{-alphaMax, alphaMax};
-  // result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
-  //     modified_uMode, 4, alphaRange);
+  const beacls::FloatVec& alphaRange{-alphaMax, alphaMax};
+  result &= optCtrl_i_cell_helper(uOpts[1], deriv_ptrs, deriv_sizes,
+      modified_uMode, 4, alphaRange);
   return result;
 }
 
@@ -269,7 +270,7 @@ bool P5D_Dubins::optDstb(
     const FLOAT_TYPE,
     const std::vector<beacls::FloatVec::const_iterator>& x_ites,
     const std::vector<const FLOAT_TYPE*>& deriv_ptrs,
-    const beacls::IntegerVec& x_sizes,
+    const beacls::IntegerVec&,
     const beacls::IntegerVec& deriv_sizes,
     const helperOC::DynSys_DMode_Type dMode
     ) const {
@@ -293,62 +294,56 @@ bool P5D_Dubins::optDstb(
   dOpts.resize(get_nd());
   bool result = true;
 
-  for (size_t i = 0; i < 6; ++i) {
-    dOpts[i].assign(deriv_sizes[0], 0.);
-  }
+  // Call helper to determine optimal value for each disturbance component
+  // (we feed the relevant state component affected by each input as well as
+  //  the input values that maximize and minimize this state's derivative).
 
-  // // Call helper to determine optimal value for each disturbance component
-  // // (we feed the relevant state component affected by each input as well as
-  // //  the input values that maximize and minimize this state's derivative).
-
-  // // Disturbances
-  // const beacls::FloatVec& dRange0{-dMax[0],dMax[0]};
-  // const beacls::FloatVec& dRange1{-dMax[1],dMax[1]};
-  // const beacls::FloatVec& dRange2{-dMax[2],dMax[2]};
-  // const beacls::FloatVec& dRange3{-dMax[3],dMax[3]};
-  // const beacls::FloatVec& dRange4{-dMax[4],dMax[4]};
-
-  // result &= optDstb_i_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes,
-  //     modified_dMode, 0, dRange0);
-  // result &= optDstb_i_cell_helper(dOpts[1], deriv_ptrs, deriv_sizes,
-  //     modified_dMode, 1, dRange1);
-  // result &= optDstb_i_cell_helper(dOpts[2], deriv_ptrs, deriv_sizes,
-  //     modified_dMode, 2, dRange2);
-  // result &= optDstb_i_cell_helper(dOpts[3], deriv_ptrs, deriv_sizes,
-  //     modified_dMode, 3, dRange3);
-  // result &= optDstb_i_cell_helper(dOpts[4], deriv_ptrs, deriv_sizes,
-  //     modified_dMode, 4, dRange4);
+  // Disturbances
+  const beacls::FloatVec& dRange0{-dMax[0],dMax[0]};
+  const beacls::FloatVec& dRange1{-dMax[1],dMax[1]};
+  const beacls::FloatVec& dRange2{-dMax[2],dMax[2]};
+  const beacls::FloatVec& dRange3{-dMax[3],dMax[3]};
+  const beacls::FloatVec& dRange4{-dMax[4],dMax[4]};
+  
+  result &= optDstb_i_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes,
+      modified_dMode, 0, dRange0);
+  result &= optDstb_i_cell_helper(dOpts[1], deriv_ptrs, deriv_sizes,
+      modified_dMode, 1, dRange1);
+  result &= optDstb_i_cell_helper(dOpts[2], deriv_ptrs, deriv_sizes,
+      modified_dMode, 2, dRange2);
+  result &= optDstb_i_cell_helper(dOpts[3], deriv_ptrs, deriv_sizes,
+      modified_dMode, 3, dRange3);
+  result &= optDstb_i_cell_helper(dOpts[4], deriv_ptrs, deriv_sizes,
+      modified_dMode, 4, dRange4);
 
   // Planning control
   // assume state is a matrix (not a single state)
-  // const size_t x_size = x_sizes[0]; 
-  
-  // beacls::FloatVec& dOpt5 = dOpts[5];
 
-  // beacls::FloatVec::const_iterator xs0 = x_ites[0];
-  // beacls::FloatVec::const_iterator xs1 = x_ites[1];
+  dOpts[5].resize(deriv_sizes[0]);
 
-  // const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
-  // const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
-  // const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
+  beacls::FloatVec::const_iterator xs0 = x_ites[0];
+  beacls::FloatVec::const_iterator xs1 = x_ites[1];
 
-  // const FLOAT_TYPE w_if_det5_pos = 
-  //   (modified_dMode == helperOC::DynSys_DMode_Max) ? wMax : -wMax;
-  // const FLOAT_TYPE w_if_det5_neg =
-  //   (modified_dMode == helperOC::DynSys_DMode_Max) ? -wMax : wMax;
+  const FLOAT_TYPE* deriv0_ptr = deriv_ptrs[0];
+  const FLOAT_TYPE* deriv1_ptr = deriv_ptrs[1];
+  const FLOAT_TYPE* deriv2_ptr = deriv_ptrs[2];
 
-  // for (size_t index = 0; index < x_size; ++index) {
-  //   const FLOAT_TYPE x0 = xs0[index];
-  //   const FLOAT_TYPE x1 = xs1[index];
-  //   const FLOAT_TYPE deriv0 = deriv0_ptr[index];
-  //   const FLOAT_TYPE deriv1 = deriv1_ptr[index];
-  //   const FLOAT_TYPE deriv2 = deriv2_ptr[index];
+  const FLOAT_TYPE w_if_det5_pos = 
+    (modified_dMode == helperOC::DynSys_DMode_Max) ? wMax : -wMax;
+  const FLOAT_TYPE w_if_det5_neg =
+    (modified_dMode == helperOC::DynSys_DMode_Max) ? -wMax : wMax;
 
-  //   const FLOAT_TYPE det5 = deriv0*x1 - deriv1*x0 - deriv2;
+  for (size_t index = 0; index < deriv_sizes[0]; ++index) {
+    const FLOAT_TYPE x0 = xs0[index];
+    const FLOAT_TYPE x1 = xs1[index];
+    const FLOAT_TYPE deriv0 = deriv0_ptr[index];
+    const FLOAT_TYPE deriv1 = deriv1_ptr[index];
+    const FLOAT_TYPE deriv2 = deriv2_ptr[index];
 
-  //   dOpt5[index] = (det5 >= 0) ? w_if_det5_pos : w_if_det5_neg;
-  // }
+    const FLOAT_TYPE det5 = deriv0*x1 - deriv1*x0 - deriv2;
 
+    dOpts[5][index] = (det5 >= 0) ? w_if_det5_pos : w_if_det5_neg;
+  }
   return result;
 }
 
@@ -372,127 +367,127 @@ bool P5D_Dubins::dynamics_cell_helper(
   bool result = true;
 
   switch (dims[dim]) {
-  case 0: { // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
-    dx_i.resize(size_x_rel);
-    const beacls::FloatVec& d_x_rels = ds[0];
-    const beacls::FloatVec& wOthers = ds[5];
-    FLOAT_TYPE d_x_rel;
-    FLOAT_TYPE wOther;
+    case 0: { // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
+      dx_i.resize(size_x_rel);
+      const beacls::FloatVec& d_x_rels = ds[0];
+      const beacls::FloatVec& wOthers = ds[5];
+      FLOAT_TYPE d_x_rel;
+      FLOAT_TYPE wOther;
 
-    for (size_t index = 0; index < size_x_rel; ++index) {
-      if (ds[0].size() == size_x_rel) {
-        d_x_rel = d_x_rels[index];
-        wOther = wOthers[index];
+      for (size_t index = 0; index < size_x_rel; ++index) {
+        if (ds[0].size() == size_x_rel) {
+          d_x_rel = d_x_rels[index];
+          wOther = wOthers[index];
+        }
+        else {
+          d_x_rel = d_x_rels[0];
+          wOther = wOthers[0];
+        }
+
+        dx_i[index] = -vOther +
+          state_v[index] * std::cos(state_theta_rel[index]) +
+          wOther * state_y_rel[index] +
+          d_x_rel;
       }
-      else {
-        d_x_rel = d_x_rels[0];
-        wOther = wOthers[0];
+    } break;
+
+    case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
+      dx_i.resize(size_y_rel);
+      const beacls::FloatVec& d_y_rels = ds[1];
+      const beacls::FloatVec& wOthers = ds[5];
+      FLOAT_TYPE d_y_rel;
+      FLOAT_TYPE wOther;
+
+      for (size_t index = 0; index < size_y_rel; ++index) {
+        if (ds[1].size() == size_y_rel)
+          d_y_rel = d_y_rels[index];
+        else 
+          d_y_rel = d_y_rels[0];
+
+        if (ds[5].size() == size_y_rel)
+          wOther = wOthers[index];
+        else
+          wOther = wOthers[0];
+
+        dx_i[index] =
+          state_v[index] * std::sin(state_theta_rel[index]) -
+          wOther * state_x_rel[index] +
+          d_y_rel;
       }
+    } break;
 
-      dx_i[index] = -vOther +
-        state_v[index] * std::cos(state_theta_rel[index]) +
-        wOther * state_y_rel[index] +
-        d_x_rel;
-    }
-  } break;
+    case 2: {   // theta_rel_dot = w - wOther
+      dx_i.resize(size_theta_rel);
+      const beacls::FloatVec& d_theta_rels = ds[2];
+      const beacls::FloatVec& wOthers = ds[5];
+      FLOAT_TYPE d_theta_rel;
+      FLOAT_TYPE wOther;
 
-  case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
-    dx_i.resize(size_y_rel);
-    const beacls::FloatVec& d_y_rels = ds[1];
-    const beacls::FloatVec& wOthers = ds[5];
-    FLOAT_TYPE d_y_rel;
-    FLOAT_TYPE wOther;
+      for (size_t index = 0; index < size_theta_rel; ++index) {
+        if (ds[2].size() == size_theta_rel)
+          d_theta_rel = d_theta_rels[index];
+        else 
+          d_theta_rel = d_theta_rels[0];
 
-    for (size_t index = 0; index < size_y_rel; ++index) {
-      if (ds[1].size() == size_y_rel)
-        d_y_rel = d_y_rels[index];
-      else 
-        d_y_rel = d_y_rels[0];
+        if (ds[5].size() == size_theta_rel)
+          wOther = wOthers[index];
+        else 
+          wOther = wOthers[0];
 
-      if (ds[5].size() == size_y_rel)
-        wOther = wOthers[index];
-      else
-        wOther = wOthers[0];
+        dx_i[index] = state_w[index] - wOther + d_theta_rel;
+      }
+    } break;
 
-      dx_i[index] =
-        state_v[index] * std::sin(state_theta_rel[index]) -
-        wOther * state_x_rel[index] +
-        d_y_rel;
-    }
-  } break;
+    case 3: {   // v_dot = a + d_v
+      dx_i.resize(size_v);
+      const beacls::FloatVec& d_vs = ds[3];
+      const beacls::FloatVec& as = us[0];
+      FLOAT_TYPE d_v;
+      FLOAT_TYPE a;
 
-  case 2: {   // theta_rel_dot = w - wOther
-    dx_i.resize(size_theta_rel);
-    const beacls::FloatVec& d_theta_rels = ds[2];
-    const beacls::FloatVec& wOthers = ds[5];
-    FLOAT_TYPE d_theta_rel;
-    FLOAT_TYPE wOther;
+      for (size_t index = 0; index < size_v; ++index) {
+        if (ds[3].size() == size_v)
+          d_v = d_vs[index];
+        else
+          d_v = d_vs[0];
 
-    for (size_t index = 0; index < size_theta_rel; ++index) {
-      if (ds[2].size() == size_theta_rel)
-        d_theta_rel = d_theta_rels[index];
-      else 
-        d_theta_rel = d_theta_rels[0];
+        if (us[0].size() == size_v)
+          a = as[index];
+        else
+          a = as[0];
 
-      if (ds[5].size() == size_theta_rel)
-        wOther = wOthers[index];
-      else 
-        wOther = wOthers[0];
+        dx_i[index] = a + d_v;
+      }
+    } break;
 
-      dx_i[index] = state_w[index] - wOther + d_theta_rel;
-    }
-  } break;
+    case 4: { // w_dot = alpha + d_w
+      dx_i.resize(size_w);
+      const beacls::FloatVec& d_ws = ds[4];
+      const beacls::FloatVec& alphas = us[1];
+      FLOAT_TYPE d_w;
+      FLOAT_TYPE alpha;
 
-  case 3: {   // v_dot = a + d_v
-    dx_i.resize(size_v);
-    const beacls::FloatVec& d_vs = ds[3];
-    const beacls::FloatVec& as = us[0];
-    FLOAT_TYPE d_v;
-    FLOAT_TYPE a;
+      for (size_t index = 0; index < size_w; ++index) {
+        if (ds[4].size() == size_w)
+          d_w = d_ws[index];
+        else
+          d_w = d_ws[0];
 
-    for (size_t index = 0; index < size_v; ++index) {
-      if (ds[3].size() == size_v)
-        d_v = d_vs[index];
-      else
-        d_v = d_vs[0];
+        if (us[1].size() == size_w)
+          alpha = alphas[index];
+        else
+          alpha = alphas[0];
 
-      if (us[0].size() == size_v)
-        a = as[index];
-      else
-        a = as[0];
+        dx_i[index] = alpha + d_w;
+      }
+    } break;
 
-      dx_i[index] = a + d_v;
-    }
-  } break;
-
-  case 4: { // w_dot = alpha + d_w
-    dx_i.resize(size_w);
-    const beacls::FloatVec& d_ws = ds[4];
-    const beacls::FloatVec& alphas = us[1];
-    FLOAT_TYPE d_w;
-    FLOAT_TYPE alpha;
-
-    for (size_t index = 0; index < size_w; ++index) {
-      if (ds[4].size() == size_w)
-        d_w = d_ws[index];
-      else
-        d_w = d_ws[0];
-
-      if (us[1].size() == size_w)
-        alpha = alphas[index];
-      else
-        alpha = alphas[0];
-
-      dx_i[index] = alpha + d_w;
-    }
-  } break;
-
-  default:
-    std::cerr <<
-      "Only dimension 1-5 are defined for dynamics of P5D_Dubins!" <<
-      std::endl;
-    result = false;
-    break;
+    default:
+      std::cerr <<
+        "Only dimension 1-5 are defined for dynamics of P5D_Dubins!" <<
+        std::endl;
+      result = false;
+      break;
   }
   return result;
 }
@@ -505,26 +500,12 @@ bool P5D_Dubins::dynamics(
     const std::vector<beacls::FloatVec>& ds,
     const beacls::IntegerVec& x_sizes,
     const size_t dst_target_dim) const {
-
-    // // Define indices and iterators for each state dimension.
-    // const size_t src_target_dim0_index = find_val(dims, 0);
-    // const size_t src_target_dim1_index = find_val(dims, 1);
-    // const size_t src_target_dim2_index = find_val(dims, 2);
-    // const size_t src_target_dim3_index = find_val(dims, 3);
-    // const size_t src_target_dim4_index = find_val(dims, 4);
-    // if ((src_target_dim0_index == dims.size()) ||
-    //     (src_target_dim1_index == dims.size()) ||
-    //     (src_target_dim2_index == dims.size()) ||
-    //     (src_target_dim3_index == dims.size()) ||
-    //     (src_target_dim4_index == dims.size())) {
-    //   return false;  
-    // }
     
-    const beacls::FloatVec::const_iterator& x_ites0 = x_ites[0];
-    const beacls::FloatVec::const_iterator& x_ites1 = x_ites[1];
-    const beacls::FloatVec::const_iterator& x_ites2 = x_ites[2];
-    const beacls::FloatVec::const_iterator& x_ites3 = x_ites[3];
-    const beacls::FloatVec::const_iterator& x_ites4 = x_ites[4];
+    // const beacls::FloatVec::const_iterator& x_ites0 = x_ites[0];
+    // const beacls::FloatVec::const_iterator& x_ites1 = x_ites[1];
+    // const beacls::FloatVec::const_iterator& x_ites2 = x_ites[2];
+    // const beacls::FloatVec::const_iterator& x_ites3 = x_ites[3];
+    // const beacls::FloatVec::const_iterator& x_ites4 = x_ites[4];
 
     bool result = true;
     // Compute dynamics for all components.
@@ -532,7 +513,7 @@ bool P5D_Dubins::dynamics(
       for (size_t dim = 0; dim < 5; ++dim) {
         // printf("Dimension %zu \n", dim);
         result &= dynamics_cell_helper(
-          dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
+          dx, x_ites[0], x_ites[1], x_ites[2],x_ites[3], x_ites[4], us, ds,
           x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], dim);
         }
     }
@@ -542,7 +523,7 @@ bool P5D_Dubins::dynamics(
       if (dst_target_dim < dims.size()) {
         // printf("Target dimension %zu \n", dst_target_dim);
         result &= dynamics_cell_helper(
-          dx, x_ites0, x_ites1, x_ites2,x_ites3, x_ites4, us, ds,
+          dx, x_ites[0], x_ites[1], x_ites[2], x_ites[3], x_ites[4], us, ds,
           x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3], x_sizes[4], 
           dst_target_dim);
       }
