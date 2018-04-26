@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   if (argc >= 14) {
     enable_user_defined_dynamics_on_gpu = (atoi(argv[13]) == 0) ? false : true;
   }
-  
+
   // Create grid
   beacls::IntegerVec  Ns;
   std::cout << "Model size option :" << model_size <<std::endl;
@@ -93,14 +93,8 @@ int main(int argc, char *argv[])
   case 2:
     Ns = beacls::IntegerVec{ 51, 51, 31, 31, 31 };
 	break;
-  case 3:
-    Ns = beacls::IntegerVec{ 151, 151, 101, 101, 101};
-    break;
-  case 4:
-    Ns = beacls::IntegerVec{ 501, 501, 301, 301, 301 };
-    break;
   default:
-    Ns = beacls::IntegerVec{ 1501, 1501, 1001, 1001, 1001 };
+    Ns = beacls::IntegerVec{ 11, 11, 11, 11, 11};
     break;
   }
   std::cout << "Grid dimensions : ["
