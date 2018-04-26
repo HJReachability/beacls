@@ -377,66 +377,119 @@ bool P5D_Dubins::dynamics_cell_helper(
   case 0: { // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
     // dx_i.assign(size_x_rel, 1.);
     dx_i.resize(size_x_rel);
-    const beacls::FloatVec& d_x_rel = ds[0];
-    const beacls::FloatVec& wOther = ds[5];
+    const beacls::FloatVec& d_x_rels = ds[0];
+    const beacls::FloatVec& wOthers = ds[5];
+    FLOAT_TYPE d_x_rel;
+    FLOAT_TYPE wOther;
 
-    if (ds[0].size() == size_x_rel) {
-      for (size_t index = 0; index < size_x_rel; ++index) {
-        dx_i[index] = -vOther +
-          state_v[index] * std::cos(state_theta_rel[index]);// +
-          //wOther[index] * state_y_rel[index];// +
-          //d_x_rel[index];
+    for (size_t index = 0; index < size_x_rel; ++index) {
+      if (ds[0].size() == size_x_rel) {
+        d_x_rel = d_x_rels[index];
+        wOther = wOthers[index];
       }
-    }
-    else {
-      const FLOAT_TYPE d_x_rel
-    }
+      else {
+        d_x_rel = d_x_rels[0];
+        wOther = wOthers[0];
+      }
 
-  }
-      break;
+      dx_i[index] = -vOther +
+        state_v[index] * std::cos(state_theta_rel[index]) +
+        wOther * state_y_rel[index] +
+        d_x_rel;
+    }
+  } break;
+
   case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
     // dx_i.assign(size_y_rel, 1.);
     dx_i.resize(size_y_rel);
-    const beacls::FloatVec& d_y_rel = ds[1];
-    const beacls::FloatVec& wOther = ds[5];
+    const beacls::FloatVec& d_y_rels = ds[1];
+    const beacls::FloatVec& wOthers = ds[5];
+    FLOAT_TYPE d_y_rel;
+    FLOAT_TYPE wOther;
+
     for (size_t index = 0; index < size_y_rel; ++index) {
+      if (ds[1].size() == size_y_rel) {
+        d_y_rel = d_y_rels[index];
+        wOther = wOthers[index];
+      }
+      else {
+        d_y_rel = d_y_rels[0];
+        wOther = wOthers[0];
+      }
+
       dx_i[index] =
-        state_v[index] * std::sin(state_theta_rel[index]);// -
-        //wOther[index] * state_x_rel[index] +
-        //d_y_rel[index];
+        state_v[index] * std::sin(state_theta_rel[index]) -
+        wOther * state_x_rel[index] +
+        d_y_rel;
     }
-  }
-      break;
+  } break;
+
   case 2: {   // theta_rel_dot = w - wOther
       // dx_i.assign(size_theta_rel, 1.);
-      dx_i.resize(size_theta_rel);
-      const beacls::FloatVec& d_theta_rel = ds[2];
-      const beacls::FloatVec& wOther = ds[5];
-      for (size_t index = 0; index < size_theta_rel; ++index) {
-        dx_i[index] = state_w[index];// - wOther[index] + d_theta_rel[index];
+    dx_i.resize(size_theta_rel);
+    const beacls::FloatVec& d_theta_rels = ds[2];
+    const beacls::FloatVec& wOthers = ds[5];
+    FLOAT_TYPE d_theta_rel;
+    FLOAT_TYPE wOther;
+
+    for (size_t index = 0; index < size_theta_rel; ++index) {
+      if (ds[2].size() == size_theta_rel) {
+        d_theta_rel = d_theta_rels[index];
+        wOther = wOthers[index];
       }
+      else {
+        d_theta_rel = d_theta_rels[0];
+        wOther = wOthers[0];
+      }
+
+      dx_i[index] = state_w[index] - wOther + d_theta_rel;
     }
-    break;
+  } break;
+
   case 3: {   // v_dot = a + d_v
     // dx_i.assign(size_v, 1.);
     dx_i.resize(size_v);
-    const beacls::FloatVec& d_v = ds[3];
-    const beacls::FloatVec& a = us[0];
+    const beacls::FloatVec& d_vs = ds[3];
+    const beacls::FloatVec& as = us[0];
+    FLOAT_TYPE d_v;
+    FLOAT_TYPE a;
+
     for (size_t index = 0; index < size_v; ++index) {
-      dx_i[index] = 1.;//a[index] + d_v[index];
+      if (ds[3].size() == size_v) {
+        d_v = d_vs[index];
+        a = as[index];
+      } 
+      else {
+        d_v = d_vs[0];
+        a = as[0];
+      }
+
+      dx_i[index] = a + d_v;
     }
-    }
-    break;
+  } break;
+
   case 4: { // w_dot = alpha + d_w
     // dx_i.assign(size_w, 1.);
     dx_i.resize(size_w);
-    const beacls::FloatVec& d_w = ds[4];
-    const beacls::FloatVec& alpha = us[1];
+    const beacls::FloatVec& d_ws = ds[4];
+    const beacls::FloatVec& alphas = us[1];
+    FLOAT_TYPE d_w;
+    FLOAT_TYPE alpha;
+
     for (size_t index = 0; index < size_w; ++index) {
-      dx_i[index] = 1.; //alpha[index] + d_w[index];
+      if (ds[4].size() == size_w) {
+        d_w = d_ws[index];
+        alpha = alphas[index];
+      }
+      else {
+        d_w = d_ws[0];
+        alpha = alphas[0];
+      }
+
+      dx_i[index] = alpha + d_w;
     }
-  }
-  break;
+  } break;
+
   default:
     std::cerr <<
       "Only dimension 1-5 are defined for dynamics of P5D_Dubins!" <<
