@@ -368,11 +368,11 @@ bool P5D_Dubins::dynamics_cell_helper(
     const size_t size_w,
     const size_t dim) const {
 
-
-  // printf("%zu %zu %zu %zu %zu %zu\n", size_x_rel, size_y_rel, size_theta_rel, size_v, size_w, ds.size());
-
   beacls::FloatVec& dx_i = dxs[dim];
   bool result = true;
+
+  
+
   switch (dims[dim]) {
   case 0: { // x_rel_dot = -vOther + v * cos(theta_rel) + wOther*y_rel + d_x_rel
     // dx_i.assign(size_x_rel, 1.);
@@ -380,12 +380,18 @@ bool P5D_Dubins::dynamics_cell_helper(
     const beacls::FloatVec& d_x_rel = ds[0];
     const beacls::FloatVec& wOther = ds[5];
 
-    for (size_t index = 0; index < size_x_rel; ++index) {
-      dx_i[index] = -vOther +
-        state_v[index] * std::cos(state_theta_rel[index]);// +
-        //wOther[index] * state_y_rel[index];// +
-        //d_x_rel[index];
+    if (ds[0].size() == size_x_rel) {
+      for (size_t index = 0; index < size_x_rel; ++index) {
+        dx_i[index] = -vOther +
+          state_v[index] * std::cos(state_theta_rel[index]);// +
+          //wOther[index] * state_y_rel[index];// +
+          //d_x_rel[index];
+      }
     }
+    else {
+      const FLOAT_TYPE d_x_rel
+    }
+
   }
       break;
   case 1: { // y_rel_dot = v * sin(theta_rel) - wOther*x_rel + d_y_rel
