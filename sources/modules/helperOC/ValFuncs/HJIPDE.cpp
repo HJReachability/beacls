@@ -632,7 +632,13 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
       save_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i);
     }
     else {
-      if (!keepLast) {
+      if (keepLast) {
+        if (!datas.empty()) {
+          datas.clear();
+        }
+        datas.push_front(y);
+      } 
+      else {
         if (flip_output) {
           datas.push_front(y);
         }
