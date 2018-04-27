@@ -42,8 +42,9 @@ int main(int argc, char *argv[])
   }
   bool keepLast = true;
   if (argc >= 8) {
-    keepLast = (atoi(argv[7]) == 0) ? true : false;
+    keepLast = (atoi(argv[7]) == 0) ? false : true;
   }
+
   bool calculateTTRduringSolving = false;
   if (argc >= 9) {
     calculateTTRduringSolving = (atoi(argv[8]) == 0) ? false : true;
@@ -154,6 +155,7 @@ int main(int argc, char *argv[])
   helperOC::HJIPDE_extraArgs extraArgs;
   helperOC::HJIPDE_extraOuts extraOuts;
   extraArgs.visualize = false;
+  extraArgs.targets = targets;
   extraArgs.execParameters.line_length_of_chunk = line_length_of_chunk;
   extraArgs.execParameters.calcTTR = calculateTTRduringSolving;
   extraArgs.keepLast = keepLast;
@@ -162,7 +164,7 @@ int main(int argc, char *argv[])
   extraArgs.execParameters.num_of_threads = num_of_threads;
   extraArgs.execParameters.delayedDerivMinMax = delayedDerivMinMax;
   extraArgs.execParameters.enable_user_defined_dynamics_on_gpu = enable_user_defined_dynamics_on_gpu;
-
+  
   helperOC::HJIPDE* hjipde = new helperOC::HJIPDE();
 
   beacls::FloatVec stoptau;
