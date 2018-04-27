@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
   bool dump_file = true;
   if (argc >= 2) {
-    dump_file = (atoi(argv[1]) == 0) ? true : false;
+    dump_file = (atoi(argv[1]) == 0) ? false : true;
   }
   size_t line_length_of_chunk = 1;
   if (argc >= 3) {
@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
     model_size = atoi(argv[3]);
   }
   // Time stamps
-  FLOAT_TYPE tMax = 15.;
+  FLOAT_TYPE tMax = 1.;
   if (argc >= 5) {
     tMax = static_cast<FLOAT_TYPE>(atof(argv[4]));
   }
-  FLOAT_TYPE dt = (FLOAT_TYPE).05;
+  FLOAT_TYPE dt = (FLOAT_TYPE).01;
   if (argc >= 6) {
     dt = static_cast<FLOAT_TYPE>(atof(argv[5]));
   }
@@ -103,18 +103,26 @@ int main(int argc, char *argv[])
 
   levelset::HJI_Grid* g = helperOC::createGrid( // Grid limits (HARD-CODED)
     beacls::FloatVec{
-        (FLOAT_TYPE)(-21), (FLOAT_TYPE)(-18), (FLOAT_TYPE)(-M_PI),
-         (FLOAT_TYPE)1, (FLOAT_TYPE)(-M_PI)}, 
+        (FLOAT_TYPE)(-0.25), (FLOAT_TYPE)(-0.25), (FLOAT_TYPE)(-90.*M_PI/180.),
+         (FLOAT_TYPE)(-0.4), (FLOAT_TYPE)(-6)}, 
     beacls::FloatVec{
-        (FLOAT_TYPE)15, (FLOAT_TYPE)18, (FLOAT_TYPE)(M_PI),
-         (FLOAT_TYPE)5, (FLOAT_TYPE)(M_PI)}, 
+        (FLOAT_TYPE)0.25, (FLOAT_TYPE)0.25, (FLOAT_TYPE)(90.*M_PI/180.),
+         (FLOAT_TYPE)0.4, (FLOAT_TYPE)(6)}, 
     Ns, beacls::IntegerVec{2}); // Only periodic dimension is theta_rel
 
   beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
   // Generate P5D_Dubins object (take default parameter values in .hpp)
-  helperOC::P5D_Dubins* p5D_Dubins = new helperOC::P5D_Dubins(
-    beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0,
-      (FLOAT_TYPE)0, (FLOAT_TYPE)0});
+
+  const beacls::FloatVec& initState{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0,
+      (FLOAT_TYPE)0, (FLOAT_TYPE)0};
+  const beacls::FloatVec& aRange{(FLOAT_TYPE)(-0.25), (FLOAT_TYPE)0.25 };
+  const FLOAT_TYPE alphaMax = 5.;
+  const FLOAT_TYPE vOther = 0.1;
+  const FLOAT_TYPE wMax = 2.0;
+  const beacls::FloatVec& dMax = beacls::FloatVec{
+    (FLOAT_TYPE)0.02, (FLOAT_TYPE)0.02, (FLOAT_TYPE)0., (FLOAT_TYPE)0.2, (FLOAT_TYPE)0.02};
+
+  helperOC::P5D_Dubins* p5D_Dubins = new helperOC::P5D_Dubins(initState, aRange, alphaMax, vOther, wMax);
   
 
   // Dynamical system parameters
@@ -173,7 +181,7 @@ int main(int argc, char *argv[])
   //   extractCostates->operator()(P, derivL, derivR, g, TTR, TTR.size(), false, extraArgs.execParameters);
   //   if (extractCostates) delete extractCostates;
   // }
-
+  
   if (dump_file) {
     std::string P5D_Dubins_RS_RS_filename("P5D_Dubins_RS_RS.mat");
     beacls::MatFStream* P5D_Dubins_RS_RS_fs = 
