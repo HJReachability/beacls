@@ -691,7 +691,13 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		if (!tmp_filename.empty()) {
 			save_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i);
 		}
-		else if (!keepLast) {
+		else if (keepLast) {
+			if (datas.size() != 1) {
+				datas.resize(1);
+			}
+			datas[0] = y;
+		}
+		else {
 			if (flip_output) {
 				datas.push_front(y);
 			}
