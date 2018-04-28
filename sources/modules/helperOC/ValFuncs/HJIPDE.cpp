@@ -633,10 +633,10 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
     }
     else {
       if (keepLast) {
-        if (!datas.empty()) {
-          datas.clear();
+        if (datas.size() != 1) {
+          datas.resize(1);
         }
-        datas.push_front(y);
+		datas[0] = y;
       } 
       else {
         if (flip_output) {
