@@ -86,13 +86,13 @@ int main(int argc, char *argv[])
   std::cout << "Model size option :" << model_size <<std::endl;
   switch (model_size) {
   case 0:
-    Ns = beacls::IntegerVec{ 11, 11, 11, 11, 11};
+    Ns = beacls::IntegerVec{ 11, 11, 15, 9, 15};
     break;
   case 1:
-    Ns = beacls::IntegerVec{ 31, 31, 21, 21, 21};
+    Ns = beacls::IntegerVec{ 31, 31, 45, 27, 47};
 	break;
   case 2:
-    Ns = beacls::IntegerVec{ 51, 51, 31, 31, 31 };
+    Ns = beacls::IntegerVec{ 41, 41, 59, 35, 61};
 	break;
   default:
     Ns = beacls::IntegerVec{ 11, 11, 11, 11, 11};
@@ -120,10 +120,11 @@ int main(int argc, char *argv[])
   const FLOAT_TYPE alphaMax = 5.;
   const FLOAT_TYPE vOther = 0.1;
   const FLOAT_TYPE wMax = 2.0;
-  const beacls::FloatVec& dMax = beacls::FloatVec{
-    (FLOAT_TYPE)0.02, (FLOAT_TYPE)0.02, (FLOAT_TYPE)0., (FLOAT_TYPE)0.2, (FLOAT_TYPE)0.02};
+  const beacls::FloatVec& dMax{(FLOAT_TYPE)0.02, (FLOAT_TYPE)0.02, 
+    (FLOAT_TYPE)0., (FLOAT_TYPE)0.2, (FLOAT_TYPE)0.02};
 
-  helperOC::P5D_Dubins* p5D_Dubins = new helperOC::P5D_Dubins(initState, aRange, alphaMax, vOther, wMax);
+  helperOC::P5D_Dubins* p5D_Dubins = new helperOC::P5D_Dubins(initState, 
+    aRange, alphaMax, vOther, wMax);
   
 
   // Dynamical system parameters

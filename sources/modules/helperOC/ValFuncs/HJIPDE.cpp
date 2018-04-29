@@ -636,7 +636,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
         if (datas.size() != 1) {
           datas.resize(1);
         }
-		datas[0] = y;
+		    datas[0] = y;
       } 
       else {
         if (flip_output) {
