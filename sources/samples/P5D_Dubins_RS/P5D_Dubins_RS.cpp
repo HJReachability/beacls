@@ -89,9 +89,12 @@ int main(int argc, char *argv[])
     Ns = beacls::IntegerVec{ 11, 11, 15, 9, 15};
     break;
   case 1:
+    Ns = beacls::IntegerVec{ 21, 21, 29, 17, 31};
+    break;    
+  case 2:
     Ns = beacls::IntegerVec{ 31, 31, 45, 27, 47};
 	break;
-  case 2:
+  case 3:
     Ns = beacls::IntegerVec{ 41, 41, 59, 35, 61};
 	break;
   default:
@@ -104,11 +107,11 @@ int main(int argc, char *argv[])
 
   levelset::HJI_Grid* g = helperOC::createGrid( // Grid limits (HARD-CODED)
     beacls::FloatVec{
-        (FLOAT_TYPE)(-0.25), (FLOAT_TYPE)(-0.25), (FLOAT_TYPE)(-90.*M_PI/180.),
-         (FLOAT_TYPE)(-0.4), (FLOAT_TYPE)(-6)}, 
+        (FLOAT_TYPE)(-0.35), (FLOAT_TYPE)(-0.35), (FLOAT_TYPE)(-M_PI),
+         (FLOAT_TYPE)(-0.25), (FLOAT_TYPE)(-3.75)}, 
     beacls::FloatVec{
-        (FLOAT_TYPE)0.25, (FLOAT_TYPE)0.25, (FLOAT_TYPE)(90.*M_PI/180.),
-         (FLOAT_TYPE)0.4, (FLOAT_TYPE)(6)}, 
+        (FLOAT_TYPE)0.35, (FLOAT_TYPE)0.35, (FLOAT_TYPE)(M_PI),
+         (FLOAT_TYPE)0.25, (FLOAT_TYPE)(3.75)}, 
     Ns, beacls::IntegerVec{2}); // Only periodic dimension is theta_rel
 
   beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
@@ -116,10 +119,10 @@ int main(int argc, char *argv[])
 
   const beacls::FloatVec& initState{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0,
       (FLOAT_TYPE)0, (FLOAT_TYPE)0};
-  const beacls::FloatVec& aRange{(FLOAT_TYPE)(-0.25), (FLOAT_TYPE)0.25 };
-  const FLOAT_TYPE alphaMax = 5.;
+  const beacls::FloatVec& aRange{(FLOAT_TYPE)(-0.5), (FLOAT_TYPE)0.5 };
+  const FLOAT_TYPE alphaMax = 6.;
   const FLOAT_TYPE vOther = 0.1;
-  const FLOAT_TYPE wMax = 2.0;
+  const FLOAT_TYPE wMax = 1.5;
   const beacls::FloatVec& dMax{(FLOAT_TYPE)0.02, (FLOAT_TYPE)0.02, 
     (FLOAT_TYPE)0., (FLOAT_TYPE)0.2, (FLOAT_TYPE)0.02};
 
@@ -155,6 +158,8 @@ int main(int argc, char *argv[])
   
   helperOC::HJIPDE_extraArgs extraArgs;
   helperOC::HJIPDE_extraOuts extraOuts;
+  extraArgs.stopConverge = true;
+  extraArgs.convergeThreshold = 0.000001;
   extraArgs.visualize = false;
   extraArgs.targets = targets;
   extraArgs.execParameters.line_length_of_chunk = line_length_of_chunk;
