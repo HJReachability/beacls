@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     enable_user_defined_dynamics_on_gpu = (atoi(argv[8]) == 0) ? false : true;
   }
   // Plane parameters
-  const beacls::FloatVec initState{(FLOAT_TYPE)100, (FLOAT_TYPE)75, 
+  const beacls::FloatVec initState{(FLOAT_TYPE)75, (FLOAT_TYPE)65, 
     (FLOAT_TYPE)(180 * M_PI / 180), (FLOAT_TYPE)1.25 };
   const FLOAT_TYPE wMax = (FLOAT_TYPE)1;
   const beacls::FloatVec aRange{ (FLOAT_TYPE)(-2), (FLOAT_TYPE)2 };
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   beacls::FloatVec 
     gmax{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI), (FLOAT_TYPE)3};
   levelset::HJI_Grid* g = helperOC::createGrid(gmin, gmax,
-    beacls::IntegerVec{21,22,23,24}, beacls::IntegerVec{2});
+    beacls::IntegerVec{15,15,15,15}, beacls::IntegerVec{2});
 
   // Target
   std::vector<beacls::FloatVec> targets(1);
@@ -137,35 +137,49 @@ int main(int argc, char *argv[])
   else hjipde = new helperOC::HJIPDE();
 
   beacls::FloatVec tau2;
-  std::vector<beacls::FloatVec > datas;
+  std::vector<beacls::FloatVec> datas;
   hjipde->solve(datas, tau2, extraOuts, targets, tau, schemeData, helperOC::HJIPDE::MinWithType_None, extraArgs);
 
-  std::string Plane_test_filename("Plane4D_test.mat");
-  beacls::MatFStream* fs = beacls::openMatFStream(Plane_test_filename, beacls::MatOpenMode_Write);
+  // //!< Compute optimal trajectory (SEGMENTATION ERROR HERE)
+  // extraArgs.projDim = beacls::IntegerVec{ 1, 1, 0, 0 };
+  // extraArgs.fig_filename = "Plane_test_Traj";
+
+  // std::vector<beacls::FloatVec> traj;
+  // beacls::FloatVec traj_tau;
+
+  // std::vector<beacls::FloatVec> fliped_data(datas.size());
+  // std::copy(datas.crbegin(), datas.crend(), fliped_data.begin());
+  // helperOC::ComputeOptTraj* computeOptTraj = new helperOC::ComputeOptTraj();
+  // computeOptTraj->operator()(traj, traj_tau, g, fliped_data, tau2, pl, extraArgs);
+
+  // Save file
   if (dump_file) {
+    std::string Plane_test_filename("Plane4D_test.mat");
+    beacls::MatFStream* fs = beacls::openMatFStream(Plane_test_filename, 
+      beacls::MatOpenMode_Write);    
     beacls::IntegerVec Ns = g->get_Ns();
 
     g->save_grid(std::string("g"), fs);
-    if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-    if (!tau2.empty()) save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
-  }
-  //!< Compute optimal trajectory
-  extraArgs.projDim = beacls::IntegerVec{ 1, 1, 0, 0 };
-  extraArgs.fig_filename = "Plane_test_Traj";
-  std::vector<beacls::FloatVec > traj;
-  beacls::FloatVec traj_tau;
-  std::vector<beacls::FloatVec > fliped_data(datas.size());
-  std::copy(datas.crbegin(), datas.crend(), fliped_data.begin());
-  helperOC::ComputeOptTraj* computeOptTraj = new helperOC::ComputeOptTraj();
-  computeOptTraj->operator()(traj, traj_tau, g, fliped_data, tau2, pl, extraArgs);
-  if (computeOptTraj) delete computeOptTraj;
-  if (dump_file) {
-    if (!traj.empty()) save_vector_of_vectors(traj, std::string("traj"), beacls::IntegerVec(), false, fs);
-    if (!traj_tau.empty()) save_vector(traj_tau, std::string("traj_tau"), beacls::IntegerVec(), false, fs);
-  }
-  beacls::closeMatFStream(fs);
+    if (!datas.empty()) 
+      save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
 
+    if (!tau2.empty()) 
+      save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
 
+    // if (!traj.empty()) {
+    //   save_vector_of_vectors(traj, std::string("traj"), beacls::IntegerVec(), 
+    //     false, fs);
+    // }
+
+    // if (!traj_tau.empty()) {
+    //   save_vector(traj_tau, std::string("traj_tau"), beacls::IntegerVec(), 
+    //     false, fs);    
+    // }
+
+    beacls::closeMatFStream(fs);
+  }
+
+  // if (computeOptTraj) delete computeOptTraj;
   if (hjipde) delete hjipde;
   if (schemeData) delete schemeData;
   if (pl) delete pl;
