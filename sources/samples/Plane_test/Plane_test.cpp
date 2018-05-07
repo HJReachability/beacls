@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	levelset::HJI_Grid* g = helperOC::createGrid(
 		beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 
 		beacls::FloatVec{(FLOAT_TYPE)150, (FLOAT_TYPE)150, (FLOAT_TYPE)(2*M_PI)}, 
-		beacls::IntegerVec{41,41,21}, beacls::IntegerVec{2});
+		beacls::IntegerVec{51,51,51}, beacls::IntegerVec{2});
 
 	std::vector<beacls::FloatVec > targets(1);
 	levelset::ShapeCylinder(beacls::IntegerVec{ 2 }, 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 	std::transform(obs1.cbegin(), obs1.cend(), obs2.cbegin(), obstacles[0].begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 
 	//!< Compute reachable set
-	const FLOAT_TYPE tMax = 200;
+	const FLOAT_TYPE tMax = 15;
 	const FLOAT_TYPE dt = 0.25;
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 
@@ -110,6 +110,9 @@ int main(int argc, char *argv[])
 	extraArgs.obstacles = obstacles;
 	extraArgs.stopInit = pl->get_x();
 	extraArgs.visualize = true;
+	extraArgs.visualize_size = beacls::IntegerVec{ 640, 640 };
+//	extraArgs.fx = 4.;
+//	extraArgs.fy = 2.;
 	extraArgs.plotData.plotDims = beacls::IntegerVec{ 1, 1, 0 };
 	extraArgs.plotData.projpt = beacls::FloatVec{ pl->get_x()[2] };
 	extraArgs.deleteLastPlot = true;
@@ -139,7 +142,7 @@ int main(int argc, char *argv[])
 
 		g->save_grid(std::string("g"), fs);
 		if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), Ns, false, fs);
+		if (!tau2.empty()) save_vector(tau2, std::string("tau2"), beacls::IntegerVec(), false, fs);
 	}
 	//!< Compute optimal trajectory
 	extraArgs.projDim = beacls::IntegerVec{ 1,1,0 };
