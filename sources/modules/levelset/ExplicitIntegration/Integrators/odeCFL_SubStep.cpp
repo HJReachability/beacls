@@ -9,32 +9,32 @@
 #include "OdeCFL_CommandQueue.hpp"
 #include <macro.hpp>
 void levelset::odeCFL_SubStep(
-	std::vector<OdeCFL_CommandQueue*> odeCFL_CommandQueues,
-	const FLOAT_TYPE t,
-	std::vector<beacls::FloatVec >& step_bound_invss,
-	std::vector<beacls::FloatVec >& local_derivMinss,
-	std::vector<beacls::FloatVec >& local_derivMaxss,
-	beacls::FloatVec& y,
-	beacls::FloatVec& ydot,
-	std::vector<beacls::FloatVec >& derivMins,
-	std::vector<beacls::FloatVec >& derivMaxs,
-	std::vector<beacls::FloatVec >& lastDerivMins,
-	std::vector<beacls::FloatVec >& lastDerivMaxs,
-	std::deque<bool>& executeAgains,
-	const size_t num_of_dimensions,
-	const size_t first_dimension_loop_size,
-	const size_t num_of_chunk_lines,
-	const size_t num_of_slices,
-	const size_t parallel_loop_size,
-	const size_t num_of_outer_lines,
-	const size_t num_of_inner_lines,
-	const size_t second_dimension_loop_size,
-	const size_t third_dimension_loop_size,
-	const size_t num_of_parallel_loop_lines,
-	const size_t actual_num_of_threas,
-	const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
-	const bool enable_user_defined_dynamics_on_gpu
-) {
+		std::vector<OdeCFL_CommandQueue*> odeCFL_CommandQueues,
+		const FLOAT_TYPE t,
+		std::vector<beacls::FloatVec >& step_bound_invss,
+		std::vector<beacls::FloatVec >& local_derivMinss,
+		std::vector<beacls::FloatVec >& local_derivMaxss,
+		beacls::FloatVec& y,
+		beacls::FloatVec& ydot,
+		std::vector<beacls::FloatVec >& derivMins,
+		std::vector<beacls::FloatVec >& derivMaxs,
+		std::vector<beacls::FloatVec >& lastDerivMins,
+		std::vector<beacls::FloatVec >& lastDerivMaxs,
+		std::deque<bool>& executeAgains,
+		const size_t num_of_dimensions,
+		const size_t first_dimension_loop_size,
+		const size_t num_of_chunk_lines,
+		const size_t num_of_slices,
+		const size_t parallel_loop_size,
+		const size_t num_of_outer_lines,
+		const size_t num_of_inner_lines,
+		const size_t second_dimension_loop_size,
+		const size_t third_dimension_loop_size,
+		const size_t num_of_parallel_loop_lines,
+		const size_t actual_num_of_threas,
+		const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
+		const bool enable_user_defined_dynamics_on_gpu) {
+
 	bool executeAgain = false;
 	std::vector<beacls::FloatVec > originalDerivMins;
 	std::vector<beacls::FloatVec > originalDerivMaxs;
@@ -54,7 +54,10 @@ void levelset::odeCFL_SubStep(
 	do {
 		//! Parallel Body
 		std::vector<OdeCFL_OneSlice*> odeCFL_OneSlices(num_of_parallel_loop_lines);
-		for (int parallel_line_index = 0; parallel_line_index < (int)num_of_parallel_loop_lines; ++parallel_line_index) {
+		for (int parallel_line_index = 0; 
+			  parallel_line_index < (int)num_of_parallel_loop_lines; 
+			  ++parallel_line_index) {
+			
 			OdeCFL_OneSlice* odeCFL_OneSlice = new OdeCFL_OneSlice(
 				t,
 				step_bound_invss[parallel_line_index],

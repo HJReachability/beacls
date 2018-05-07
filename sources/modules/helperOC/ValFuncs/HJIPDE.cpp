@@ -17,9 +17,17 @@ using namespace helperOC;
 
 HJIPDE_impl::HJIPDE_impl(
 	const std::string& tmp_filename
-) : tmp_filename(tmp_filename) {
+) : tmp_filename(tmp_filename),
+	windowName("") {
 }
 HJIPDE_impl::~HJIPDE_impl() {
+#if defined(VISUALIZE_BY_OPENCV)
+#if defined(VISUALIZE_WITH_GUI)
+	if (!windowName.empty()) {
+		cv::destroyWindow(windowName);
+	}
+#endif
+#endif
 }
 
 bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
@@ -36,18 +44,17 @@ bool helperOC::ExecParameters::operator==(const ExecParameters& rhs) const {
 
 
 bool HJIPDE_impl::getNumericalFuncs(
-	levelset::Dissipation*& dissFunc,
-	levelset::Integrator*& integratorFunc,
-	levelset::SpatialDerivative*& derivFunc,
-	const levelset::HJI_Grid* grid,
-	const levelset::Term* schemeFunc,
-	const helperOC::Dissipation_Type dissType,
-	const helperOC::ApproximationAccuracy_Type accuracy,
-	const FLOAT_TYPE factorCFL,
-	const bool stats,
-	const bool single_step,
-	const beacls::UVecType type
-) const {
+		levelset::Dissipation*& dissFunc,
+		levelset::Integrator*& integratorFunc,
+		levelset::SpatialDerivative*& derivFunc,
+		const levelset::HJI_Grid* grid,
+		const levelset::Term* schemeFunc,
+		const helperOC::Dissipation_Type dissType,
+		const helperOC::ApproximationAccuracy_Type accuracy,
+		const FLOAT_TYPE factorCFL,
+		const bool stats,
+		const bool single_step,
+		const beacls::UVecType type) const {
 	//! Dissipation
 	switch (dissType) {
 	case helperOC::Dissipation_global:
@@ -85,28 +92,32 @@ bool HJIPDE_impl::getNumericalFuncs(
 
 	//! accuracy
 	switch (accuracy) {
-	case helperOC::ApproximationAccuracy_low:
-		derivFunc = new levelset::UpwindFirstFirst(grid, type);
-		integratorFunc = new levelset::OdeCFL1(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_medium:
-		derivFunc = new levelset::UpwindFirstENO2(grid, type);
-		integratorFunc = new levelset::OdeCFL2(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_veryHigh:
-		derivFunc = new levelset::UpwindFirstWENO5(grid, type);
-		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, postTimestep_Execs, single_step, stats, NULL);
-		break;
-	case helperOC::ApproximationAccuracy_Invalid:
-	default:
-		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
-		derivFunc = NULL;
-		integratorFunc = NULL;
-		return false;
+		case helperOC::ApproximationAccuracy_low:
+			derivFunc = new levelset::UpwindFirstFirst(grid, type);
+			integratorFunc = new levelset::OdeCFL1(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_medium:
+			derivFunc = new levelset::UpwindFirstENO2(grid, type);
+			integratorFunc = new levelset::OdeCFL2(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_high:
+			derivFunc = new levelset::UpwindFirstENO3(grid, type);
+			integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_veryHigh:
+			derivFunc = new levelset::UpwindFirstWENO5(grid, type);
+			integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step, 
+				postTimestep_Execs, single_step, stats, NULL);
+			break;
+		case helperOC::ApproximationAccuracy_Invalid:
+		default:
+			std::cerr << "Unknown accuracy level " << accuracy << std::endl;
+			derivFunc = NULL;
+			integratorFunc = NULL;
+			return false;
 	}
 	return true;
 }
@@ -123,15 +134,17 @@ static bool calcChange(
 }
 
 bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
-	helperOC::HJIPDE_extraOuts& extraOuts,
-	const std::vector<beacls::FloatVec >& src_datas,
-	const beacls::FloatVec& src_tau,
-	const DynSysSchemeData* schemeData,
-	const HJIPDE::MinWithType minWith,
-	const helperOC::HJIPDE_extraArgs& extraArgs) {
+		helperOC::HJIPDE_extraOuts& extraOuts,
+		const std::vector<beacls::FloatVec >& src_datas,
+		const beacls::FloatVec& src_tau,
+		const DynSysSchemeData* schemeData,
+		const HJIPDE::MinWithType minWith,
+		const helperOC::HJIPDE_extraArgs& extraArgs) {
+
 	const bool quiet = extraArgs.quiet;
 	const helperOC::ExecParameters execParameters = extraArgs.execParameters;
-	const beacls::UVecType execType = (execParameters.useCuda) ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
+	const beacls::UVecType execType = (execParameters.useCuda) ? 
+	  beacls::UVecType_Cuda : beacls::UVecType_Vector;
 
 	const FLOAT_TYPE large = (FLOAT_TYPE)1e6;
 	const FLOAT_TYPE small = (FLOAT_TYPE)1e-4;
@@ -168,8 +181,14 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 			modified_obstacles_s8_ptrs[i] = &extraArgs.obstacles_s8[i];
 		}
 	}
-	const std::vector<const beacls::FloatVec* >& obstacles_ptrs = !extraArgs.obstacles_ptrs.empty() ? extraArgs.obstacles_ptrs : modified_obstacles_ptrs;
-	const std::vector<const std::vector<int8_t>* >& obstacles_s8_ptrs = !extraArgs.obstacles_s8_ptrs.empty() ? extraArgs.obstacles_s8_ptrs : modified_obstacles_s8_ptrs;
+	const std::vector<const beacls::FloatVec* >& obstacles_ptrs = 
+	  !extraArgs.obstacles_ptrs.empty() ? 
+	  extraArgs.obstacles_ptrs : modified_obstacles_ptrs;
+
+	const std::vector<const std::vector<int8_t>* >& obstacles_s8_ptrs = 
+	  !extraArgs.obstacles_s8_ptrs.empty() ? 
+	  extraArgs.obstacles_s8_ptrs : modified_obstacles_s8_ptrs;
+	  
 	const beacls::FloatVec* obstacle_i = NULL;
 	const std::vector<int8_t>* obstacle_s8_i = NULL;
 	if (!obstacles_ptrs.empty()) {
@@ -280,7 +299,8 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		deleteLastPlot = extraArgs.deleteLastPlot;
 		//!<   % Initialize the figure for visualization  
 #if defined(VISUALIZE_WITH_GUI)
-		cv::namedWindow("HJIPDE", 0);
+		windowName = std::string("HJIPDE");
+		cv::namedWindow(windowName.c_str(), 0);
 #endif
 		need_light = true;
 		if (obsMode == HJIPDE::ObsModeType_Static) {
@@ -371,14 +391,14 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		}
 #if defined(VISUALIZE_WITH_GUI)
 		if (!HJIPDE_initial_img.empty()) {
-			cv::imshow("HJIPDE", HJIPDE_initial_img);
+			cv::imshow(windowName.c_str(), HJIPDE_initial_img);
 			cv::waitKey(1);
 		}
 #endif
 	}
 #endif  /* defined(VISUALIZE_BY_OPENCV) */
 
-	// Extract cdynamical system if needed
+	// Extract dynamical system if needed
 
 	bool stopConverge = extraArgs.stopConverge;
 	FLOAT_TYPE convergeThreshold = extraArgs.convergeThreshold;
@@ -815,7 +835,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 					cv::Scalar{ 0,0,0 }, thickness, cv::LINE_AA);
 
 #if defined(VISUALIZE_WITH_GUI)
-				cv::imshow("HJIPDE", HJIPDE_img);
+				cv::imshow(windowName.c_str(), HJIPDE_img);
 				cv::waitKey(1);
 #endif
 				if (!extraArgs.fig_filename.empty()) {
@@ -824,6 +844,9 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 					std::string filename = extraArgs.fig_filename + i_ss.str() + ".png";
 					cv::imwrite(filename, HJIPDE_img);
 				}
+			}
+			if (projDims != 0) {
+				delete gPlot;
 			}
 
 #else /* defined(VISUALIZE_BY_OPENCV) */

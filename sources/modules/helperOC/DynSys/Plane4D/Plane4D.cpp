@@ -289,6 +289,12 @@ bool Plane4D::optDstb(
   const size_t src_target_dim0_index = find_val(dims, 0);
   const size_t src_target_dim1_index = find_val(dims, 1);
 
+  for (size_t dim = 0; dim < 4; ++dim) {
+    if (deriv_sizes[dim] == 0 || deriv_ptrs[dim] == NULL) {
+      return false;
+    }
+  }
+
   dOpts.resize(get_nd());
   bool result = true;
   result &= optDstb0_cell_helper(dOpts[0], deriv_ptrs, deriv_sizes, 
@@ -310,39 +316,53 @@ bool Plane4D::dynamics_cell_helper(
 
   beacls::FloatVec& dx_i = dxs[dim];
   bool result = true;
+  
+  switch (dims[dim]) { // states are (xpos, ypos, heading, velocity)
+      case 0: { // \dot x0 = x3 * cos (x2)
+        dx_i.resize(x2_size);
 
-  switch (dims[dim]) {
-    case 0: {
-        dx_i.assign(x2_size, 10.);
-        // dx_i.resize(x2_size);
+        const beacls::FloatVec& ds_0s = ds[0];
+        FLOAT_TYPE ds_0;
 
-        // const beacls::FloatVec& ds_0 = ds[0];
-        // for (size_t index = 0; index < x2_size; ++index) {
-        //   dx_i[index] = x_ites3[index]*std::cos(x_ites2[index]) + ds_0[index];
-        // }
+        for (size_t index = 0; index < x2_size; ++index) {
+        	if (ds[0].size() == x2_size) {
+        		ds_0 = ds_0s[index];
+        	}
+        	else {
+            ds_0 = ds_0s[0];
+        	}
+          dx_i[index] = x_ites3[index]*std::cos(x_ites2[index]) + ds_0;
+        }
       }
       break;
 
-    case 1: {
-        dx_i.assign(x2_size, 10.);
-        // dx_i.resize(x2_size);
-        // const beacls::FloatVec& ds_1 = ds[1];
-        // for (size_t index = 0; index < x2_size; ++index) {
-        //   dx_i[index] = x_ites3[index]*std::sin(x_ites2[index]) + ds_1[index];
-        // }
+    case 1: { // \dot x0 = x3 * sin (x2)
+        dx_i.resize(x2_size);
+
+        const beacls::FloatVec& ds_1s = ds[1];
+        FLOAT_TYPE ds_1;
+
+        for (size_t index = 0; index < x2_size; ++index) {
+        	if (ds[1].size() == x2_size) {
+        		ds_1 = ds_1s[index];
+        	}
+        	else {
+        		ds_1 = ds_1s[0];
+        	}
+
+          dx_i[index] = x_ites3[index]*std::sin(x_ites2[index]) + ds_1;
+        }
       }
       break;
 
-    case 2:
-      dx_i.assign(x2_size, 10.);
-      // dx_i.resize(us[0].size());
-      // std::copy(us[0].cbegin(), us[0].cend(), dx_i.begin());
+    case 2: // \dot x3 = u0
+      dx_i.resize(us[0].size());
+      std::copy(us[0].cbegin(), us[0].cend(), dx_i.begin());
       break;
 
-    case 3:
-      dx_i.assign(x2_size, 10.);
-      // dx_i.resize(us[1].size());
-      // std::copy(us[1].cbegin(), us[1].cend(), dx_i.begin());
+    case 3: // \dot x4 = u1
+      dx_i.resize(us[1].size());
+      std::copy(us[1].cbegin(), us[1].cend(), dx_i.begin());
       break;
 
     default: {
@@ -366,6 +386,7 @@ bool Plane4D::dynamics(
     const beacls::IntegerVec& x_sizes,
     const size_t dst_target_dim) const {
 
+  // printf("x_size = (%zd, %zd, %zd, %zd)\n", x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3]);
   const size_t src_target_dim2_index = find_val(dims, 2);
   const size_t src_target_dim3_index = find_val(dims, 3);
 

@@ -4,6 +4,7 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
+#include <string>
 namespace levelset {
 	class HJI_Grid;
 };
@@ -13,6 +14,7 @@ namespace helperOC {
 	class ComputeOptTraj_impl {
 	private:
 		ComputeGradients* computeGradients;
+		std::string windowName;
 	public:
 		ComputeOptTraj_impl();
 		~ComputeOptTraj_impl();
