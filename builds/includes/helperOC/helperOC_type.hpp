@@ -158,6 +158,9 @@ namespace helperOC {
 		std::vector<const std::vector<int8_t>* > obstacles_s8_ptrs;	//!< pointers for a single obstacle or a list of obstacles_ptrs in binary format with time stamps tau(obstacles_ptrs must have same time stamp as the solution)
 		size_t compRegion;	//!< unused for now(meant to limit computation region)
 		bool visualize;	//!< set to true to visualize reachable set
+		beacls::IntegerVec visualize_size;	//!< visualize image size; if it equals zero, it is computed with grid's axis range
+		double fx;	//!< scale factor along the horizontal axis; when it equals 0, it is computed as (double)dsize.width/(grid axis range)
+		double fy;	//!< scale factor along the vertical axis; when it equals 0, it is computed as (double)dsize.height/(grid axis range)
 		beacls::FloatVec RS_level;	//!<level set of reachable set to visualize (defaults to 0)
 		size_t istart;
 		PlotData plotData;	//!< information required to plot the data(need to fill in)
@@ -194,6 +197,9 @@ namespace helperOC {
 			obstacles_s8_ptrs(std::vector<const std::vector<int8_t>*>()),
 			compRegion(0),
 			visualize(false),
+			visualize_size(beacls::IntegerVec{ 0, 0 }),
+			fx(0.),
+			fy(0.),
 			RS_level(beacls::FloatVec()),
 			istart(1),
 			plotData(PlotData(beacls::IntegerVec(), beacls::FloatVec())),

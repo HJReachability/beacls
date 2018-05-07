@@ -14,11 +14,11 @@ CHUNK_SIZE = 0
 USE_CUDA = 0
 NUM_OF_THREADS = 0
 NUM_OF_GPUS = 0
-USE_LAST_DERIV_MIN_MAX = 0
+USE_LAST_DERIV_MIN_MAX = 1
 USE_USER_DEFINED_GPU_DYNSYS_FUNC = 1
 MODEL_SIZE = 0
 USE_TEMP_FILE = 0
-NVCC = /usr/bin/nvcc
+NVCC = /usr/local/cuda-9.1/bin/nvcc
 ARCH = $(shell uname -m)
 PWD = $(shell pwd)
 INSTALL_DIR = $(PWD)/../../../builds
@@ -35,7 +35,6 @@ else
 	HOSTCC  = g++
 	OPENMP_ON = Y
 endif
-
 
 BEACLS_DIR = $(INSTALL_DIR)
 BEACLS_INC_DIR = $(BEACLS_DIR)/include
@@ -64,7 +63,7 @@ ifeq ($(GPU_ON), Y)
 	NVCCFLAGS += -ccbin $(HOST_COMPILER)
 	NVCCFLAGS += -lineinfo
 	NVCCFLAGS += -DWITH_GPU
-	NVCCFLAGS += -L /usr/lib/x86_64-linux-gnu -L/usr/lib/nvidia-361
+	NVCCFLAGS += -L /usr/lib/x86_64-linux-gnu -L /usr/lib/nvidia
 	NVCCFLAGS += -D_FORCE_INLINES
 else
 	CPP = $(HOSTCC)
