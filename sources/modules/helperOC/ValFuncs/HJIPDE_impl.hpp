@@ -15,6 +15,7 @@ namespace helperOC {
 	public:
 	private:
 		std::string tmp_filename;
+		std::string windowName;
 		std::deque<beacls::FloatVec > datas;
 		beacls::FloatVec calculatedTTR;
 		beacls::FloatVec last_data;

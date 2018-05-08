@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	
 	helperOC::DynSys_UMode_Type uMode = helperOC::DynSys_UMode_Max;
 
-	beacls::IntegerVec gN{ 65, 61, 65, 61 };
+	beacls::IntegerVec gN{ 25, 25, 25, 25 };
 
 	//!< Time
 	const FLOAT_TYPE tMax = 3;
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
 		g->save_grid(std::string("g"), fs);
 		if (!datas.empty()) save_vector_of_vectors(datas, std::string("data"), Ns, false, fs);
-		if (!tau2.empty()) save_vector(tau2, std::string("tau"), Ns, false, fs);
+		if (!tau2.empty()) save_vector(tau2, std::string("tau"), beacls::IntegerVec(), false, fs);
 
 		beacls::closeMatFStream(fs);
 	}

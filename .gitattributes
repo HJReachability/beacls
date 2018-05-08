@@ -27,6 +27,7 @@
 #*.csproj    merge=binary
 #*.vbproj    merge=binary
 #*.vcxproj   merge=binary
+#*.vcxproj.filters   merge=binary
 #*.vcproj    merge=binary
 #*.dbproj    merge=binary
 #*.fsproj    merge=binary

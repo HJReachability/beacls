@@ -155,11 +155,11 @@ bool getOptCtrl(
 }
 static
 bool getOptDstb(
-	std::vector<beacls::FloatVec >& ds,
+	std::vector<beacls::FloatVec>& ds,
 	const DynSys* dynSys,
 	const std::vector<beacls::FloatVec >& dIns,
 	const FLOAT_TYPE t,
-	const std::vector<beacls::FloatVec::const_iterator >& xs_ites,
+	const std::vector<beacls::FloatVec::const_iterator>& xs_ites,
 	const std::vector<beacls::UVec>& deriv_uvecs,
 	const beacls::IntegerVec& x_sizes,
 	const helperOC::DynSys_DMode_Type dMode
@@ -215,7 +215,9 @@ bool DynSysSchemeData::hamFunc(
 	std::transform(xs.cbegin(), xs.cend(), xs_ites.begin(), 
 		  ([begin_index](const auto& rhs) { return rhs.cbegin() + begin_index; }));
 	beacls::IntegerVec x_sizes(xs.size());
+	// printf("length = %zd\n", length);
 	std::fill(x_sizes.begin(), x_sizes.end(), length);
+	// printf("x_size = (%zd, %zd, %zd, %zd)\n", x_sizes[0], x_sizes[1], x_sizes[2], x_sizes[3]);
 
 	std::vector<beacls::FloatVec >& us = ws->us;
 	if (!getOptCtrl(us, dynSys, uIns, t, xs_ites, custom_derivs, x_sizes, uMode)) 
@@ -266,6 +268,7 @@ bool DynSysSchemeData::hamFunc(
 	//!< Plug optimal control into dynamics to compute Hamiltonian
 
 	std::vector<beacls::FloatVec >& dxs = ws->dxs;
+
 	if (!getDynamics(dxs, dynSys, t, xs_ites, us, ds, x_sizes)) 
 		return false;
 

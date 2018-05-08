@@ -35,12 +35,20 @@ helperOC::ComputeOptTraj::~ComputeOptTraj()
 }
 
 helperOC::ComputeOptTraj_impl::ComputeOptTraj_impl() :
-	computeGradients(NULL)
+	computeGradients(NULL),
+	windowName("")
 {
 }
 
 helperOC::ComputeOptTraj_impl::~ComputeOptTraj_impl()
 {
+#if defined(VISUALIZE_BY_OPENCV)
+#if defined(VISUALIZE_WITH_GUI)
+	if (!windowName.empty()) {
+		cv::destroyWindow(windowName);
+	}
+#endif
+#endif	/* defined(VISUALIZE_BY_OPENCV) */
 	if (computeGradients) delete computeGradients;
 }
 
@@ -63,7 +71,10 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 #if defined(VISUALIZE_BY_OPENCV)
 	cv::Mat BRSplot;
 #if defined(VISUALIZE_WITH_GUI)
-	cv::namedWindow("BRS1", 0);
+	if (visualize) {
+		windowName = std::string("BRS1");
+		cv::namedWindow(windowName.c_str(), 0);
+	}
 #endif
 #endif	/* defined(VISUALIZE_BY_OPENCV) */
 	beacls::IntegerVec showDims;
@@ -142,8 +153,8 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 			const int top_margin = 25;
 			const int bottom_margin = 25;
 			const int thickness = 1;
-			const beacls::FloatVec& xs0 = grid->get_xs(0);
-			const beacls::FloatVec& xs1 = grid->get_xs(1);
+			const beacls::FloatVec& xs0 = grid->get_xs(showDims[0]);
+			const beacls::FloatVec& xs1 = grid->get_xs(showDims[1]);
 
 			const auto x0MinMax = beacls::minmax_value<FLOAT_TYPE>(xs0.cbegin(), xs0.cend());
 			const auto x1MinMax = beacls::minmax_value<FLOAT_TYPE>(xs1.cbegin(), xs1.cend());
@@ -200,8 +211,10 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 					cv::Scalar{ 0,0,0 }, thickness, cv::LINE_AA);
 
 #if defined(VISUALIZE_WITH_GUI)
-				cv::imshow("BRS1", BRSplot);
-				cv::waitKey(1);
+				if (visualize) {
+					cv::imshow(windowName.c_str(), BRSplot);
+					cv::waitKey(1);
+				}
 #endif
 				if (!extraArgs.fig_filename.empty()) {
 					std::stringstream i_ss;
