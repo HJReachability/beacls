@@ -84,6 +84,9 @@
     <ClCompile Include="DynSys\KinVehicleND\KinVehicleND.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="DynSys\P5D_Dubins\P5D_Dubins.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Grids\migrateGrid.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -129,12 +132,9 @@
     <ClCompile Include="DynSys\Quad4D\Quad4D_cuda_dummy.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="DynSys\P5D_Dubins\P5D_Dubins.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-=======
->>>>>>> 22dcb1e9c7d922105b25cd8c4c9e67c9cdf75ef4
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ValFuncs\HJIPDE_impl.hpp">
@@ -218,6 +218,9 @@
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\KinVehicleND\KinVehicleND.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\P5D_Dubins\P5D_Dubins.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="DynSys\KinVehicleND\KinVehicleND_cuda.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -284,12 +287,9 @@
     <ClInclude Include="DynSys\Quad4D\Quad4D_cuda.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="..\..\..\builds\includes\helperOC\DynSys\P5D_Dubins\P5D_Dubins.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-=======
->>>>>>> 22dcb1e9c7d922105b25cd8c4c9e67c9cdf75ef4
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="DynSys\Plane\Plane_cuda.cu">
