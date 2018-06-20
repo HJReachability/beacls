@@ -36,6 +36,20 @@ bool helperOC::migrateGridSingle(
 	const beacls::FloatVec& dataOld,
 	const levelset::HJI_Grid* gNew
 ) {
+#if defined(ADHOCK_XS)
+	std::vector<beacls::UVec> gNew_x_uvecs;
+	gNew->get_xss(gNew_x_uvecs);
+	if (gNew_x_uvecs.empty()) return false;
+	std::vector<beacls::FloatVec> gNew_xsVec(gNew_x_uvecs[0].size());
+	const size_t gNew_xs_size = gNew_x_uvecs.size();
+	for (size_t i = 0; i < gNew_xsVec.size(); ++i) {
+		gNew_xsVec[i].resize(gNew_xs_size);
+		std::transform(gNew_x_uvecs.cbegin(), gNew_x_uvecs.cend(), gNew_xsVec[i].begin(), [&i](const auto& rhs) {
+			const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(rhs).vec();
+			return (*xs_ptr)[i];
+		});
+	}
+#else
 	const std::vector<beacls::FloatVec>& gNew_xs = gNew->get_xss();
 	if (gNew_xs.empty()) return false;
 	std::vector<beacls::FloatVec> gNew_xsVec(gNew_xs[0].size());
@@ -46,6 +60,7 @@ bool helperOC::migrateGridSingle(
 			return rhs[i];
 		});
 	}
+#endif
 	helperOC::eval_u(dataNew, gOld, dataOld, gNew_xsVec);
 	FLOAT_TYPE max_val = std::numeric_limits<FLOAT_TYPE>::signaling_NaN();
 	std::for_each(dataNew.cbegin() + 1, dataNew.cend(), [&max_val](const auto& rhs) {

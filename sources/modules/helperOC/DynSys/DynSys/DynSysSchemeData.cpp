@@ -42,6 +42,9 @@ namespace helperOC {
 		std::vector<std::vector<beacls::UVec > > dxLL_uvecss;
 		std::vector<std::vector<beacls::UVec > > dxLU_uvecss;
 #endif /* defined(USER_DEFINED_GPU_DYNSYS_FUNC) */
+#if defined(ADHOCK_XS)
+		std::vector<beacls::UVec> x_uvecs;
+#endif /* defined(ADHOCK_XS) */
 	};
 };
 DynSysSchemeData::DynSysSchemeData(
@@ -204,17 +207,29 @@ bool DynSysSchemeData::hamFunc(
 	const std::vector<beacls::UVec>& derivs,
 	const size_t begin_index,
 	const size_t length
-	) const {
+) const {
 	const levelset::HJI_Grid *hji_grid = get_grid();
 
 	// Custom derivative for MIE
-	const std::vector<beacls::UVec>& custom_derivs = (!MIEderivs.empty()) ? 
-	    MIEderivs : derivs;
+	const std::vector<beacls::UVec>& custom_derivs = (!MIEderivs.empty()) ?
+		MIEderivs : derivs;
+#if defined(ADHOCK_XS)
+	const size_t num_of_dimensions = hji_grid->get_num_of_dimensions();
+	const beacls::UVecDepth depth = beacls::type_to_depth<FLOAT_TYPE>();
+	std::vector<beacls::UVec>& x_uvecs = ws->x_uvecs;
+	if (x_uvecs.size() != num_of_dimensions) x_uvecs.resize(num_of_dimensions);
+	hji_grid->get_xss(x_uvecs, begin_index, length);
+	std::vector<beacls::FloatVec::const_iterator > xs_ites(x_uvecs.size());
+	std::transform(x_uvecs.cbegin(), x_uvecs.cend(), xs_ites.begin(),
+		([begin_index](const auto& rhs) { return beacls::UVec_<FLOAT_TYPE>(rhs).vec()->cbegin(); }));
+	beacls::IntegerVec x_sizes(x_uvecs.size());
+#else
 	const std::vector<beacls::FloatVec >& xs = hji_grid->get_xss();
 	std::vector<beacls::FloatVec::const_iterator > xs_ites(xs.size());
 	std::transform(xs.cbegin(), xs.cend(), xs_ites.begin(), 
 		  ([begin_index](const auto& rhs) { return rhs.cbegin() + begin_index; }));
 	beacls::IntegerVec x_sizes(xs.size());
+#endif
 	std::fill(x_sizes.begin(), x_sizes.end(), length);
 
 	std::vector<beacls::FloatVec >& us = ws->us;
@@ -343,10 +358,20 @@ bool DynSysSchemeData::partialFunc(
 //	}
 	const levelset::HJI_Grid *hji_grid = get_grid();
 	const size_t num_of_dimensions = hji_grid->get_num_of_dimensions();
+#if defined(ADHOCK_XS)
+	std::vector<beacls::UVec>& x_uvecs = ws->x_uvecs;
+	if (x_uvecs.size() != num_of_dimensions) x_uvecs.resize(num_of_dimensions);
+	hji_grid->get_xss(x_uvecs, begin_index, length);
+	std::vector<beacls::FloatVec::const_iterator > xs_ites(x_uvecs.size());
+	std::transform(x_uvecs.cbegin(), x_uvecs.cend(), xs_ites.begin(),
+		([begin_index](const auto& rhs) { return beacls::UVec_<FLOAT_TYPE>(rhs).vec()->cbegin(); }));
+	beacls::IntegerVec x_sizes(x_uvecs.size());
+#else
 	const std::vector<beacls::FloatVec >& xs = hji_grid->get_xss();
 	std::vector<beacls::FloatVec::const_iterator > xs_ites(xs.size());
 	std::transform(xs.cbegin(), xs.cend(), xs_ites.begin(), ([begin_index](const auto& rhs) { return rhs.cbegin() + begin_index; }));
 	beacls::IntegerVec x_sizes(xs.size());
+#endif
 	std::fill(x_sizes.begin(), x_sizes.end(), length);
 
 	ws->uUss.resize(num_of_dimensions);

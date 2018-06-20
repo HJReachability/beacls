@@ -38,12 +38,19 @@ levelset::HJI_Grid* helperOC::shiftGrid(
 		gIn->get_xs(x_uvec, dimension, begin_index, length);
 		const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvec).vec();
 
-		const beacls::FloatVec& xs = gIn->get_xs(dimension);
 		beacls::FloatVec& shifted_xs = shifted_xss[dimension];
 		beacls::FloatVec& shifted_vs = shifted_vss[dimension];
-		shifted_xs.resize(xs.size());
 		const FLOAT_TYPE shiftAmount_d = shiftAmount[dimension];
+#if defined(ADHOCK_XS)
+		shifted_xs.resize(x_uvec.size());
+		std::transform(xs_ptr->cbegin(), xs_ptr->cend(), shifted_xs.begin(), [&shiftAmount_d](const auto& rhs) {
+			return rhs + shiftAmount_d;
+		});
+#else
+		const beacls::FloatVec& xs = gIn->get_xs(dimension);
+		shifted_xs.resize(xs.size());
 		std::transform(xs.cbegin(), xs.cend(), shifted_xs.begin(), [&shiftAmount_d](const auto& rhs) { return rhs + shiftAmount_d; });
+#endif
 		auto minMax = beacls::minmax_value<FLOAT_TYPE>(shifted_xs.cbegin(), shifted_xs.cend());
 		shifted_mins[dimension] = minMax.first;
 		shifted_maxs[dimension] = minMax.second;

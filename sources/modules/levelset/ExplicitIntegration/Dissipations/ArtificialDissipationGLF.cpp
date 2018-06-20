@@ -69,15 +69,19 @@ bool ArtificialDissipationGLF_impl::execute(
 		if (enable_user_defined_dynamics_on_gpu
 			&& schemeData->partialFunc_cuda(alphas_cuda_uvecs[dimension], t, data, x_uvecs, derivMins, derivMaxs, dimension, begin_index, loop_size)) {
 			partialFunc_result = true;
-		} else {
-			if (schemeData->partialFunc(alphas_cpu_uvecs[dimension], t, data, derivMins, derivMaxs, dimension, begin_index, loop_size)) {
-				partialFunc_result = true;
-				if (beacls::is_cuda(deriv_ls[0]) && (alphas_cpu_uvecs[dimension].size() != 1)) {
-					alphas_cpu_uvecs[dimension].convertTo(alphas_cuda_uvecs[dimension], beacls::UVecType_Cuda);
-				}
-				else {
-					alphas_cuda_uvecs[dimension] = alphas_cpu_uvecs[dimension];
-				}
+			if (!beacls::is_cuda(deriv_ls[0]) && (alphas_cuda_uvecs[dimension].size() != 1)) {
+				alphas_cuda_uvecs[dimension].convertTo(alphas_cpu_uvecs[dimension], beacls::UVecType_Vector);
+			}
+			else {
+				alphas_cpu_uvecs[dimension] = alphas_cuda_uvecs[dimension];
+			}
+		} else if (schemeData->partialFunc(alphas_cpu_uvecs[dimension], t, data, derivMins, derivMaxs, dimension, begin_index, loop_size)) {
+			partialFunc_result = true;
+			if (beacls::is_cuda(deriv_ls[0]) && (alphas_cpu_uvecs[dimension].size() != 1)) {
+				alphas_cpu_uvecs[dimension].convertTo(alphas_cuda_uvecs[dimension], beacls::UVecType_Cuda);
+			}
+			else {
+				alphas_cuda_uvecs[dimension] = alphas_cpu_uvecs[dimension];
 			}
 		}
 

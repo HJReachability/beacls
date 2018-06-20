@@ -60,7 +60,7 @@ bool TermLaxFriedrichs_impl::execute(
 	const HJI_Grid *grid = schemeData->get_grid();
 	SpatialDerivative* spatialDerivative = schemeData->get_spatialDerivative();
 	Dissipation* dissipation = schemeData->get_dissipation();
-	beacls::UVecDepth depth = beacls::type_to_depth<FLOAT_TYPE>();
+	const beacls::UVecDepth depth = beacls::type_to_depth<FLOAT_TYPE>();
 	beacls::UVec y_uvec(y, beacls::UVecType_Vector, false);
 
 	//	const HamiltonJacobiFunction* hamiltonJacobiFunction = schemeData->get_hamiltonJacobiFunction();
@@ -141,13 +141,13 @@ bool TermLaxFriedrichs_impl::execute(
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
 			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
 			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
-#if 0
+#if defined(ADHOCK_XS)
+			x_uvecs[dimension].set_cudaStream(cudaStream);
+			grid->get_xs(x_uvecs[dimension], dimension, src_index_term, grid_length);
+#else
 			const beacls::FloatVec& xs = grid->get_xs(dimension);
 			x_uvecs[dimension].set_cudaStream(cudaStream);
 			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
-#else
-			x_uvecs[dimension].set_cudaStream(cudaStream);
-			grid->get_xs(x_uvecs[dimension], dimension, src_index_term, grid_length);
 #endif
 		}
 	}

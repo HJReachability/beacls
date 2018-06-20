@@ -229,6 +229,19 @@ bool run_UTest_HamFunc(
 				src_deriv_c_uvecs[dim] = tmp_deriv_c;
 			}
 			if (enable_user_defined_dynamics_on_gpu && (type == beacls::UVecType_Cuda)) {
+#if defined(ADHOCK_XS)
+				std::vector<beacls::UVec> xs;
+				hJI_Grid->get_xss(xs);
+				if (x_uvecs.size() != xs.size()) x_uvecs.resize(xs.size());
+				for (size_t dim = 0; dim < xs.size(); ++dim) {
+					const beacls::FloatVec* xs_dim = beacls::UVec_<FLOAT_TYPE>(x_uvecs[dim]).vec();
+					beacls::UVec& x_uvecs_dim = x_uvecs[dim];
+					if (x_uvecs_dim.type() != type) x_uvecs_dim = beacls::UVec(depth, beacls::UVecType_Cuda, slices_result_size);
+					else if (x_uvecs_dim.size() != slices_result_size) x_uvecs_dim.resize(slices_result_size);
+					copyHostPtrToUVec(x_uvecs_dim, xs_dim->data() + expected_result_offset, slices_result_size);
+				}
+
+#else
 				const std::vector<beacls::FloatVec >& xs = hJI_Grid->get_xss();
 				if (x_uvecs.size() != xs.size()) x_uvecs.resize(xs.size());
 				for (size_t dim = 0; dim < xs.size(); ++dim) {
@@ -238,6 +251,7 @@ bool run_UTest_HamFunc(
 					else if (x_uvecs_dim.size() != slices_result_size) x_uvecs_dim.resize(slices_result_size);
 					copyHostPtrToUVec(x_uvecs_dim, xs_dim.data() + expected_result_offset, slices_result_size);
 				}
+#endif
 			}
 
 			if (!enable_user_defined_dynamics_on_gpu 

@@ -49,6 +49,26 @@ bool ShapeHyperplaneByPoint_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 	//!< Check to see that it is well defined.
 	//!< T.B.D.
 
+#if defined(ADHOCK_XS)
+	std::vector<beacls::UVec> x_uvecs;
+	grid->get_xss(x_uvecs);
+
+	std::vector<beacls::FloatVec> xss_minus_point0(x_uvecs.size());
+
+	std::transform(x_uvecs.cbegin(), x_uvecs.cend(), point0.cbegin(), xss_minus_point0.begin(), [](const auto& lhs, const auto& rhs) {
+		beacls::FloatVec res(lhs.size());
+		const beacls::FloatVec* vec = beacls::UVec_<FLOAT_TYPE>(lhs).vec();
+		std::transform(vec->cbegin(), vec->cend(), res.begin(), [rhs](const auto& lhs) {
+			return lhs - rhs;
+		});
+		return res;
+	});
+	data.resize(x_uvecs[0].size(), 0);
+	for (size_t i = 0; i < x_uvecs.size(); ++i) {
+		const FLOAT_TYPE normal_i = normal[i];
+		std::transform(data.cbegin(), data.cend(), xss_minus_point0[i].cbegin(), data.begin(), [normal_i](const auto& lhs, const auto& rhs) { return lhs + normal_i * rhs; });
+	}
+#else
 	const std::vector<beacls::FloatVec>& xss = grid->get_xss();
 	std::vector<beacls::FloatVec> xss_minus_point0(xss.size());
 
@@ -62,6 +82,7 @@ bool ShapeHyperplaneByPoint_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 		const FLOAT_TYPE normal_i = normal[i];
 		std::transform(data.cbegin(), data.cend(), xss_minus_point0[i].cbegin(), data.begin(), [normal_i](const auto& lhs, const auto& rhs) { return lhs + normal_i * rhs; });
 	}
+#endif
 	//!< The procedure above generates a correct normal assuming that the data
 	//!<  points are given in a clockwise fashion.If the user supplies
 	//!<  parameter positivePoint, we need to use a different test.
@@ -76,6 +97,16 @@ bool ShapeHyperplaneByPoint_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 		std::vector<const beacls::FloatVec*> X_ptrs;
 		std::vector<beacls::IntegerVec> Ns;
 
+#if defined(ADHOCK_XS)
+		X_ptrs.reserve(x_uvecs.size() * 2 + 1);
+		Ns.reserve(x_uvecs.size() * 2 + 1);
+		std::for_each(x_uvecs.cbegin(), x_uvecs.cend(), [&X_ptrs, &Ns, grid](const auto& rhs) {
+			const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(rhs).vec();
+			X_ptrs.push_back(xs_ptr);
+			beacls::IntegerVec N{ xs_ptr->size() };
+			Ns.push_back(grid->get_Ns());
+		});
+#else
 		X_ptrs.reserve(xss.size() * 2 + 1);
 		Ns.reserve(xss.size() * 2 + 1);
 		std::for_each(xss.cbegin(), xss.cend(), [&X_ptrs, &Ns, grid](const auto& rhs) {
@@ -83,6 +114,7 @@ bool ShapeHyperplaneByPoint_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 			beacls::IntegerVec N{ rhs.size() };
 			Ns.push_back(grid->get_Ns());
 		});
+#endif
 		X_ptrs.push_back(&data);
 		Ns.push_back(grid->get_Ns());
 		std::for_each(positivePoints.cbegin(), positivePoints.cend(), [&X_ptrs, &Ns](const auto& rhs) {

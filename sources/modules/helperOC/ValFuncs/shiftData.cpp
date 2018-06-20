@@ -16,18 +16,35 @@ bool helperOC::shiftData(
 ) {
 	//!< Get a list of new indices
 	//!< Shift grid backwards
+#if defined(ADHOCK_XS)
+	std::vector<beacls::UVec> x_uvecs;
+	g->get_xss(x_uvecs);
+	const size_t num_of_points = x_uvecs[0].size();
+	std::vector<beacls::FloatVec> rxss;
+	rxss.resize(num_of_points);
+
+	for (size_t point = 0; point< num_of_points; ++point) {
+		rxss[point].resize(shift.size());
+		for (size_t i = 0; i < shift.size(); ++i) {
+			const size_t pdim = pdims[i];
+			const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(x_uvecs[pdim]).vec();
+			rxss[point][pdim] = (*xs_ptr)[point] - shift[i];
+		}
+	}
+#else
 	const std::vector<beacls::FloatVec>& xss = g->get_xss();
 	const size_t num_of_points = xss[0].size();
 	std::vector<beacls::FloatVec> rxss;
 	rxss.resize(num_of_points);
 
-	for(size_t point = 0; point< num_of_points; ++point) {
+	for (size_t point = 0; point< num_of_points; ++point) {
 		rxss[point].resize(shift.size());
 		for (size_t i = 0; i < shift.size(); ++i) {
 			const size_t pdim = pdims[i];
 			rxss[point][pdim] = xss[pdim][point] - shift[i];
 		}
 	}
+#endif
 
 	//!< Interpolate dataIn to get approximation of shifted data
 	helperOC::eval_u(dataOut, g, dataIn, rxss, interp_method);

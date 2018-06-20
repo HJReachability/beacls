@@ -307,6 +307,18 @@ bool run_UTest_Dissipation(
 					src_deriv_r_uvecs[dim] = tmp_deriv_r;
 				}
 				if (enable_user_defined_dynamics_on_gpu && (type == beacls::UVecType_Cuda)) {
+#if defined(ADHOCK_XS)
+					std::vector<beacls::UVec> xs;
+					hJI_Grid->get_xss(xs);
+					if (x_uvecs.size() != xs.size()) x_uvecs.resize(xs.size());
+					for (size_t dim = 0; dim < x_uvecs.size(); ++dim) {
+						const beacls::FloatVec* xs_dim = beacls::UVec_<FLOAT_TYPE>(xs[dim]).vec();
+						beacls::UVec& x_uvecs_dim = x_uvecs[dim];
+						if (x_uvecs_dim.type() != type) x_uvecs_dim = beacls::UVec(depth, beacls::UVecType_Cuda, slices_result_size);
+						else if (x_uvecs_dim.size() != slices_result_size) x_uvecs_dim.resize(slices_result_size);
+						copyHostPtrToUVec(x_uvecs_dim, xs_dim->data() + expected_result_offset, slices_result_size);
+					}
+#else
 					const std::vector<beacls::FloatVec >& xs = hJI_Grid->get_xss();
 					if (x_uvecs.size() != xs.size()) x_uvecs.resize(xs.size());
 					for (size_t dim = 0; dim < xs.size(); ++dim) {
@@ -316,6 +328,7 @@ bool run_UTest_Dissipation(
 						else if (x_uvecs_dim.size() != slices_result_size) x_uvecs_dim.resize(slices_result_size);
 						copyHostPtrToUVec(x_uvecs_dim, xs_dim.data() + expected_result_offset, slices_result_size);
 					}
+#endif
 				}
 
 				std::vector<beacls::UVec> deriv_max_uvecs(derivMaxs.size());

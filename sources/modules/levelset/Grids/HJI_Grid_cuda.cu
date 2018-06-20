@@ -7,7 +7,56 @@
 #include <Core/CudaStream.hpp>
 
 #if defined(WITH_GPU)
+__global__
+void kernel_HJI_Grid_repeat_cuda(
+	FLOAT_TYPE  *dst_ptr,
+	const FLOAT_TYPE *src_ptr,
+	const size_t start,
+	const size_t loop_length,
+	const size_t stride,
+	const size_t dim_length
+) {
+	const size_t tid = threadIdx.x;
+	size_t i = (blockIdx.x * blockDim.x + tid);
+	const size_t gridSize = blockDim.x * gridDim.x;
+	while (i < loop_length) {
+		const size_t global_index = i + start;
+		const size_t src_idx = (global_index / stride) % dim_length;
+		dst_ptr[i] = src_ptr[src_idx];
+		i += gridSize;
+	}
+}
 
+void HJI_Grid_repeat_cuda
+(
+	beacls::UVec& dst,
+	const beacls::UVec& src,
+	const size_t dimension,
+	const size_t start_index,
+	const size_t loop_length,
+	const size_t stride,
+	const size_t dim_length
+) {
+	beacls::synchronizeUVec(src);
+	cudaStream_t x_stream = beacls::get_stream(dst);
+	FLOAT_TYPE* dst_ptr = beacls::UVec_<FLOAT_TYPE>(dst).ptr();
+	const FLOAT_TYPE* src_ptr = beacls::UVec_<const FLOAT_TYPE>(src).ptr();
+	size_t num_of_threads_x;
+	size_t num_of_blocks_x;
+	get_cuda_thread_size_1d<size_t>(
+		num_of_threads_x,
+		num_of_blocks_x,
+		loop_length,
+		512
+		);
+	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
+	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
+	kernel_HJI_Grid_repeat_cuda << <num_of_blocks, num_of_threads, 0, x_stream >> > (
+		dst_ptr, src_ptr,
+		start_index, loop_length, stride, dim_length
+		);
+}
+#if 0
 __global__
 void kernel_HJI_Grid_calc_xs(
 	FLOAT_TYPE  *g_xs_ptr,
@@ -24,7 +73,6 @@ void kernel_HJI_Grid_calc_xs(
 		i += gridSize;
 	}
 }
-
 
 void HJI_Grid_calc_xs_execute_cuda
 (
@@ -54,4 +102,5 @@ void HJI_Grid_calc_xs_execute_cuda
 		start_index, loop_length, stride
 		);
 }
+#endif
 #endif /* defined(WITH_GPU)  */

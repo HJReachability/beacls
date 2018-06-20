@@ -29,6 +29,7 @@ namespace levelset {
 		std::vector<std::vector<FLOAT_TYPE> > vss;
 		mutable beacls::UVec v_uvec;
 		std::vector<std::vector<FLOAT_TYPE> > xss;
+		std::vector<std::vector<FLOAT_TYPE> > xss2;
 		std::vector<FLOAT_TYPE> axis;
 		std::vector<size_t> shape;
 
@@ -116,7 +117,7 @@ namespace levelset {
 			set_dxInvs();
 		}
 		void set_vss(const std::vector<std::vector<FLOAT_TYPE> >& a) { vss = a; }
-		void set_xss(const std::vector<std::vector<FLOAT_TYPE> >& a) { xss = a; }
+		void set_xss(const std::vector<std::vector<FLOAT_TYPE> >& a) { xss2 = a; }
 		void set_axis(const std::vector<FLOAT_TYPE>& a) { axis = a; }
 		void set_shape(const std::vector<size_t>& a) { shape = a; }
 
@@ -132,9 +133,9 @@ namespace levelset {
 		FLOAT_TYPE get_dx(const size_t dimension) const { return dxs[dimension]; }
 		FLOAT_TYPE get_dxInv(const size_t dimension) const { return dxInvs[dimension]; }
 		const std::vector<std::vector<FLOAT_TYPE> >& get_vss() const { return vss; }
-		const std::vector<std::vector<FLOAT_TYPE> >& get_xss() const { return xss; }
+		const std::vector<std::vector<FLOAT_TYPE> >& get_xss() const { return xss2; }
 		const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const { return vss[dimension]; }
-		const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const { return xss[dimension]; }
+		const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const { return xss2[dimension]; }
 		void calc_xs(
 			beacls::UVec& x_uvec,
 			const size_t dimension,

@@ -49,10 +49,43 @@ namespace helperOC {
 		const beacls::IntegerVec& dataNs,
 		const beacls::FloatVec& data,
 		const std::vector<beacls::FloatVec>& Xs,
+		const std::vector<beacls::UVec>& Xq_uvecs
+	);
+	static void gen_interpn_param(
+		std::vector<const beacls::FloatVec*>& X_ptrs,
+		std::vector<beacls::IntegerVec>& Nss,
+		const beacls::IntegerVec& dataNs,
+		const beacls::FloatVec& data,
+		const std::vector<beacls::FloatVec>& Xs,
 		const std::vector<beacls::FloatVec>& Xqs
-
 	);
 };
+static void helperOC::gen_interpn_param(
+	std::vector<const beacls::FloatVec*>& X_ptrs,
+	std::vector<beacls::IntegerVec>& Nss,
+	const beacls::IntegerVec& dataNs,
+	const beacls::FloatVec& data,
+	const std::vector<beacls::FloatVec>& Xs,
+	const std::vector<beacls::UVec>& Xq_uvecs
+
+) {
+	size_t num_of_dimensions_out = Xs.size();
+	X_ptrs.reserve(num_of_dimensions_out * 2 + 1);
+	Nss.reserve(num_of_dimensions_out * 2 + 1);
+	std::for_each(Xs.cbegin(), Xs.cend(), [&X_ptrs, &Nss](const auto& rhs) {
+		X_ptrs.push_back(&rhs);
+		beacls::IntegerVec N{ rhs.size() };
+		Nss.push_back(N);
+	});
+	X_ptrs.push_back(&data);
+	Nss.push_back(dataNs);
+	std::for_each(Xq_uvecs.cbegin(), Xq_uvecs.cend(), [&X_ptrs, &Nss](const auto& rhs) {
+		const beacls::FloatVec* xs_ptr = beacls::UVec_<FLOAT_TYPE>(rhs).vec();
+		X_ptrs.push_back(xs_ptr);
+		beacls::IntegerVec N{ xs_ptr->size() };
+		Nss.push_back(N);
+	});
+}
 static void helperOC::gen_interpn_param(
 	std::vector<const beacls::FloatVec*>& X_ptrs,
 	std::vector<beacls::IntegerVec>& Nss,
@@ -230,7 +263,15 @@ levelset::HJI_Grid* helperOC::projSingle(
 
 	std::vector<const beacls::FloatVec*> X0_ptrs;
 	std::vector<beacls::IntegerVec> N0s;
+#if defined(ADHOCK_XS)
+	std::vector<beacls::UVec> x_uvecs;
+	gOut->get_xss(x_uvecs);
+
+	gen_interpn_param(X0_ptrs, N0s, g->get_Ns(), dataOut, tmp_vss, x_uvecs);
+#else
 	gen_interpn_param(X0_ptrs, N0s, g->get_Ns(), dataOut, tmp_vss, gOut->get_xss());
+#endif
+
 
 	beacls::interpn(dataOut, X0_ptrs, N0s, beacls::Interpolate_linear, extrapolate_methods);
 	return gOut;

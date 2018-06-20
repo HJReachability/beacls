@@ -22,6 +22,7 @@
 #include <Core/UVec.hpp>
 using namespace std::rel_ops;
 
+#define ADHOCK_XS
 
 namespace beacls {
 	PREFIX_VC_DLL
@@ -151,11 +152,13 @@ namespace levelset {
 		PREFIX_VC_DLL
 			const std::vector<std::vector<FLOAT_TYPE> >& get_vss() const;
 		PREFIX_VC_DLL
+			const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const;
+#if !defined(ADHOCK_XS)
+		PREFIX_VC_DLL
 			const std::vector<std::vector<FLOAT_TYPE> >& get_xss() const;
 		PREFIX_VC_DLL
-			const std::vector<FLOAT_TYPE>& get_vs(const size_t dimension) const;
-		PREFIX_VC_DLL
 			const std::vector<FLOAT_TYPE>& get_xs(const size_t dimension) const;
+#endif
 		PREFIX_VC_DLL
 			void get_xs(
 				beacls::UVec& x_uvec,
