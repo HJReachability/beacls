@@ -844,6 +844,18 @@ size_t HJI_Grid::get_num_of_dimensions() const {
 	if (pimpl) return pimpl->get_num_of_dimensions();
 	else return 0;
 }
+size_t HJI_Grid::get_inner_dimensions_loop_size(const size_t dim) const {
+	if (pimpl) return pimpl->get_inner_dimensions_loop_size(dim);
+	else return 0;
+}
+size_t HJI_Grid::get_target_dimension_loop_size(const size_t dim) const {
+	if (pimpl) return pimpl->get_target_dimension_loop_size(dim);
+	else return 0;
+}
+size_t HJI_Grid::get_outer_dimensions_loop_size(const size_t dim) const {
+	if (pimpl) return pimpl->get_outer_dimensions_loop_size(dim);
+	else return 0;
+}
 const std::vector<FLOAT_TYPE>& HJI_Grid::get_mins() const {
 	if (pimpl) return pimpl->get_mins();
 	else return dummy_float_type_vector;

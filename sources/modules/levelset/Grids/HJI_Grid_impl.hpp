@@ -97,6 +97,23 @@ namespace levelset {
 		}
 		
 		void set_num_of_dimensions(size_t a) { num_of_dimensions = a; }
+		size_t get_inner_dimensions_loop_size(const size_t dim) const {
+			size_t inner_dimensions_loop_size = 1;
+			for (size_t dimension = 0; dimension < dim; ++dimension) {
+				inner_dimensions_loop_size *= Ns[dimension];
+			}
+			return inner_dimensions_loop_size;
+		}
+		size_t get_target_dimension_loop_size(const size_t dim) const {
+			return Ns[dim];
+		}
+		size_t get_outer_dimensions_loop_size(const size_t dim) const {
+			size_t outer_dimensions_loop_size = 1;
+			for (size_t dimension = dim + 1; dimension < num_of_dimensions; ++dimension) {
+				outer_dimensions_loop_size *= Ns[dimension];
+			}
+			return outer_dimensions_loop_size;
+		}
 		void set_mins(const std::vector<FLOAT_TYPE>& a) { mins = a; }
 		void set_maxs(const std::vector<FLOAT_TYPE>& a) { maxs = a; }
 		void set_boundaryConditions(const std::vector<BoundaryCondition*>& a) {

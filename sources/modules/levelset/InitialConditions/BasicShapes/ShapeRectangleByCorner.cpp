@@ -47,6 +47,31 @@ bool ShapeRectangleByCorner_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 		}
 	}
 #else
+#if defined(ADHOCK_XS)
+	const FLOAT_TYPE inf = -std::numeric_limits<FLOAT_TYPE>::infinity();
+	data.assign(num_of_elements, inf);
+	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
+		const beacls::FloatVec& vs = grid->get_vs(dimension);
+		size_t inner_dimensions_loop_size = grid->get_inner_dimensions_loop_size(dimension);
+		size_t outer_dimensions_loop_size = grid->get_outer_dimensions_loop_size(dimension);
+		size_t target_dimension_loop_size = grid->get_target_dimension_loop_size(dimension);
+		const FLOAT_TYPE upper_d = upper[dimension];
+		const FLOAT_TYPE lower_d = lower[dimension];
+		for (size_t outer_dimensions_loop_index = 0; outer_dimensions_loop_index < outer_dimensions_loop_size; ++outer_dimensions_loop_index) {
+			const size_t outer_dimensions_loop_offset = outer_dimensions_loop_index * inner_dimensions_loop_size * target_dimension_loop_size;
+			for (size_t v_index = 0; v_index < vs.size(); ++v_index) {
+				const FLOAT_TYPE v = vs[v_index];
+				const size_t offset = v_index * inner_dimensions_loop_size + outer_dimensions_loop_offset;
+				const FLOAT_TYPE len_upper2data = v - upper_d;
+				const FLOAT_TYPE len_lower2data = lower_d - v;
+				std::for_each(data.begin() + offset, data.begin() + offset + inner_dimensions_loop_size, ([len_upper2data, len_lower2data](auto &rhs) {
+					rhs = HjiMax(rhs, len_upper2data);
+					rhs = HjiMax(rhs, len_lower2data);
+				}));
+			}
+		}
+	}
+#else
 	std::vector<beacls::UVec> x_uvecs;
 	grid->get_xss(x_uvecs);
 	std::vector<const FLOAT_TYPE*> x_ptrs(num_of_dimensions);
@@ -66,6 +91,7 @@ bool ShapeRectangleByCorner_impl::execute(const HJI_Grid *grid, beacls::FloatVec
 		}
 		data[i] = val;
 	}
+#endif
 #endif
 	return true;
 }

@@ -51,10 +51,11 @@ void HJI_Grid_repeat_cuda
 		);
 	dim3 num_of_blocks((unsigned int)num_of_blocks_x, 1);
 	dim3 num_of_threads((unsigned int)num_of_threads_x, 1, 1);
-	kernel_HJI_Grid_repeat_cuda << <num_of_blocks, num_of_threads, 0, x_stream >> > (
+	kernel_HJI_Grid_repeat_cuda<<<num_of_blocks, num_of_threads, 0, x_stream>>> (
 		dst_ptr, src_ptr,
 		start_index, loop_length, stride, dim_length
 		);
+	std::cout << start_index << ":" <<  loop_length << std::endl;
 }
 #if 0
 __global__
