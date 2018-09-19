@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   extraArgs.targets = targets;
   extraArgs.obstacles = obstacles;
   extraArgs.stopInit = pl->get_x();
-  extraArgs.visualize = true;
+  extraArgs.visualize = false;
   extraArgs.visualize_size = beacls::IntegerVec{ 640, 640 };
 //  extraArgs.fx = 4.;
 //  extraArgs.fy = 2.;
