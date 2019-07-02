@@ -24,7 +24,7 @@ ifeq ($(UNAME),Darwin)
 	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
 	OPENMP_ON = N
 else
-	HOSTCC  = g++
+	HOSTCC  = g++-4.9
 	OPENMP_ON = Y
 endif
 
@@ -53,6 +53,7 @@ endif
 
 CFLAGS   += -mfpmath=sse -msse2 -g -march=native
 CPPFLAGS += -std=c++14
+#CPPFLAGS += -std=c++1y
 NVCCFLAGS += -std=c++11
 
 ifeq ($(FMA_ON), N)

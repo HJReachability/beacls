@@ -32,7 +32,7 @@ ifeq ($(UNAME),Darwin)
 	HOSTCC  = $(HOSTCC_DIR)/bin/clang++
 	OPENMP_ON = N
 else
-	HOSTCC  = g++
+	HOSTCC  = g++-4.9
 	OPENMP_ON = Y
 endif
 
