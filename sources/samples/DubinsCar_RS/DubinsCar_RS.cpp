@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	}
 	bool keepLast = true;
 	if (argc >= 8) {
-		keepLast = (atoi(argv[7]) == 0) ? true : false;
+		keepLast = (atoi(argv[7]) == 0) ? false : true;
 	}
 	bool calculateTTRduringSolving = false;
 	if (argc >= 9) {
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 		Ns = beacls::IntegerVec{ 51, 51, 31 };
 		break;
 	case 1:
-		Ns = beacls::IntegerVec{ 151, 151, 101 };
+		Ns = beacls::IntegerVec{ 41, 21, 11 };
 		break;
 	case 2:
 	default:
@@ -97,27 +97,29 @@ int main(int argc, char *argv[])
 		break;
 	}
 	levelset::HJI_Grid* g = helperOC::createGrid(
-		beacls::FloatVec{(FLOAT_TYPE)-21, (FLOAT_TYPE)-18, (FLOAT_TYPE)-M_PI}, 
-		beacls::FloatVec{(FLOAT_TYPE)15, (FLOAT_TYPE)18, (FLOAT_TYPE)M_PI}, 
+		beacls::FloatVec{(FLOAT_TYPE)-5, (FLOAT_TYPE)-5, (FLOAT_TYPE)-M_PI}, 
+		beacls::FloatVec{(FLOAT_TYPE)5, (FLOAT_TYPE)5, (FLOAT_TYPE)M_PI}, 
 		Ns, beacls::IntegerVec{2});
 
 	beacls::FloatVec tau = generateArithmeticSequence<FLOAT_TYPE>(0., dt, tMax);
 	helperOC::DubinsCar* dubinsCar = new helperOC::DubinsCar(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, 1., 1.);
-	
+
 	// Dynamical system parameters
-	helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData;
+	helperOC::DynSysSchemeData* schemeData = new helperOC::DynSysSchemeData; 
 	schemeData->set_grid(g);
 	schemeData->dynSys = dubinsCar;
 	schemeData->accuracy = helperOC::ApproximationAccuracy_veryHigh;
+	schemeData->uMode = helperOC::DynSys_UMode_Min; 
+
 
 	// Target set and visualization
 	beacls::FloatVec data0;
-	levelset::ShapeSphere* shape = new levelset::ShapeSphere(beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, (FLOAT_TYPE)0.1);
+	levelset::ShapeCylinder* shape = new levelset::ShapeCylinder(beacls::IntegerVec{2}, beacls::FloatVec{(FLOAT_TYPE)0, (FLOAT_TYPE)0, (FLOAT_TYPE)0}, (FLOAT_TYPE)1.0);
 	shape->execute(g, data0);
 
 	helperOC::HJIPDE_extraArgs extraArgs;
 	helperOC::HJIPDE_extraOuts extraOuts;
-	extraArgs.visualize = false;
+	extraArgs.visualize = true;
 	extraArgs.execParameters.line_length_of_chunk = line_length_of_chunk;
 	extraArgs.execParameters.calcTTR = calculateTTRduringSolving;
 	extraArgs.keepLast = keepLast;
@@ -133,10 +135,9 @@ int main(int argc, char *argv[])
 
 	beacls::FloatVec stoptau;
 	std::vector<beacls::FloatVec > data;
-	hjipde->solve(data, stoptau, extraOuts, data0, tau, schemeData, helperOC::HJIPDE::MinWithType_Zero, extraArgs);
+	hjipde->solve(data, stoptau, extraOuts, data0, tau, schemeData, helperOC::HJIPDE::MinWithType_None, extraArgs);
 	beacls::FloatVec TTR;
 	std::vector<beacls::FloatVec > P, derivL, derivR;
-
 	// Convert to TTR
 	hjipde->TD2TTR(TTR, g, tau);
 
