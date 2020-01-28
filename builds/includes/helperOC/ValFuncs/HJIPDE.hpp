@@ -32,6 +32,7 @@ namespace helperOC {
 			MinWithType_Invalid = -1,
 			MinWithType_Zero,	//!<	set to 'zero' to do min with zero
 			MinWithType_None,	//!<	set to 'none' to compute reachable set (not tube)
+			MinWithType_Target, //!<    set to 'minVWithL' to do min with extraArgs.targets 
 		} MinWithType;
 		typedef enum ObsModeType {
 			ObsModeType_Invalid = -1,
@@ -64,6 +65,7 @@ namespace helperOC {
 		@param	[in]	minWith
 		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
 		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@arg    MinWiThType_Target  :   set to 'minVWithL' to do min with extraArgs.targets 
 		@param	[in]	extraArgs	this structure can be used to leverage other additional
 		functionalities within this functionouts
 		@param	[in]	quiet
@@ -94,6 +96,7 @@ namespace helperOC {
 		@param	[in]	minWith
 		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
 		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@arg    MinWiThType_Target  :   set to 'minVWithL' to do min with extraArgs.targets 
 		@param	[in]	extraArgs	this structure can be used to leverage other additional
 		functionalities within this functionouts
 		@param	[in]	quiet
@@ -123,6 +126,7 @@ namespace helperOC {
 		@param	[in]	minWith
 		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
 		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@arg    MinWiThType_Target  :   set to 'minVWithL' to do min with extraArgs.targets 
 		@param	[in]	extraArgs	this structure can be used to leverage other additional
 									functionalities within this functionouts
 		@param	[in]	quiet
@@ -151,6 +155,7 @@ namespace helperOC {
 		@param	[in]	minWith
 		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
 		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@arg    MinWiThType_Target  :   set to 'minVWithL' to do min with extraArgs.targets 
 		@param	[in]	extraArgs	this structure can be used to leverage other additional
 		functionalities within this functionouts
 		@param	[in]	quiet

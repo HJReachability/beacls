@@ -581,7 +581,11 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		if (!obstacles_s8_ptrs.empty()) {
 			obstacle_s8_i = (obstacles_s8_ptrs.size() == 1) ? obstacles_s8_ptrs[0] : obstacles_s8_ptrs[i];
 		}
-
+		
+		if (minWith == HJIPDE::MinWithType_Target && extraArgs.targets.empty()) {
+			std::cerr << "error : extraArgs.Targets is empty and we are using MinWithType_Target" << std::endl;
+			return false;
+		}
 		// Main integration loop to ge to the next tau(i)
 		while (tNow < (src_tau[i] - small)) {
 			beacls::FloatVec yLast;
@@ -608,6 +612,13 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 			// Min with zero
 			if (minWith == HJIPDE::MinWithType_Zero) {
 				std::transform(y.cbegin(), y.cend(), yLast.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
+			}
+
+			// Min With Target
+			if (minWith == HJIPDE::MinWithType_Target) {
+				//todo: change to pointers to make faster
+				beacls::FloatVec target = (extraArgs.targets.size() == 1) ? extraArgs.targets[0] : extraArgs.targets[i];
+				std::transform(y.cbegin(), y.cend(), target.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::min<FLOAT_TYPE>));
 			}
 
 			// Min with targets
