@@ -146,6 +146,35 @@ static bool calcChange(
 	return true;
 }
 
+static int calcNumChange(
+    FLOAT_TYPE changeThreshold, 
+	const beacls::FloatVec &y,
+	const beacls::FloatVec &y0)
+{   
+    int count = 0;
+    for (int i = 0; i <  (int) y.size(); i++)
+    {
+        if (std::fabs(y[i] - y0[i]) > changeThreshold)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+static int calcNumPositive(const beacls::FloatVec &y)
+{   
+    int count = 0;
+    for (int i = 0; i <  (int) y.size(); i++)
+    {
+        if (y[i] >= 0)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 bool HJIPDE_impl::solve(beacls::FloatVec &dst_tau,
 						helperOC::HJIPDE_extraOuts &extraOuts,
 						const std::vector<beacls::FloatVec> &src_datas,
@@ -769,7 +798,29 @@ bool HJIPDE_impl::solve(beacls::FloatVec &dst_tau,
 			}
 			if (!quiet)
 			{
+                int unconvergedIndices;
+                if (src_datas.size() > (i - 1))
+                {
+                    unconvergedIndices = calcNumChange(convergeThreshold, y, src_datas[i - 1]);
+                }
+                else if (!tmp_filename.empty())
+                {
+                    load_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i - 1);
+                    beacls::FloatVec y0;
+                    unconvergedIndices = calcNumChange(convergeThreshold, y, y0);
+                }
+                else if (!keepLast)
+                {
+                    unconvergedIndices = calcNumChange(convergeThreshold, y, datas[i - 1]);
+                }
+                else
+                {
+                    unconvergedIndices = calcNumChange(convergeThreshold, y, yLastTau);
+                } 
+                int numPositive = calcNumPositive(y);
+                std::cout << "Number of positive values: " << numPositive << std::endl; 
 				std::cout << "Max change since last iteration : " << change << std::endl;
+                std::cout << "Number of unconverged indices : " << unconvergedIndices << std::endl;
 			}
 		}
 
