@@ -9,7 +9,7 @@ ifeq ($(UNAME),Darwin)
 endif
 ifeq ($(UNAME),Linux)
 	HDF5_DIR        := /usr/lib/x86_64-linux-gnu/hdf5/serial
-	CONFIGURE_OPT	+= --with-hdf5=$(HDF5_DIR)
+	CONFIGURE_OPT	+= --with-hdf5=$(HDF5_DIR) --enable-mat73=true
 endif
 
 .PHONY: all matio test clean

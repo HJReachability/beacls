@@ -1,0 +1,10 @@
+prefix=/workspace/src/beacls_ros/external/beacls/sources/3rdparty/matio
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: MATIO
+Description: MATIO Library
+Version: 1.5.9
+Libs: -L${libdir} -lmatio -L/usr/lib/x86_64-linux-gnu/hdf5/serial/lib -lhdf5 -lz
+Cflags: -I${includedir} -I/usr/lib/x86_64-linux-gnu/hdf5/serial/include 
