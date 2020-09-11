@@ -115,6 +115,39 @@ namespace helperOC {
 				const helperOC::HJIPDE_extraArgs& extraArgs = helperOC::HJIPDE_extraArgs()
 			);
 		/*
+		@brief Solves HJIPDE with local Q update
+		@param	[out]	dst_datas	solution corresponding to grid g and time vector tau
+		@param	[out]	dst_tau		list of computation times (redundant)
+		@param	[out]	extraOuts	extra outputs
+		@param	[in]	data0		Iniital condition data0 from lx, lxOld, and local Q
+		@param	[in]	src_tau			list of computation times
+		@param  [in]    updateEpsilon   convergence threshold for local Q Update
+		@param	[in]	SchemeData	problem parameters passed into the Hamiltonian function
+		grid: grid (required!)
+		@param	[in]	minWith
+		@arg	MinWithType_Zero	:	set to 'zero' to do min with zero
+		@arg	MinWithType_None	:	set to 'none' to compute reachable set (not tube)
+		@arg    MinWiThType_Target  :   set to 'minVWithL' to do min with extraArgs.targets 
+		@param	[in]	extraArgs	this structure can be used to leverage other additional
+		functionalities within this functionouts
+		@param	[in]	quiet
+		@arg	true	:	quiet mode
+		@arg	false	:	verbose mode (default)
+		*/
+		PREFIX_VC_DLL
+			bool solve_local_q(
+				std::vector<beacls::FloatVec> &dst_datas,
+				beacls::FloatVec &stoptau,
+				helperOC::HJIPDE_extraOuts &extraOuts,
+				const beacls::FloatVec &data0,
+				const beacls::IntegerVec &qIndexes,
+				const beacls::FloatVec &tau,
+				const FLOAT_TYPE updateEpsilon,
+				const DynSysSchemeData *schemeData,
+				const HJIPDE::MinWithType minWith,
+				const helperOC::HJIPDE_extraArgs &extraArgs
+			);
+		/*
 		@brief Solves HJIPDE with initial conditions data0, at times tau, and with
 		parameters schemeData and extraArgs
 		@param	[out]	dst_tau		list of computation times (redundant)
@@ -132,7 +165,7 @@ namespace helperOC {
 		@param	[in]	quiet
 		@arg	true	:	quiet mode
 		@arg	false	:	verbose mode (default)
-									*/
+		*/
 		PREFIX_VC_DLL
 			bool solve(
 				beacls::FloatVec& dst_tau,

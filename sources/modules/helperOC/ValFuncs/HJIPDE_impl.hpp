@@ -33,6 +33,17 @@ namespace helperOC {
 			const HJIPDE::MinWithType minWith,
 			const helperOC::HJIPDE_extraArgs& extraArgs
 		);
+		bool solve_local_q(
+			beacls::FloatVec& stoptau,
+			helperOC::HJIPDE_extraOuts& extraOuts,
+			const std::vector<beacls::FloatVec>& src_datas,
+			const beacls::IntegerVec& qIndexes,
+			const beacls::FloatVec& tau,
+			const FLOAT_TYPE updateEpsilon,
+			const DynSysSchemeData* schemeData,
+			const HJIPDE::MinWithType minWith,
+			const helperOC::HJIPDE_extraArgs& extraArgs
+		);
 		bool get_datas(
 			std::vector<beacls::FloatVec >& dst_datas,
 			const beacls::FloatVec& src_tau,
