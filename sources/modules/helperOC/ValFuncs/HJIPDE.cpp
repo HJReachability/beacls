@@ -1225,16 +1225,16 @@ bool HJIPDE_impl::TD2TTR(
 	}
 	return true;
 }
-
-bool HJIPDE_impl::solve_local_q(beacls::FloatVec &dst_tau,
-						helperOC::HJIPDE_extraOuts &extraOuts,
-						const std::vector<beacls::FloatVec>& src_datas,
-						const beacls::IntegerVec &qIndexes,
-						const beacls::FloatVec &src_tau,
-						const FLOAT_TYPE updateEpsilon, 
-						const DynSysSchemeData *schemeData,
-						const HJIPDE::MinWithType minWith,
-						const helperOC::HJIPDE_extraArgs &extraArgs)
+bool HJIPDE_impl::solve_local_q(
+			beacls::FloatVec& dst_tau,
+			helperOC::HJIPDE_extraOuts& extraOuts,
+			const std::vector<beacls::FloatVec>& src_datas,
+			const beacls::IntegerVec& qIndexes,
+			const beacls::FloatVec& src_tau,
+			const FLOAT_TYPE updateEpsilon,
+			const DynSysSchemeData* schemeData,
+			const HJIPDE::MinWithType minWith,
+			const helperOC::HJIPDE_extraArgs& extraArgs)
 {
 
 	const bool quiet = extraArgs.quiet;
@@ -1404,7 +1404,6 @@ bool HJIPDE_impl::solve_local_q(beacls::FloatVec &dst_tau,
 	beacls::MatFStream *tmp_file_fs = NULL;
 	beacls::MatVariable *tmp_datas_variable = NULL;
 	beacls::IntegerVec Ns = grid->get_Ns();
-	beacls::IntegerVec stride = {1, Ns[0], Ns[0] * Ns[1], Ns[0] * Ns[1] * Ns[2]}; 
 	datas.clear();
 	if (!tmp_filename.empty())
 	{
@@ -1424,6 +1423,24 @@ bool HJIPDE_impl::solve_local_q(beacls::FloatVec &dst_tau,
 			std::copy(src_datas.cbegin(), src_datas.cbegin() + istart, datas.begin());
 		}
 	}
+
+	// Get neighbors for Q;
+	std::set<size_t> Q(qIndexes.begin(), qIndexes.end());
+	size_t periodic_dim = 3;
+	int num_neighbors = 3;
+	std::set<size_t> neighbors; 
+	std::cout << "Initial Size: " << Q.size() << std::endl; 
+	if (!getNeighbors(neighbors, Q, num_neighbors, grid, periodic_dim))
+	{
+		return false; 
+	}
+	Q.insert(neighbors.begin(), neighbors.end());
+	std::cout << "Initial neighbors size: " << Q.size() << std::endl; 
+	
+	// Store Old Data
+	beacls::FloatVec data0 = src_datas[0];
+	beacls::FloatVec Vold = data0;
+	std::set<int> QOld; 
 
 	beacls::FloatVec y;
 	if (src_datas.size() != 1)
@@ -1878,6 +1895,55 @@ bool HJIPDE_impl::solve_local_q(beacls::FloatVec &dst_tau,
 				<< std::setprecision(5) << " miliseconds" << std::endl;
 	return true;
 }
+
+bool HJIPDE_impl::getNeighbors(
+	std::set<size_t> &neighbors, 
+	const std::set<size_t> &Q, 
+	const int num_neighbors,
+	const levelset::HJI_Grid *g,
+	const size_t periodic_dim)
+{
+  size_t num_of_dimensions = g->get_num_of_dimensions();
+  beacls::IntegerVec Ns = g->get_Ns();
+  for (auto original_index : Q)
+  {
+  	  size_t stride_div = 1;
+	  for (size_t dim = 0; dim < num_of_dimensions; dim++)
+	  {
+		  // get x, y, z, or theta dimension index
+		  size_t stride_mod = stride_div * Ns[dim]; 
+		  int dim_index = (original_index % stride_mod) / stride_div;
+		  // run checks before adding in neighbor 
+		  if (!(0 <= dim_index && dim_index < (int) Ns[dim])) 
+		  {
+			  std::cerr << "Error in getting neighbors for index: "<< dim_index \
+						<< " returned out of bounds dim index!" << std::endl;
+			  return false; 
+		  }
+		  for (int index_delta = -num_neighbors; index_delta <= num_neighbors; index_delta++)
+		  {
+			    if (index_delta == 0) continue; // no change in dim_index
+				int new_dim_index = dim_index + index_delta;
+				if (dim == periodic_dim)
+				{
+					new_dim_index = (new_dim_index + Ns[dim]) % Ns[dim];
+				}
+				if (new_dim_index < 0 || new_dim_index >= (int) Ns[dim])
+				{
+					continue; 
+				}
+				else 
+				{
+					size_t new_index = original_index + index_delta * stride_div;
+					neighbors.insert(new_index); 
+				}
+		  }
+		  stride_div = stride_div * Ns[dim]; 
+	  }
+  }          
+  return true;
+}
+
 
 HJIPDE::HJIPDE(const std::string &tmp_filename)
 {
