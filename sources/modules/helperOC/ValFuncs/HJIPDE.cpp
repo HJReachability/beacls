@@ -1440,7 +1440,7 @@ bool HJIPDE_impl::solve_local_q(
 	// Store Old Data
 	beacls::FloatVec data0 = src_datas[0];
 	beacls::FloatVec Vold = data0;
-	std::set<int> QOld; 
+	std::set<size_t> QOld; 
 
 	beacls::FloatVec y;
 	if (src_datas.size() != 1)
@@ -1594,8 +1594,9 @@ bool HJIPDE_impl::solve_local_q(
 			return false;
 		}
 		// Main integration loop to ge to the next tau(i)
-		while (tNow < (src_tau[i] - small))
+		while (tNow < (src_tau[i] - small) && valid_Q_values(Q, QOld))
 		{
+			extraOuts.Qsizes.push_back((size_t) Q.size());
 			beacls::FloatVec yLast;
 			if (minWith == HJIPDE::MinWithType_Zero)
 			{
@@ -1667,6 +1668,38 @@ bool HJIPDE_impl::solve_local_q(
 								   }));
 				}
 			}
+
+			// Update Q, Qold, y, and log
+			beacls::FloatVec VxError;
+			beacls::IntegerVec unchangedIndicies;
+			for (auto q_index : Q)
+			{
+				double q_state_change = Vold[q_index] - y[q_index];
+				VxError.push_back(q_state_change);
+				Vold[q_index] = y[q_index];
+				if (q_state_change < updateEpsilon)
+				{
+					unchangedIndicies.push_back(q_index);
+				}
+			}
+			y = Vold; 
+			QOld = Q;
+			for (auto unchanged_index : unchangedIndicies)
+			{
+				auto it = Q.find(unchanged_index);
+				if (it != Q.end())
+				{
+					Q.erase(it);
+				}
+			}
+			neighbors.clear();
+			if (!getNeighbors(neighbors, Q, num_neighbors, grid, periodic_dim))
+			{
+				return false; 
+			}	
+			Q.insert(neighbors.begin(), neighbors.end());
+			double max_Vchange = *max_element(VxError.begin(), VxError.end());
+			std::cout <<"  Q size: "<< Q.size() <<"  Max Change: " << std::setprecision(6) << max_Vchange << std::endl; 
 		}
 
 		FLOAT_TYPE change = 0;
@@ -1759,7 +1792,17 @@ bool HJIPDE_impl::solve_local_q(
 
 		if (&dst_tau != &src_tau)
 			dst_tau = src_tau;
-
+		// local Q set is empty
+		if (!valid_Q_values(Q, QOld))
+		{
+			extraOuts.stoptau = src_tau[i];
+			if (!low_memory && !keepLast)
+			{
+				datas.resize(i + 1);
+			}
+			dst_tau.resize(i + 1);
+			break;
+		}
 		// If commanded, stop the reachable set computation once it contains the initial state.
 		if (!extraArgs.stopInit.empty())
 		{
@@ -1894,6 +1937,10 @@ bool HJIPDE_impl::solve_local_q(
 				<< std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()
 				<< std::setprecision(5) << " miliseconds" << std::endl;
 	return true;
+}
+
+bool HJIPDE_impl::valid_Q_values(const std::set<size_t> &Q, const std::set<size_t> &Qold) {
+	return !Q.empty();
 }
 
 bool HJIPDE_impl::getNeighbors(

@@ -237,11 +237,13 @@ namespace helperOC {
 	class HJIPDE_extraOuts {
 	public:
 		FLOAT_TYPE stoptau;	//!< time at which the reachable set contains the initial state; tau and data vectors only contain the data till stoptau time.
+		std::vector<size_t> Qsizes; //!< local Q size
 		size_t hT;			//!< figure handle
 	private:
 	public:
 		HJIPDE_extraOuts() :
 			stoptau(0.),
+			Qsizes(std::vector<size_t>()),
 			hT(0)
 		{};
 	private:

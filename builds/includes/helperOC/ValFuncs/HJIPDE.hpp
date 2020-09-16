@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include <set>
 #include <typedef.hpp>
 #include <helperOC/helperOC_type.hpp>
 //#include <levelset/levelset.hpp>

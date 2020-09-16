@@ -51,6 +51,10 @@ namespace helperOC {
 			const levelset::HJI_Grid *g,
 			const size_t periodic_dim
 		);
+		bool valid_Q_values(
+			const std::set<size_t> &Q, 
+			const std::set<size_t> &QOld
+		);
 		bool get_datas(
 			std::vector<beacls::FloatVec >& dst_datas,
 			const beacls::FloatVec& src_tau,
