@@ -135,6 +135,73 @@ bool HJIPDE_impl::getNumericalFuncs(
 	}
 	return true;
 }
+
+bool HJIPDE_impl::getLocalQNumericalFuncs(
+	levelset::Dissipation *&dissFunc,
+	levelset::Integrator *&integratorFunc,
+	levelset::SpatialDerivative *&derivFunc,
+	const levelset::HJI_Grid *grid,
+	const levelset::Term *schemeFunc,
+	const helperOC::Dissipation_Type dissType,
+	const helperOC::ApproximationAccuracy_Type accuracy,
+	const FLOAT_TYPE factorCFL,
+	const bool stats,
+	const bool single_step,
+	const beacls::UVecType type) const
+{
+	//! Dissipation
+	switch (dissType)
+	{
+	case helperOC::Dissipation_global:
+		dissFunc = new levelset::ArtificialDissipationGLF();
+		break;
+	case helperOC::Dissipation_local:
+#if 0
+		///! ToDo
+		dissFunc = new levelset::ArtificialDissipationLLF();
+		break;
+#else
+		std::cerr << "Dissipation function " << dissType << " is not implemented yet." << std::endl;
+		dissFunc = NULL;
+		return false;
+#endif
+	case helperOC::Dissipation_locallocal:
+#if 0
+		///! ToDo
+		dissFunc = new levelset::ArtificialDissipationLLLF();
+		break;
+#else
+		std::cerr << "Dissipation function " << dissType << " is not implemented yet." << std::endl;
+		dissFunc = NULL;
+		return false;
+#endif
+	case helperOC::Dissipation_Invalid:
+	default:
+		std::cerr << "Unknown dissipation function " << dissType << std::endl;
+		dissFunc = NULL;
+		return false;
+	}
+
+	const FLOAT_TYPE max_step = std::numeric_limits<FLOAT_TYPE>::max();
+	std::vector<levelset::PostTimestep_Exec_Type *> postTimestep_Execs;
+
+	//! accuracy
+	switch (accuracy)
+	{
+	case helperOC::ApproximationAccuracy_high:
+		derivFunc = new levelset::UpwindFirstENO3(grid, type);
+		integratorFunc = new levelset::OdeCFL3(schemeFunc, factorCFL, max_step,
+											   postTimestep_Execs, single_step, stats, NULL);
+		break;
+	default:
+		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
+		derivFunc = NULL;
+		integratorFunc = NULL;
+		return false;
+	}
+	return true;
+}
+
 static bool calcChange(
 	FLOAT_TYPE &change,
 	const beacls::FloatVec &y,
@@ -1381,7 +1448,7 @@ bool HJIPDE_impl::solve_local_q(
 	levelset::Dissipation *dissFunc;
 	levelset::Integrator *integratorFunc;
 	levelset::SpatialDerivative *derivFunc;
-	getNumericalFuncs(dissFunc, integratorFunc, derivFunc, grid, schemeFunc, dissType, accuracy, factor_cfl, stats, single_step, execType);
+	getLocalQNumericalFuncs(dissFunc, integratorFunc, derivFunc, grid, schemeFunc, dissType, accuracy, factor_cfl, stats, single_step, execType);
 	modified_schemeData->set_spatialDerivative(derivFunc);
 	modified_schemeData->set_dissipation(dissFunc);
 
@@ -1609,10 +1676,10 @@ bool HJIPDE_impl::solve_local_q(
 			}
 
 			beacls::FloatVec tspan{tNow, src_tau[i]};
-			tNow = integratorFunc->execute(
+			tNow = (integratorFunc)->execute_local_q(
 				y, tspan, y, modified_schemeData,
 				execParameters.line_length_of_chunk, execParameters.num_of_threads, execParameters.num_of_gpus,
-				execParameters.delayedDerivMinMax, execParameters.enable_user_defined_dynamics_on_gpu);
+				execParameters.delayedDerivMinMax, execParameters.enable_user_defined_dynamics_on_gpu, Q);
 
 			if (std::any_of(y.cbegin(), y.cend(), [](const auto &rhs) { return std::isnan(rhs); }))
 			{

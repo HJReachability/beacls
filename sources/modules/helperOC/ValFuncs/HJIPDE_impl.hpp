@@ -51,6 +51,19 @@ namespace helperOC {
 			const levelset::HJI_Grid *g,
 			const size_t periodic_dim
 		);
+		bool getLocalQNumericalFuncs(
+			levelset::Dissipation *&dissFunc,
+			levelset::Integrator *&integratorFunc,
+			levelset::SpatialDerivative *&derivFunc,
+			const levelset::HJI_Grid *grid,
+			const levelset::Term *schemeFunc,
+			const helperOC::Dissipation_Type dissType,
+			const helperOC::ApproximationAccuracy_Type accuracy,
+			const FLOAT_TYPE factorCFL,
+			const bool stats,
+			const bool single_step,
+			const beacls::UVecType type
+		) const;
 		bool valid_Q_values(
 			const std::set<size_t> &Q, 
 			const std::set<size_t> &QOld

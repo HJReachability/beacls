@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <typedef.hpp>
+#include <set> 
 namespace levelset {
 	class OdeCFL_CommandQueue;
 	class OdeCFL_Worker;
@@ -56,7 +57,18 @@ namespace levelset {
 			const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
 			const bool enable_user_defined_dynamics_on_gpu
 		);
-
+		FLOAT_TYPE execute_local_q(
+			beacls::FloatVec& y,
+			const beacls::FloatVec& tspan,
+			const beacls::FloatVec& y0,
+			const SchemeData *schemeData,
+			const size_t line_length_of_chunk,
+			const size_t num_of_threads,
+			const size_t num_of_gpus,
+			const levelset::DelayedDerivMinMax_Type delayedDerivMinMax,
+			const bool enable_user_defined_dynamics_on_gpu, 
+			const std::set<size_t>& Q 
+		);
 		OdeCFL3_impl* clone() const {
 			return new OdeCFL3_impl(*this);
 		};
