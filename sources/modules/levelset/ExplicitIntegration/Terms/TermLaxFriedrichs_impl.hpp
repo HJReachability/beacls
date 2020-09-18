@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <set> 
 #include <Core/UVec.hpp>
 #include <typedef.hpp>
 namespace levelset {
@@ -48,6 +49,21 @@ namespace levelset {
 			const size_t num_of_slices,
 			const bool enable_user_defined_dynamics_on_gpu,
 			const bool updateDerivMinMax
+		);
+		bool execute_local_q(
+			beacls::FloatVec::iterator ydot_ite,
+			beacls::FloatVec& step_bound_invs,
+			const FLOAT_TYPE t,
+			const beacls::FloatVec& y,
+			std::vector<beacls::FloatVec >& derivMins,
+			std::vector<beacls::FloatVec >& derivMaxs,
+			const SchemeData *schemeData,
+			const size_t loop_begin,
+			const size_t loop_length,
+			const size_t num_of_slices,
+			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax,
+			const std::set<size_t> &Q
 		);
 		bool synchronize(const SchemeData* schemeData) const;
 		bool operator==(const TermLaxFriedrichs_impl& rhs) const {

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <thread>
 #include <Core/UVec.hpp>
+#include <set> 
 namespace levelset {
 	class OdeCFL_CommandQueue;
 	class Term;
@@ -25,7 +26,9 @@ namespace levelset {
 
 	public:
 		void OdeCFL_Worker_proc();
+		void OdeCFL_Worker_proc_local_q(const std::set<size_t> &Q);
 		void run();
+		void run_local_q(const std::set<size_t> &Q);
 		void terminate();
 		int get_gpu_id() const {
 			return gpu_id;

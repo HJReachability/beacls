@@ -4,6 +4,7 @@
 #include <typedef.hpp>
 #include <cstddef>
 #include <vector>
+#include <set> 
 namespace levelset {
 
 	class Term;
@@ -63,6 +64,14 @@ namespace levelset {
 			std::vector<beacls::FloatVec>& thread_local_derivMins,
 			std::vector<beacls::FloatVec>& thread_local_derivMaxs,
 			beacls::FloatVec& new_step_bound_invs
+		);
+		void execute_local_q(
+			const Term* term,
+			const SchemeData* schemeData,
+			std::vector<beacls::FloatVec>& thread_local_derivMins,
+			std::vector<beacls::FloatVec>& thread_local_derivMaxs,
+			beacls::FloatVec& new_step_bound_invs,
+			const std::set<size_t> &Q 
 		);
 	private:
 		OdeCFL_OneSlice_impl();

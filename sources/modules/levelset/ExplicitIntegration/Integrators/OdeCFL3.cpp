@@ -572,7 +572,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     levelset::OdeCFL_Worker* worker = workers[thread_id];
     if (worker == NULL) {
       worker = new levelset::OdeCFL_Worker(commandQueue, term, (num_of_activated_gpus > 1) ? (int)thread_id % num_of_activated_gpus : 0);
-      worker->run();
+      worker->run_local_q(Q);
       workers[thread_id] = worker;
     }
     worker->set_schemeData(schemeData);
@@ -600,7 +600,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     }
     // -----------------------------------------------------------
     // First substep: Forward Euler from t_n to t_{n+1}.
-    levelset::odeCFL_SubStep(
+    levelset::odeCFL_LocalQ_SubStep(
       commandQueues,
       t,
       step_bound_invss,
@@ -625,7 +625,8 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
       num_of_parallel_loop_lines,
       actual_num_of_threads, 
       delayedDerivMinMax,
-      enable_user_defined_dynamics_on_gpu);
+      enable_user_defined_dynamics_on_gpu, 
+      Q);
 
     step_bound_invs.assign(num_of_dimensions, 0.);
     std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), [this](const auto& rhs) {
@@ -664,7 +665,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     // -----------------------------------------------------------
     // Second substep: Forward Euler from t_{n+1} to t_{n+2}.
     // Approximate the derivative.
-    levelset::odeCFL_SubStep(
+    levelset::odeCFL_LocalQ_SubStep(
       commandQueues,
       t1,
       step_bound_invss,
@@ -689,7 +690,8 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
       num_of_parallel_loop_lines,
       actual_num_of_threads,
       delayedDerivMinMax,
-      enable_user_defined_dynamics_on_gpu
+      enable_user_defined_dynamics_on_gpu, 
+      Q 
     );
 #if defined(PARALLEL_Y)
 #ifdef _OPENMP
@@ -742,7 +744,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     // -----------------------------------------------------------
     // Third substep: Forward Euler from t_{n+1/2} to t_{n+3/2}.
     // Approximate the derivative.
-    levelset::odeCFL_SubStep(
+    levelset::odeCFL_LocalQ_SubStep(
         commandQueues,
         tHalf,
         step_bound_invss,
@@ -767,7 +769,8 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
         num_of_parallel_loop_lines,
         actual_num_of_threads,
         delayedDerivMinMax,
-        enable_user_defined_dynamics_on_gpu);
+        enable_user_defined_dynamics_on_gpu, 
+        Q);
 #if defined(PARALLEL_Y)
 #ifdef _OPENMP
 #pragma omp parallel for

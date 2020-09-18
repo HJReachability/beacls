@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <set> 
 #include <utility>
 using namespace std::rel_ops;
 
@@ -58,6 +59,21 @@ namespace levelset {
 			const SchemeData *schemeData,
 			const size_t loop_begin,
 			const size_t loop_length,
+			const size_t num_of_slices,
+			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax
+		) const;
+		bool execute_local_q(
+			beacls::FloatVec::iterator ydot_ite,
+			beacls::FloatVec& step_bound_invs,
+			const FLOAT_TYPE t,
+			const beacls::FloatVec& y,
+			std::vector<beacls::FloatVec >& derivMins,
+			std::vector<beacls::FloatVec >& derivMaxs,
+			const SchemeData *schemeData,
+			const size_t loop_begin,
+			const size_t loop_length,
+			const std::set<size_t> &Q, 
 			const size_t num_of_slices,
 			const bool enable_user_defined_dynamics_on_gpu,
 			const bool updateDerivMinMax

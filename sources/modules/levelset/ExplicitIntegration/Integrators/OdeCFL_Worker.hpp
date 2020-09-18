@@ -2,6 +2,7 @@
 #define __OdeCFL_Worker_hpp__
 
 #include <cstddef>
+#include <set> 
 namespace levelset {
 	class Term;
 	class SchemeData;
@@ -13,6 +14,7 @@ namespace levelset {
 		OdeCFL_Worker_impl* pimpl;
 	public:
 		void run();
+		void run_local_q(const std::set<size_t>& Q);
 		void terminate();
 		OdeCFL_Worker(
 			OdeCFL_CommandQueue* commandQueue,
