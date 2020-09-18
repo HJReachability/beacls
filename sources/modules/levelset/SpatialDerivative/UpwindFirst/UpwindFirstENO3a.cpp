@@ -943,6 +943,21 @@ bool UpwindFirstENO3a::execute(
 	if (pimpl) return pimpl->execute(dst_deriv_l, dst_deriv_r, grid, src, dim, generateAll, loop_begin, slice_length, num_of_slices);
 	else return false;
 }
+bool UpwindFirstENO3a::execute_local_q(
+	beacls::UVec& dst_deriv_l,
+	beacls::UVec& dst_deriv_r,
+	const HJI_Grid *grid,
+	const FLOAT_TYPE* src,
+	const size_t dim,
+	const bool generateAll,
+	const size_t loop_begin,
+	const size_t slice_length,
+	const size_t num_of_slices, 
+	const std::set<size_t> &Q 
+) {
+	if (pimpl) return pimpl->execute(dst_deriv_l, dst_deriv_r, grid, src, dim, generateAll, loop_begin, slice_length, num_of_slices);
+	else return false;
+}
 bool UpwindFirstENO3a_impl::synchronize(const size_t dim) {
 	if ((cudaStreams.size() > dim) && cudaStreams[dim]) {
 		beacls::synchronizeCuda(cudaStreams[dim]);

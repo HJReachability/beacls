@@ -14,6 +14,7 @@
 #include <typedef.hpp>
 #include <levelset/SpatialDerivative/UpwindFirst/UpwindFirst.hpp>
 #include <vector>
+#include <set> 
 #include <cstdint>
 #include <utility>
 using namespace std::rel_ops;
@@ -63,6 +64,18 @@ namespace levelset {
 			const size_t loop_begin,
 			const size_t slice_length,
 			const size_t num_of_slices
+		);
+		bool execute_local_q(
+			beacls::UVec& dst_deriv_l,
+			beacls::UVec& dst_deriv_r,
+			const HJI_Grid *grid,
+			const FLOAT_TYPE* src,
+			const size_t dim,
+			const bool generateAll,
+			const size_t loop_begin,
+			const size_t slice_length,
+			const size_t num_of_slices, 
+			const std::set<size_t> &Q
 		);
 		bool synchronize(const size_t dim);
 		bool operator==(const UpwindFirstENO3a& rhs) const;

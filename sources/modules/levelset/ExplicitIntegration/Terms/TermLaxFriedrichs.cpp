@@ -275,8 +275,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
 			beacls::UVec& deriv_l_uvec = deriv_l_uvecs[dimension];
 			beacls::UVec& deriv_r_uvec = deriv_r_uvecs[dimension];
-
-			spatialDerivative->execute(
+			spatialDerivative->execute_local_q(
 				deriv_l_uvec,
 				deriv_r_uvec,
 				grid,
@@ -285,7 +284,8 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 				false,
 				loop_begin,
 				slice_length,
-				num_of_slices);
+				num_of_slices, 
+				Q);
 			const beacls::FloatVec& xs = grid->get_xs(dimension);
 			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
 			beacls::UVec& deriv_c_uvec = deriv_c_uvecs[dimension];

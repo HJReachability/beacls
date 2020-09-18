@@ -14,6 +14,7 @@
 #include <typedef.hpp>
 #include <levelset/SpatialDerivative/SpatialDerivative.hpp>
 #include <vector>
+#include <set> 
 #include <cstdint>
 #include <utility>
 using namespace std::rel_ops;

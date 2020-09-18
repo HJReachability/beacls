@@ -13,6 +13,7 @@
 
 #include <typedef.hpp>
 #include <vector>
+#include <set> 
 #include <cstdint>
 #include <utility>
 using namespace std::rel_ops;
@@ -54,6 +55,22 @@ namespace levelset {
 				const size_t slice_length,
 				const size_t num_of_slices = 1
 			) = 0;
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wunused-parameter"
+		PREFIX_VC_DLL
+			virtual bool execute_local_q(
+				beacls::UVec& dst_deriv_l,
+				beacls::UVec& dst_deriv_r,
+				const HJI_Grid *grid,
+				const FLOAT_TYPE* src,
+				const size_t dim,
+				const bool generateAll,
+				const size_t loop_begin,
+				const size_t slice_length,
+				const size_t num_of_slices, 
+				const std::set<size_t> &Q 
+			) { return 0; };
+		#pragma GCC diagnostic pop 
 		PREFIX_VC_DLL
 			virtual bool synchronize(const size_t dim) = 0;
 		PREFIX_VC_DLL
