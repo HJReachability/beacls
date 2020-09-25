@@ -1743,11 +1743,11 @@ bool HJIPDE_impl::solve_local_q(
 			{
 				double q_state_change = Vold[q_index] - y[q_index];
 				VxError.push_back(q_state_change);
-				Vold[q_index] = y[q_index];
-				if (q_state_change < updateEpsilon)
+				if (std::abs(q_state_change) < updateEpsilon)
 				{
 					unchangedIndicies.push_back(q_index);
 				}
+				Vold[q_index] = y[q_index];
 			}
 			y = Vold; 
 			QOld = Q;

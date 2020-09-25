@@ -572,7 +572,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     levelset::OdeCFL_Worker* worker = workers[thread_id];
     if (worker == NULL) {
       worker = new levelset::OdeCFL_Worker(commandQueue, term, (num_of_activated_gpus > 1) ? (int)thread_id % num_of_activated_gpus : 0);
-      worker->run_local_q(Q);
+      worker->run();
       workers[thread_id] = worker;
     }
     worker->set_schemeData(schemeData);
