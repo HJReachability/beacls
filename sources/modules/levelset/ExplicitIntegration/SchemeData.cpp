@@ -100,6 +100,37 @@ bool SchemeData::partialFunc(
 	const size_t
 ) const {
 	return true;
+}; 
+bool SchemeData::initializeLocalQ(
+	const beacls::FloatVec &vRange, 
+	const beacls::FloatVec &dMax,
+	const FLOAT_TYPE wMax 
+) {
+	return true; 
+};
+bool SchemeData::hamFuncLocalQ(
+	beacls::UVec&,
+	const FLOAT_TYPE,
+	const beacls::UVec&,
+	const std::vector<beacls::UVec>&,
+	const size_t,
+	const size_t,
+	const std::set<size_t> &
+) const {
+	return true; 
+}
+bool SchemeData::partialFuncLocalQ(
+	beacls::UVec&,
+	const FLOAT_TYPE,
+	const beacls::UVec&,
+	const std::vector<beacls::UVec>&,
+	const std::vector<beacls::UVec>&,
+	const size_t,
+	const size_t,
+	const size_t, 
+	const std::set<size_t>& 
+) const {
+	return true;
 };
 bool SchemeData::hamFunc_cuda(
 	beacls::UVec&,

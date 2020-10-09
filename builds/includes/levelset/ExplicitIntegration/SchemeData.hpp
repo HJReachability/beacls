@@ -12,6 +12,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <set> 
 #include <utility>
 using namespace std::rel_ops;
 
@@ -75,7 +76,7 @@ namespace levelset {
 				const std::vector<beacls::UVec>& derivs,
 				const size_t begin_index,
 				const size_t length
-			)const;
+			) const;
 		PREFIX_VC_DLL
 			virtual bool partialFunc(
 				beacls::UVec& alphas_uvec,
@@ -86,6 +87,34 @@ namespace levelset {
 				const size_t dim,
 				const size_t begin_index,
 				const size_t length
+			) const;
+		PREFIX_VC_DLL
+			virtual bool initializeLocalQ(
+				const beacls::FloatVec &vRange, 
+				const beacls::FloatVec &dMax,
+				const FLOAT_TYPE wMax 
+			);
+		PREFIX_VC_DLL
+			virtual bool hamFuncLocalQ(
+				beacls::UVec& hamValue,
+				const FLOAT_TYPE t,
+				const beacls::UVec& data,
+				const std::vector<beacls::UVec>& derivs,
+				const size_t begin_index,
+				const size_t length, 
+				const std::set<size_t> &Q
+			) const;
+		PREFIX_VC_DLL
+			virtual bool partialFuncLocalQ(
+				beacls::UVec& alphas_uvec,
+				const FLOAT_TYPE t,
+				const beacls::UVec& data,
+				const std::vector<beacls::UVec>& derivMins,
+				const std::vector<beacls::UVec>& derivMaxs,
+				const size_t dim,
+				const size_t begin_index,
+				const size_t length, 
+				const std::set<size_t> &Q
 			) const;
 		PREFIX_VC_DLL
 			virtual bool hamFunc_cuda(

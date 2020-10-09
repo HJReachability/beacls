@@ -1741,9 +1741,9 @@ bool HJIPDE_impl::solve_local_q(
 			beacls::IntegerVec unchangedIndicies;
 			for (auto q_index : Q)
 			{
-				double q_state_change = Vold[q_index] - y[q_index];
+				double q_state_change = std::abs(Vold[q_index] - y[q_index]);
 				VxError.push_back(q_state_change);
-				if (std::abs(q_state_change) < updateEpsilon)
+				if (q_state_change < updateEpsilon)
 				{
 					unchangedIndicies.push_back(q_index);
 				}

@@ -6,6 +6,7 @@
 #include <vector>
 #include <Core/UVec.hpp>
 #include <typedef.hpp>
+#include <set> 
 namespace levelset {
 
 	class HJI_Grid;
@@ -86,6 +87,51 @@ namespace levelset {
 			const size_t loop_begin,
 			const size_t slice_length,
 			const size_t num_of_slices
+		);
+		bool execute_dim0_local_q(
+			beacls::UVec& dst_deriv_l,
+			beacls::UVec& dst_deriv_r,
+			const FLOAT_TYPE* src,
+			const HJI_Grid *grid,
+			const size_t dim,
+			const size_t loop_begin,
+			const size_t slice_length,
+			const size_t num_of_slices, 
+			const std::set<size_t> &Q
+		);
+		bool execute_dim1_local_q(
+			beacls::UVec& dst_deriv_l,
+			beacls::UVec& dst_deriv_r,
+			const FLOAT_TYPE* src,
+			const HJI_Grid *grid,
+			const size_t dim,
+			const size_t loop_begin,
+			const size_t slice_length,
+			const size_t num_of_slices, 
+			const std::set<size_t> &Q
+		);
+		bool execute_dimLET2_local_q(
+			beacls::UVec& dst_deriv_l,
+			beacls::UVec& dst_deriv_r,
+			const FLOAT_TYPE* src,
+			const HJI_Grid *grid,
+			const size_t dim,
+			const size_t loop_begin,
+			const size_t slice_length,
+			const size_t num_of_slices, 
+			const std::set<size_t> &Q	
+		);
+		bool execute_local_q(
+			beacls::UVec& dst_deriv_l,
+			beacls::UVec& dst_deriv_r,
+			const HJI_Grid *grid,
+			const FLOAT_TYPE* src,
+			const size_t dim,
+			const bool generateAll,
+			const size_t loop_begin,
+			const size_t slice_length,
+			const size_t num_of_slices, 
+			const std::set<size_t> &Q 
 		);
 		bool synchronize(const size_t dim);
 		bool operator==(const UpwindFirstENO3a_impl& rhs) const;

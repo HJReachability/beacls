@@ -304,7 +304,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 	std::transform(derivMins.cbegin(), derivMins.cend(), deriv_min_uvecs.begin(), [](const auto& rhs) { return beacls::UVec(rhs, beacls::UVecType_Vector, false); });
 
 	if (!enable_user_defined_dynamics_on_gpu || type != beacls::UVecType_Cuda || 
-		  !schemeData->hamFunc_cuda(ham_uvec,	t, y_uvec, x_uvecs,	deriv_c_uvecs,
+		  !schemeData->hamFunc_cuda(ham_uvec, t, y_uvec, x_uvecs,	deriv_c_uvecs,
 			src_index_term, grid_length)) {
 
 		deriv_c_cpu_uvecs.resize(deriv_c_uvecs.size());
@@ -316,12 +316,14 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			else return rhs;
 		}));
 
-		schemeData->hamFunc(
+		schemeData->hamFuncLocalQ(
 			ham_uvec,
 			t,
 			y_uvec,
 			deriv_c_cpu_uvecs,
-			src_index_term, grid_length);
+			src_index_term, 
+			grid_length,
+			Q);
 	}
 	beacls::FloatVec new_step_bound_invs(num_of_dimensions);
 	if (!dissipation->execute(
