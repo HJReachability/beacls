@@ -326,7 +326,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			Q);
 	}
 	beacls::FloatVec new_step_bound_invs(num_of_dimensions);
-	if (!dissipation->execute(
+	if (!dissipation->execute_local_q(
 		diss_uvec,
 		new_step_bound_invs,
 		deriv_min_uvecs,
@@ -338,6 +338,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 		deriv_r_uvecs,
 		schemeData,
 		src_index_term,
+		Q, 
 		enable_user_defined_dynamics_on_gpu,
 		updateDerivMinMax)) {
 		//!< If partial function called by dissipation requires global deriv min/max and it returns false,

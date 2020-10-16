@@ -45,6 +45,16 @@ namespace levelset {
 			const bool stats,
 			const levelset::TerminalEvent_Exec_Type* terminalEvent
 		);
+		OdeCFL3_impl(
+			const Term *schemeFunc,
+			const FLOAT_TYPE factor_cfl,
+			const FLOAT_TYPE max_step,
+			const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
+			const bool single_step,
+			const bool stats,
+			const levelset::TerminalEvent_Exec_Type* terminalEvent,
+			const bool execute_local_q
+		);
 		~OdeCFL3_impl();
 		FLOAT_TYPE execute(
 			beacls::FloatVec& y,

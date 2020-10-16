@@ -40,6 +40,27 @@ OdeCFL3_impl::OdeCFL3_impl(
   workers.push_back(worker);
   worker->run();
 }
+
+OdeCFL3_impl::OdeCFL3_impl(
+  const Term *schemeFunc,
+  const FLOAT_TYPE factor_cfl,
+  const FLOAT_TYPE max_step,
+  const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
+  const bool single_step,
+  const bool stats,
+  const levelset::TerminalEvent_Exec_Type* terminalEvent, 
+  const bool execute_local_q) :
+  term(schemeFunc->clone()),
+  factor_cfl(factor_cfl),
+  max_step(max_step),
+  post_time_steps(post_time_steps),
+  single_step(single_step),
+  stats(stats),
+  terminalEvent(terminalEvent) {
+  levelset::OdeCFL_CommandQueue* commandQueue = new levelset::OdeCFL_CommandQueue;
+  commandQueues.push_back(commandQueue);
+}
+
 OdeCFL3_impl::~OdeCFL3_impl() {
   std::for_each(workers.begin(), workers.end(), [](auto& rhs) {
     if (rhs) {
@@ -859,6 +880,17 @@ OdeCFL3::OdeCFL3(
   const bool stats,
   const levelset::TerminalEvent_Exec_Type* terminalEvent) {
   pimpl = new OdeCFL3_impl(schemeFunc, factor_cfl, max_step, post_time_steps, single_step, stats, terminalEvent);
+}
+OdeCFL3::OdeCFL3(
+  const bool execute_local_q,
+  const Term *schemeFunc,
+  const FLOAT_TYPE factor_cfl,
+  const FLOAT_TYPE max_step,
+  const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
+  const bool single_step,
+  const bool stats,
+  const levelset::TerminalEvent_Exec_Type* terminalEvent) {
+  pimpl = new OdeCFL3_impl(schemeFunc, factor_cfl, max_step, post_time_steps, single_step, stats, terminalEvent, execute_local_q);
 }
 OdeCFL3::~OdeCFL3() {
   if (pimpl) delete pimpl;

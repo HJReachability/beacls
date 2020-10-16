@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <set> 
 #include <typedef.hpp>
 #include <Core/UVec.hpp>
 namespace levelset {
@@ -28,6 +29,22 @@ namespace levelset {
 			const std::vector<beacls::UVec >& deriv_rs,
 			const SchemeData *schemeData,
 			const size_t begin_index,
+			const bool enable_user_defined_dynamics_on_gpu,
+			const bool updateDerivMinMax
+		);
+		bool execute_local_q(
+			beacls::UVec& diss,
+			beacls::FloatVec& step_bound_invs,
+			std::vector<beacls::UVec>& derivMins,
+			std::vector<beacls::UVec>& derivMaxs,
+			const FLOAT_TYPE t,
+			const beacls::UVec& data,
+			const std::vector<beacls::UVec>& x_uvecs,
+			const std::vector<beacls::UVec >& deriv_ls,
+			const std::vector<beacls::UVec >& deriv_rs,
+			const SchemeData *schemeData,
+			const size_t begin_index,
+			const std::set<size_t> &Q, 
 			const bool enable_user_defined_dynamics_on_gpu,
 			const bool updateDerivMinMax
 		);

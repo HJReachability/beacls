@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include <set> 
 #include <utility>
 using namespace std::rel_ops;
 
@@ -40,6 +41,23 @@ namespace levelset {
 				const bool enable_user_defined_dynamics_on_gpu = true,
 				const bool updateDerivMinMax = true
 			) = 0;
+		PREFIX_VC_DLL
+			virtual bool execute_local_q(
+				beacls::UVec& diss,
+				beacls::FloatVec& step_bound_invs,
+				std::vector<beacls::UVec>& derivMins,
+				std::vector<beacls::UVec>& derivMaxs,
+				const FLOAT_TYPE t,
+				const beacls::UVec& data,
+				const std::vector<beacls::UVec>& x_uvecs,
+				const std::vector<beacls::UVec>& deriv_ls,
+				const std::vector<beacls::UVec>& deriv_rs,
+				const SchemeData *schemeData,
+				const size_t begin_index,
+				const std::set<size_t> &Q,
+				const bool enable_user_defined_dynamics_on_gpu = true,
+				const bool updateDerivMinMax = true 
+			) { return true; };
 		PREFIX_VC_DLL
 			virtual bool operator==(const Dissipation& rhs) const = 0;
 		PREFIX_VC_DLL
