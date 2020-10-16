@@ -137,7 +137,6 @@ bool HJIPDE_impl::getNumericalFuncs(
 }
 
 bool HJIPDE_impl::getLocalQNumericalFuncs(
-	const std::set<size_t> &Q, 
 	levelset::Dissipation *&dissFunc,
 	levelset::Integrator *&integratorFunc,
 	levelset::SpatialDerivative *&derivFunc,
@@ -191,7 +190,7 @@ bool HJIPDE_impl::getLocalQNumericalFuncs(
 	{
 	case helperOC::ApproximationAccuracy_high:
 		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		bool execute_local_q =
+		bool execute_local_q = true;
 		integratorFunc = new levelset::OdeCFL3(execute_local_q, schemeFunc, factorCFL, max_step,
 											   postTimestep_Execs, single_step, stats, NULL);
 		break;

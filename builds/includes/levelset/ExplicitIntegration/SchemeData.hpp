@@ -125,7 +125,7 @@ namespace levelset {
 				const std::vector<beacls::UVec>& derivs,
 				const size_t begin_index,
 				const size_t length
-			)const;
+			) const;
 		PREFIX_VC_DLL
 			virtual bool partialFunc_cuda(
 				beacls::UVec& alphas,
