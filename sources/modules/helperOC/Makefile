@@ -201,7 +201,8 @@ SOURCES  = augmentPeriodicData.cpp \
 	ComputeGradients_Worker.cpp \
 	ComputeOptTraj.cpp \
 	ExtractCostates.cpp \
-	P5D_Dubins.cpp
+	P5D_Dubins.cpp \
+	PlaneSchemeDataLocalQ.cpp 
 
 CUDA_SOURCES = ComputeGradients_OneSlice_cuda.cu \
 	DubinsCar_cuda.cu \

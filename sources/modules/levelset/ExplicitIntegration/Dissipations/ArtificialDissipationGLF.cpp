@@ -196,7 +196,7 @@ bool ArtificialDissipationGLF_impl::execute_local_q(
 			&& schemeData->partialFunc_cuda(alphas_cuda_uvecs[dimension], t, data, x_uvecs, derivMins, derivMaxs, dimension, begin_index, loop_size)) {
 			partialFunc_result = true;
 		} else {
-			if (schemeData->partialFunc(alphas_cpu_uvecs[dimension], t, data, derivMins, derivMaxs, dimension, begin_index, loop_size)) {
+			if (schemeData->partialFuncLocalQ(alphas_cpu_uvecs[dimension], t, data, derivMins, derivMaxs, dimension, begin_index, loop_size, Q)) {
 				partialFunc_result = true;
 				if (beacls::is_cuda(deriv_ls[0]) && (alphas_cpu_uvecs[dimension].size() != 1)) {
 					alphas_cpu_uvecs[dimension].convertTo(alphas_cuda_uvecs[dimension], beacls::UVecType_Cuda);
