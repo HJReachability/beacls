@@ -290,6 +290,9 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
 			beacls::UVec& deriv_c_uvec = deriv_c_uvecs[dimension];
 			beacls::average(deriv_l_uvec, deriv_r_uvec, deriv_c_uvec);
+			const FLOAT_TYPE* deriv_l_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_l_uvec).ptr();
+			const FLOAT_TYPE* deriv_r_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_r_uvec).ptr();
+			const FLOAT_TYPE* deriv_c_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_c_uvec).ptr();
 		}
 		for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 			beacls::UVec& x_uvecs_dim = x_uvecs[dimension];
@@ -324,6 +327,8 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			src_index_term, 
 			grid_length,
 			Q);
+		const FLOAT_TYPE* ham_uvec_debug = beacls::UVec_<FLOAT_TYPE>(ham_uvec).ptr();
+		const FLOAT_TYPE aaa_ = 0;
 	}
 	beacls::FloatVec new_step_bound_invs(num_of_dimensions);
 	if (!dissipation->execute_local_q(
@@ -345,6 +350,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 		// fall back to integrator and reduce partial mins/maxs of deriv to global one, then come to this function.
 		return false;
 	}
+	const FLOAT_TYPE* diss_uvec_debug = beacls::UVec_<FLOAT_TYPE>(diss_uvec).ptr();
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 		if (new_step_bound_invs[dimension] > step_bound_invs[dimension]) step_bound_invs[dimension] = new_step_bound_invs[dimension];
 	}

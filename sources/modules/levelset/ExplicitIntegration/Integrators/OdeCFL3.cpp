@@ -715,26 +715,6 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
       enable_user_defined_dynamics_on_gpu, 
       Q 
     );
-#if defined(PARALLEL_Y)
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (int i = 0; i < ydot_size; ++i) {
-#else
-    for (size_t i = 0; i < ydot.size(); ++i) 
-    {
-#endif
-      FLOAT_TYPE y2_i;
-      if (Q.find(i) != Q.end())
-      {
-        y2_i = y1[i] + deltaT * ydot[i];
-      }
-      else 
-      {
-        y2_i = y1[i];
-      }
-      y1[i] = (3 * y[i] + y2_i) / 4;
-    }
     step_bound_invs.assign(num_of_dimensions, 0.);
     std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), 
       [this](const auto& rhs) {std::transform(rhs.cbegin(), rhs.cend(), 
@@ -763,6 +743,27 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     // Combine t_n and t_{n+2} to get approximation at t_{n+1/2}
     const FLOAT_TYPE tHalf = (FLOAT_TYPE)(0.25 * (3 * t + t2));
     const FLOAT_TYPE one_third = (FLOAT_TYPE)( 1. / 3.);
+#if defined(PARALLEL_Y)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (int i = 0; i < ydot_size; ++i) {
+#else
+    for (size_t i = 0; i < ydot.size(); ++i) 
+    {
+#endif
+      FLOAT_TYPE y2_i;
+      if (Q.find(i) != Q.end())
+      {
+        y2_i = y1[i] + deltaT * ydot[i];
+      }
+      else 
+      {
+        y2_i = y1[i];
+      }
+      y1[i] = (3 * y[i] + y2_i) / 4;
+    }
+
     // -----------------------------------------------------------
     // Third substep: Forward Euler from t_{n+1/2} to t_{n+3/2}.
     // Approximate the derivative.
@@ -793,25 +794,6 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
         delayedDerivMinMax,
         enable_user_defined_dynamics_on_gpu, 
         Q);
-#if defined(PARALLEL_Y)
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (int i = 0; i < ydot_size; ++i) {
-#else
-    for (size_t i = 0; i < ydot.size(); ++i) {
-#endif
-      FLOAT_TYPE y3_i;
-      if (Q.find(i) != Q.end())
-      {
-        y3_i = y1[i] + deltaT * ydot[i];
-      }
-      else 
-      {
-        y3_i = y1[i];
-      }
-      y[i] = one_third * (y[i] + 2 * y3_i);
-    }
     step_bound_invs.assign(num_of_dimensions, 0.);
     std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), [this](const auto& rhs) {
       std::transform(rhs.cbegin(), rhs.cend(), step_bound_invs.cbegin(), step_bound_invs.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::max<FLOAT_TYPE>));
@@ -834,6 +816,25 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     const FLOAT_TYPE tThreeHalf = tHalf + deltaT;
     // Average t_n and t_{n+2} to get second order approximation of t_{n+1}.
     t =(t + 2 * tThreeHalf) / 3;
+#if defined(PARALLEL_Y)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (int i = 0; i < ydot_size; ++i) {
+#else
+    for (size_t i = 0; i < ydot.size(); ++i) {
+#endif
+      FLOAT_TYPE y3_i;
+      if (Q.find(i) != Q.end())
+      {
+        y3_i = y1[i] + deltaT * ydot[i];
+      }
+      else 
+      {
+        y3_i = y1[i];
+      }
+      y[i] = one_third * (y[i] + 2 * y3_i);
+    }
 
     steps++;
     //! If there is one or more post-timestep routines, call them.

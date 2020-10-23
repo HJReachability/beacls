@@ -190,8 +190,7 @@ bool HJIPDE_impl::getLocalQNumericalFuncs(
 	{
 	case helperOC::ApproximationAccuracy_high:
 		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		bool execute_local_q = true;
-		integratorFunc = new levelset::OdeCFL3(execute_local_q, schemeFunc, factorCFL, max_step,
+		integratorFunc = new levelset::OdeCFL3(true, schemeFunc, factorCFL, max_step,
 											   postTimestep_Execs, single_step, stats, NULL);
 		break;
 	default:
@@ -1709,13 +1708,6 @@ bool HJIPDE_impl::solve_local_q(
 				const beacls::FloatVec *target_i = (targets_ptrs.size() == 1) ? targets_ptrs[0] : targets_ptrs[i];
 				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
 			}
-			if (!targets_s8_ptrs.empty())
-			{
-				const std::vector<int8_t> *target_i = (targets_s8_ptrs.size() == 1) ? targets_s8_ptrs[0] : targets_s8_ptrs[i];
-				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), ([large](const auto &lhs, const auto &rhs) {
-								   return std::min<FLOAT_TYPE>(lhs, rhs * fix_point_ratio_inv);
-							   }));
-			}
 
 			// "Mask" using obstales
 			if (obstacle_i)
@@ -1740,6 +1732,7 @@ bool HJIPDE_impl::solve_local_q(
 			// Update Q, Qold, y, and log
 			beacls::FloatVec VxError;
 			beacls::IntegerVec unchangedIndicies;
+			size_t unchangedIndiciesSize = 0;
 			for (auto q_index : Q)
 			{
 				double q_state_change = std::abs(Vold[q_index] - y[q_index]);
@@ -1747,9 +1740,11 @@ bool HJIPDE_impl::solve_local_q(
 				if (q_state_change < updateEpsilon)
 				{
 					unchangedIndicies.push_back(q_index);
+					unchangedIndiciesSize+=1;
 				}
 				Vold[q_index] = y[q_index];
 			}
+			printf("Unchanged indicies size: %d\n", unchangedIndiciesSize);
 			y = Vold; 
 			QOld = Q;
 			for (auto unchanged_index : unchangedIndicies)

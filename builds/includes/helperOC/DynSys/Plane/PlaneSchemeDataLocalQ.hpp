@@ -2,6 +2,8 @@
 #define __PlaneSchemeDataLocalQ_hpp__
 
 #include <levelset/levelset.hpp>
+#include <helperOC/DynSys/DynSys/DynSysSchemeData.hpp>
+#include <helperOC/DynSys/DynSys/DynSys.hpp>
 #include <cstdint>
 #include <vector>
 #include <cstddef>
@@ -9,19 +11,19 @@
 using namespace std::rel_ops;
 
 #include <Core/UVec.hpp>
-#include <helperOC/DynSys/DynSys/DynSysSchemeData.hpp> 
-#include <levelset/ExplicitIntegration/SchemeData.hpp>
 namespace helperOC {
 	
-	class PlaneSchemeDataLocalQ : public DynSysSchemeData {
+	class PlaneSchemeDataLocalQ : public helperOC::DynSysSchemeData {
 	public: 
-		FLOAT_TYPE vMin;
-		FLOAT_TYPE vMax; 
-		FLOAT_TYPE dMax_x;
-		FLOAT_TYPE dMax_y; 
-		FLOAT_TYPE wMax;
+		FLOAT_TYPE vMin_;
+		FLOAT_TYPE vMax_; 
+		FLOAT_TYPE dMax_x_;
+		FLOAT_TYPE dMax_y_;
+		FLOAT_TYPE dMax_theta_; 
+		FLOAT_TYPE wMax_;
 	public:
-		PlaneSchemeDataLocalQ() : DynSysSchemeData() {}
+		PlaneSchemeDataLocalQ() : DynSysSchemeData(), vMin_(0), vMax_(1.0), dMax_x_(0), 
+			dMax_y_(0), dMax_theta_(0), wMax_(0) {}
 		~PlaneSchemeDataLocalQ() {}
 		bool operator==(const PlaneSchemeDataLocalQ& rhs) const;
 		bool operator==(const SchemeData& rhs) const;
@@ -51,7 +53,7 @@ namespace helperOC {
 			const beacls::FloatVec &vRange, 
 			const beacls::FloatVec &dMax,
 			const FLOAT_TYPE wMax 
-		);
+		); 
 		bool hamFuncLocalQ(
 			beacls::UVec& hamValue_uvec,
 			const FLOAT_TYPE t,
@@ -82,7 +84,13 @@ namespace helperOC {
 		Disable copy constructor
 		*/
 		PlaneSchemeDataLocalQ(const PlaneSchemeDataLocalQ& rhs) :
-			DynSysSchemeData(rhs)
+			DynSysSchemeData(rhs),
+			vMin_(rhs.vMin_),
+			vMax_(rhs.vMax_),
+			dMax_x_(rhs.dMax_x_),
+			dMax_y_(rhs.dMax_y_),
+			dMax_theta_(rhs.dMax_theta_),
+			wMax_(rhs.wMax_)
 		{}
 
 	};

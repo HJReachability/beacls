@@ -1055,10 +1055,6 @@ bool UpwindFirstENO3a_impl::execute_dim0_local_q(
 				size_t src_D3_index = target_dimension_loop_index + src_D3_offset;
 
 				size_t src_index = target_dimension_loop_index + dst_offset - stencil;
-				if (Q.find(src_index) == Q.end())
-				{
-					continue; 
-				}
 				FLOAT_TYPE D2_src_m0 = DD1_ptr[src_D2_index];
 				FLOAT_TYPE D3_src_m0 = DD2_ptr[src_D3_index];
 
@@ -1127,6 +1123,11 @@ bool UpwindFirstENO3a_impl::execute_dim0_local_q(
 
 				dst_deriv_l_ptr[dst_index] = deriv_l;
 				dst_deriv_r_ptr[dst_index] = deriv_r;
+				if (Q.find(dst_index) == Q.end())
+				{
+					dst_deriv_l_ptr[dst_index] = 0;
+					dst_deriv_r_ptr[dst_index] = 0;
+				}
 			}
 			//! Epilogue
 			{
@@ -1134,10 +1135,6 @@ bool UpwindFirstENO3a_impl::execute_dim0_local_q(
 				size_t src_D3_index = target_dimension_loop_index + src_D3_offset;
 
 				size_t src_index = target_dimension_loop_index + dst_offset - stencil;
-				if (Q.find(src_index) == Q.end())
-				{
-					continue; 
-				}
 				FLOAT_TYPE D3_src_m0 = DD2_ptr[src_D3_index];
 
 				FLOAT_TYPE abs_D3_src_m0 = HjiFabs(D3_src_m0);
@@ -1195,6 +1192,11 @@ bool UpwindFirstENO3a_impl::execute_dim0_local_q(
 
 				dst_deriv_l_ptr[dst_index] = deriv_l;
 				dst_deriv_r_ptr[dst_index] = deriv_r;
+				if (Q.find(dst_index) == Q.end())
+				{
+					dst_deriv_l_ptr[dst_index] = 0;
+					dst_deriv_r_ptr[dst_index] = 0;
+				}
 			}
 		}
 	}
@@ -1323,10 +1325,6 @@ bool UpwindFirstENO3a_impl::execute_dim1_local_q(
 				size_t src_DD2_index = first_dimension_loop_index + src_DD2_offset;
 				size_t src_dLdR_index = first_dimension_loop_index + src_dLdR_offset;
 				size_t dst_index = first_dimension_loop_index + dst_offset;
-				if (Q.find(dst_index) == Q.end())
-				{
-					continue; 
-				}
 
 				FLOAT_TYPE D2_src_0 = DD1_ptr[src_DD1_index];
 				FLOAT_TYPE D2_src_1 = DD1_ptr[src_DD1_index + first_dimension_loop_size];
@@ -1389,6 +1387,11 @@ bool UpwindFirstENO3a_impl::execute_dim1_local_q(
 
 				dst_deriv_l_ptr[dst_index] = deriv_l;
 				dst_deriv_r_ptr[dst_index] = deriv_r;
+				if (Q.find(dst_index) == Q.end())
+				{
+					dst_deriv_l_ptr[dst_index] = 0;
+					dst_deriv_r_ptr[dst_index] = 0;
+				}
 			}
 		}
 	}
@@ -1528,10 +1531,6 @@ bool UpwindFirstENO3a_impl::execute_dimLET2_local_q(
 			size_t dst_offset = index * first_dimension_loop_size + slice_offset;
 			for (size_t first_dimension_loop_index = 0; first_dimension_loop_index < first_dimension_loop_size; ++first_dimension_loop_index) {
 				size_t src_index = first_dimension_loop_index + dst_offset;
-				if (Q.find(src_index) == Q.end())
-				{
-					continue; 
-				}
 				FLOAT_TYPE D2_src_0 = DD0_1_ptr[src_index];
 				FLOAT_TYPE D2_src_1 = DD1_1_ptr[src_index];
 				FLOAT_TYPE D2_src_2 = DD2_1_ptr[src_index];
@@ -1595,6 +1594,11 @@ bool UpwindFirstENO3a_impl::execute_dimLET2_local_q(
 
 				dst_deriv_l_ptr[dst_index] = deriv_l;
 				dst_deriv_r_ptr[dst_index] = deriv_r;
+				if (Q.find(src_index) == Q.end())
+				{
+					dst_deriv_l_ptr[src_index] = 0;
+					dst_deriv_r_ptr[src_index] = 0;
+				}
 			}
 		}
 	}
