@@ -411,17 +411,6 @@ bool PlaneSchemeDataLocalQ::partialFuncLocalQ(
 	const std::set<size_t> &Q
 ) const 
 {
-		//!< Using partial function from dynamical system 
-	if (const helperOC::PartialFunction_cuda* partialFunction = dynSys->get_partialFunction()) {
-		return (*partialFunction)(alphas_uvec, this, t, data, derivMins, derivMaxs, dim, begin_index, length);
-	}
-
-	// Copy state matrices in case we're doing MIE
-	// Dimension information(in case we're doing MIE)
-	//	if (!MIEdims.empty()) {
-	//	TIdims = schemeData.TIdims;
-	//		dims = MIEdims;
-	//	}
 	const levelset::HJI_Grid *hji_grid = get_grid();
 	const size_t num_of_dimensions = hji_grid->get_num_of_dimensions();
 	const std::vector<beacls::FloatVec >& xs = hji_grid->get_xss();
