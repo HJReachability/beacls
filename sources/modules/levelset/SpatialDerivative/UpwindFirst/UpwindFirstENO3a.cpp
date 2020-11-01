@@ -1120,10 +1120,13 @@ bool UpwindFirstENO3a_impl::execute_dim0_local_q(
 					+ dR2_ptr[src_index] * smallerRR_1_f;
 
 				size_t dst_index = src_index;
-
-				dst_deriv_l_ptr[dst_index] = deriv_l;
-				dst_deriv_r_ptr[dst_index] = deriv_r;
-				if (Q.find(dst_index) == Q.end())
+				size_t Q_dst_index = src_index + loop_begin * first_dimension_loop_size; 
+				if (Q.find(Q_dst_index) != Q.end())
+				{
+					dst_deriv_l_ptr[dst_index] = deriv_l;
+					dst_deriv_r_ptr[dst_index] = deriv_r;
+				}
+				else
 				{
 					dst_deriv_l_ptr[dst_index] = 0;
 					dst_deriv_r_ptr[dst_index] = 0;
@@ -1189,10 +1192,13 @@ bool UpwindFirstENO3a_impl::execute_dim0_local_q(
 					+ dR2_ptr[src_index] * smallerRR_1_f;
 
 				size_t dst_index = src_index;
-
-				dst_deriv_l_ptr[dst_index] = deriv_l;
-				dst_deriv_r_ptr[dst_index] = deriv_r;
-				if (Q.find(dst_index) == Q.end())
+				size_t Q_dst_index = src_index + loop_begin * first_dimension_loop_size; 
+				if (Q.find(Q_dst_index) != Q.end())
+				{
+					dst_deriv_l_ptr[dst_index] = deriv_l;
+					dst_deriv_r_ptr[dst_index] = deriv_r;
+				}
+				else
 				{
 					dst_deriv_l_ptr[dst_index] = 0;
 					dst_deriv_r_ptr[dst_index] = 0;
@@ -1385,9 +1391,13 @@ bool UpwindFirstENO3a_impl::execute_dim1_local_q(
 					+ dR1_ptr[src_dLdR_index] * smallerM_1_f
 					+ dR2_ptr[src_dLdR_index] * smallerRR_1_f;
 
-				dst_deriv_l_ptr[dst_index] = deriv_l;
-				dst_deriv_r_ptr[dst_index] = deriv_r;
-				if (Q.find(dst_index) == Q.end())
+				size_t Q_dst_index = dst_index + loop_begin * first_dimension_loop_size; 
+				if (Q.find(Q_dst_index) != Q.end())
+				{
+					dst_deriv_l_ptr[dst_index] = deriv_l;
+					dst_deriv_r_ptr[dst_index] = deriv_r;
+				}
+				else
 				{
 					dst_deriv_l_ptr[dst_index] = 0;
 					dst_deriv_r_ptr[dst_index] = 0;
@@ -1591,13 +1601,16 @@ bool UpwindFirstENO3a_impl::execute_dimLET2_local_q(
 					+ dR2_ptr[src_index] * smallerRR_1_f;
 
 				size_t dst_index = src_index;
-
-				dst_deriv_l_ptr[dst_index] = deriv_l;
-				dst_deriv_r_ptr[dst_index] = deriv_r;
-				if (Q.find(src_index) == Q.end())
+				size_t Q_dst_index = dst_index + loop_begin * first_dimension_loop_size; 
+				if (Q.find(Q_dst_index) != Q.end())
 				{
-					dst_deriv_l_ptr[src_index] = 0;
-					dst_deriv_r_ptr[src_index] = 0;
+					dst_deriv_l_ptr[dst_index] = deriv_l;
+					dst_deriv_r_ptr[dst_index] = deriv_r;
+				}
+				else 
+				{
+					dst_deriv_l_ptr[dst_index] = 0;
+					dst_deriv_r_ptr[dst_index] = 0;
 				}
 			}
 		}

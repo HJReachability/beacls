@@ -272,7 +272,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 		}
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
 			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
-			const size_t dimension = (index == 0) ? index : (index == num_of_dimensions - 1) ? 1 : index + 1;
+			const size_t dimension = index;
 			beacls::UVec& deriv_l_uvec = deriv_l_uvecs[dimension];
 			beacls::UVec& deriv_r_uvec = deriv_r_uvecs[dimension];
 			spatialDerivative->execute_local_q(
@@ -293,6 +293,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			const FLOAT_TYPE* deriv_l_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_l_uvec).ptr();
 			const FLOAT_TYPE* deriv_r_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_r_uvec).ptr();
 			const FLOAT_TYPE* deriv_c_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_c_uvec).ptr();
+			const int bbb_ = 0;
 		}
 		for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 			beacls::UVec& x_uvecs_dim = x_uvecs[dimension];
@@ -328,7 +329,7 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			grid_length,
 			Q);
 		const FLOAT_TYPE* ham_uvec_debug = beacls::UVec_<FLOAT_TYPE>(ham_uvec).ptr();
-		const FLOAT_TYPE aaa_ = 0;
+		const int aaa_ = 0;
 	}
 	beacls::FloatVec new_step_bound_invs(num_of_dimensions);
 	if (!dissipation->execute_local_q(
