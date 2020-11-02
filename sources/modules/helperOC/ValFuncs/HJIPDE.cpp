@@ -1483,8 +1483,8 @@ bool HJIPDE_impl::solve_local_q(
 
 	// Get neighbors for Q;
 	std::set<size_t> Q(qIndexes.begin(), qIndexes.end());
-	size_t periodic_dim = 2;
-	int num_neighbors = 3;
+	const size_t periodic_dim = 2;
+	const int num_neighbors = 3;
 	std::set<size_t> neighbors; 
 	std::cout << "Initial Size: " << Q.size() << std::endl; 
 	if (!getNeighbors(neighbors, Q, num_neighbors, grid, periodic_dim))
@@ -1692,13 +1692,6 @@ bool HJIPDE_impl::solve_local_q(
 				std::transform(y.cbegin(), y.cend(), target.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
 			}
 
-			// // Min with targets
-			// if (!targets_ptrs.empty())
-			// {
-			// 	const beacls::FloatVec *target_i = (targets_ptrs.size() == 1) ? targets_ptrs[0] : targets_ptrs[i];
-			// 	std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
-			// }
-
 			// "Mask" using obstales
 			if (obstacle_i)
 			{
@@ -1735,7 +1728,6 @@ bool HJIPDE_impl::solve_local_q(
 			{
 				Vold[q_index] = y[q_index];
 			}
-			printf("Unchanged indicies size: %ld\n", unchangedIndicies.size());
 			y = Vold; 
 			QOld = Q;
 			for (auto unchanged_index : unchangedIndicies)
@@ -1753,6 +1745,7 @@ bool HJIPDE_impl::solve_local_q(
 			}	
 			Q.insert(neighbors.begin(), neighbors.end());
 			double max_Vchange = *max_element(VxError.begin(), VxError.end());
+			std::cout <<"  Unchanged indicies size: "<< unchangedIndicies.size() << std::endl;
 			std::cout <<"  Q size: "<< Q.size() <<"  Max Change: " << std::setprecision(6) << max_Vchange << std::endl; 
 		}
 
@@ -2014,6 +2007,8 @@ bool HJIPDE_impl::getNeighbors(
 		  // get x, y, z, or theta dimension index
 		  size_t stride_mod = stride_div * Ns[dim]; 
 		  int dim_index = (original_index % stride_mod) / stride_div;
+		  int new_dim_index;
+		  size_t new_index; 		
 		  // run checks before adding in neighbor 
 		  if (!(0 <= dim_index && dim_index < (int) Ns[dim])) 
 		  {
@@ -2023,8 +2018,7 @@ bool HJIPDE_impl::getNeighbors(
 		  }
 		  for (int index_delta = -num_neighbors; index_delta <= num_neighbors; index_delta++)
 		  {
-				int new_dim_index;
-				size_t new_index; 
+			  	if (index_delta == 0) continue;
 				if (dim == periodic_dim)
 				{
 					new_dim_index = (dim_index + index_delta + Ns[dim]) % Ns[dim];
@@ -2035,13 +2029,9 @@ bool HJIPDE_impl::getNeighbors(
 					new_dim_index = dim_index + index_delta;
 					new_index = original_index + index_delta * stride_div;
 				}
-				if (new_dim_index < 0 || new_dim_index >= (int) Ns[dim])
+				if (0 <= new_dim_index && new_dim_index < (int) Ns[dim])
 				{
-					continue; 
-				}
-				else 
-				{
-					neighbors.insert(new_index); 
+					neighbors.insert(new_index);
 				}
 		  }
 		  stride_div = stride_div * Ns[dim]; 

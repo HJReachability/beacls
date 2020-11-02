@@ -816,7 +816,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     // Take the third substep.
     const FLOAT_TYPE tThreeHalf = tHalf + deltaT;
     // Average t_n and t_{n+2} to get second order approximation of t_{n+1}.
-    t =(t + 2 * tThreeHalf) / 3;
+    t = (t + 2 * tThreeHalf) / 3;
 #if defined(PARALLEL_Y)
 #ifdef _OPENMP
 #pragma omp parallel for

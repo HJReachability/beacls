@@ -31,6 +31,7 @@ void levelset::OdeCFL_Worker_impl::set_schemeData(const SchemeData* sd) {
 	}
 	mtx.unlock();
 }
+
 void levelset::OdeCFL_Worker_impl::OdeCFL_Worker_proc() {
 	bool nextExitFlag;
 	mtx.lock();
@@ -70,6 +71,7 @@ void levelset::OdeCFL_Worker_impl::OdeCFL_Worker_proc() {
 	if (thread_local_schemeData) delete thread_local_schemeData;
 	if (thread_local_term) delete thread_local_term;
 }
+
 void levelset::OdeCFL_Worker_impl::OdeCFL_Worker_proc_local_q(const std::set<size_t> &Q) {
 	bool nextExitFlag;
 	mtx.lock();

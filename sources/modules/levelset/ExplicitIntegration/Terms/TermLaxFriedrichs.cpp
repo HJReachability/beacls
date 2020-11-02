@@ -68,7 +68,7 @@ bool TermLaxFriedrichs_impl::execute(
 	//size_t grid_length = grid->get_numel();
 	// printf("(num_of_slices, loop_length, f_d_l_size) = (%zu, %zu, %zu)\n", 
 	// 	num_of_slices, loop_length, f_d_l_size);
-  // printf("grid_length = %zu\n", grid_length);
+    // printf("grid_length = %zu\n", grid_length);
 
 	size_t slice_length = loop_length*f_d_l_size;
 	if (ham_uvec.type() != type) ham_uvec = beacls::UVec(depth, type, grid_length);
@@ -225,17 +225,8 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 	beacls::UVecDepth depth = beacls::type_to_depth<FLOAT_TYPE>();
 	beacls::UVec y_uvec(y, beacls::UVecType_Vector, false);
 
-	//	const HamiltonJacobiFunction* hamiltonJacobiFunction = schemeData->get_hamiltonJacobiFunction();
-	//---------------------------------------------------------------------------
-	// Get upwinded and centered derivative approximations.
-
 	size_t f_d_l_size = first_dimension_loop_size;
 	size_t grid_length = num_of_slices*loop_length*f_d_l_size;
-	//size_t grid_length = grid->get_numel();
-	// printf("(num_of_slices, loop_length, f_d_l_size) = (%zu, %zu, %zu)\n", 
-	// 	num_of_slices, loop_length, f_d_l_size);
-  // printf("grid_length = %zu\n", grid_length);
-
 	size_t slice_length = loop_length*f_d_l_size;
 	if (ham_uvec.type() != type) ham_uvec = beacls::UVec(depth, type, grid_length);
 	else if (ham_uvec.size() != grid_length) ham_uvec.resize(grid_length);
@@ -271,7 +262,6 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			}
 		}
 		for (size_t index = 0; index < num_of_dimensions; ++index) {
-			//!< To optimize asynchronous execution, calculate from heavy dimension (0, 2, 3 ... 1);
 			const size_t dimension = index;
 			beacls::UVec& deriv_l_uvec = deriv_l_uvecs[dimension];
 			beacls::UVec& deriv_r_uvec = deriv_r_uvecs[dimension];
@@ -290,10 +280,6 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			beacls::copyHostPtrToUVecAsync(x_uvecs[dimension], xs.data() + src_index_term, grid_length);
 			beacls::UVec& deriv_c_uvec = deriv_c_uvecs[dimension];
 			beacls::average(deriv_l_uvec, deriv_r_uvec, deriv_c_uvec);
-			const FLOAT_TYPE* deriv_l_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_l_uvec).ptr();
-			const FLOAT_TYPE* deriv_r_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_r_uvec).ptr();
-			const FLOAT_TYPE* deriv_c_uvec_debug = beacls::UVec_<FLOAT_TYPE>(deriv_c_uvec).ptr();
-			const int bbb_ = 0;
 		}
 		for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 			beacls::UVec& x_uvecs_dim = x_uvecs[dimension];
@@ -328,8 +314,6 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 			src_index_term, 
 			grid_length,
 			Q);
-		const FLOAT_TYPE* ham_uvec_debug = beacls::UVec_<FLOAT_TYPE>(ham_uvec).ptr();
-		const int aaa_ = 0;
 	}
 	beacls::FloatVec new_step_bound_invs(num_of_dimensions);
 	if (!dissipation->execute_local_q(
@@ -351,7 +335,6 @@ bool TermLaxFriedrichs_impl::execute_local_q(
 		// fall back to integrator and reduce partial mins/maxs of deriv to global one, then come to this function.
 		return false;
 	}
-	const FLOAT_TYPE* diss_uvec_debug = beacls::UVec_<FLOAT_TYPE>(diss_uvec).ptr();
 	for (size_t dimension = 0; dimension < num_of_dimensions; ++dimension) {
 		if (new_step_bound_invs[dimension] > step_bound_invs[dimension]) step_bound_invs[dimension] = new_step_bound_invs[dimension];
 	}
