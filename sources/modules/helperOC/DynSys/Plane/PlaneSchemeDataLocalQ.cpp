@@ -96,7 +96,6 @@ bool PlaneSchemeDataLocalQ::hamFunc(
 			hamValue[i] = -hamValue[i];
 		}
 	}
-		
 	return true;
 }
 
@@ -215,7 +214,6 @@ bool PlaneSchemeDataLocalQ::hamFuncLocalQ(
 			hamValue[i] = 0;
 		}
 	}
-		
 	return true;
 }
 bool PlaneSchemeDataLocalQ::partialFuncLocalQ(

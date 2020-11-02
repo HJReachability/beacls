@@ -139,7 +139,7 @@ void levelset::OdeCFL_Worker_impl::run_local_q(const std::set<size_t> &Q) {
 	mtx.lock();
 	if (exitFlag) {
 		exitFlag = false;
-		th = std::thread(&levelset::OdeCFL_Worker_impl::OdeCFL_Worker_proc_local_q, this, Q);
+		th = std::thread(&levelset::OdeCFL_Worker_impl::OdeCFL_Worker_proc_local_q, this, std::ref(Q));
 	}
 	mtx.unlock();
 }

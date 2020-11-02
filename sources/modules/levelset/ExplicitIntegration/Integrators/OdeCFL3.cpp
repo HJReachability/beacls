@@ -594,8 +594,9 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     if (worker == NULL) {
       worker = new levelset::OdeCFL_Worker(commandQueue, term, (num_of_activated_gpus > 1) ? (int)thread_id % num_of_activated_gpus : 0);
       worker->run_local_q(Q);
-      // worker->run();
       workers[thread_id] = worker;
+    } else {
+      worker->run_local_q(Q);
     }
     worker->set_schemeData(schemeData);
   }
@@ -837,7 +838,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     }
 
     steps++;
-    //! If there is one or more post-timestep routines, call them.
+    //! If there is one or more post-timestep routines, call them. 
     if (!post_time_steps.empty()) {
       std::for_each(post_time_steps.cbegin(), post_time_steps.cend(), ([&t,&y,&grid](const auto& func) {
         if (func) (*func)(y, t, y, grid);

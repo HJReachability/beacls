@@ -186,19 +186,9 @@ bool HJIPDE_impl::getLocalQNumericalFuncs(
 	std::vector<levelset::PostTimestep_Exec_Type *> postTimestep_Execs;
 
 	//! accuracy
-	switch (accuracy)
-	{
-	case helperOC::ApproximationAccuracy_high:
-		derivFunc = new levelset::UpwindFirstENO3(grid, type);
-		integratorFunc = new levelset::OdeCFL3(true, schemeFunc, factorCFL, max_step,
+	derivFunc = new levelset::UpwindFirstENO3(grid, type);
+	integratorFunc = new levelset::OdeCFL3(true, schemeFunc, factorCFL, max_step,
 											   postTimestep_Execs, single_step, stats, NULL);
-		break;
-	default:
-		std::cerr << "Unknown accuracy level " << accuracy << std::endl;
-		derivFunc = NULL;
-		integratorFunc = NULL;
-		return false;
-	}
 	return true;
 }
 
@@ -317,7 +307,7 @@ bool HJIPDE_impl::solve(beacls::FloatVec &dst_tau,
 		}
 		else
 		{
-			std::cerr << "Iconsistent obstacle dimensions!" << std::endl;
+			std::cerr << "Inconsistent obstacle dimensions!" << std::endl;
 			return false;
 		}
 	}
@@ -1493,7 +1483,7 @@ bool HJIPDE_impl::solve_local_q(
 
 	// Get neighbors for Q;
 	std::set<size_t> Q(qIndexes.begin(), qIndexes.end());
-	size_t periodic_dim = 3;
+	size_t periodic_dim = 2;
 	int num_neighbors = 3;
 	std::set<size_t> neighbors; 
 	std::cout << "Initial Size: " << Q.size() << std::endl; 
@@ -1702,12 +1692,12 @@ bool HJIPDE_impl::solve_local_q(
 				std::transform(y.cbegin(), y.cend(), target.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
 			}
 
-			// Min with targets
-			if (!targets_ptrs.empty())
-			{
-				const beacls::FloatVec *target_i = (targets_ptrs.size() == 1) ? targets_ptrs[0] : targets_ptrs[i];
-				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
-			}
+			// // Min with targets
+			// if (!targets_ptrs.empty())
+			// {
+			// 	const beacls::FloatVec *target_i = (targets_ptrs.size() == 1) ? targets_ptrs[0] : targets_ptrs[i];
+			// 	std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
+			// }
 
 			// "Mask" using obstales
 			if (obstacle_i)
@@ -1732,7 +1722,6 @@ bool HJIPDE_impl::solve_local_q(
 			// Update Q, Qold, y, and log
 			beacls::FloatVec VxError;
 			beacls::IntegerVec unchangedIndicies;
-			size_t unchangedIndiciesSize = 0;
 			for (auto q_index : Q)
 			{
 				double q_state_change = std::abs(Vold[q_index] - y[q_index]);
@@ -1740,11 +1729,13 @@ bool HJIPDE_impl::solve_local_q(
 				if (q_state_change < updateEpsilon)
 				{
 					unchangedIndicies.push_back(q_index);
-					unchangedIndiciesSize+=1;
 				}
+			}
+			for (auto q_index : Q)
+			{
 				Vold[q_index] = y[q_index];
 			}
-			printf("Unchanged indicies size: %d\n", unchangedIndiciesSize);
+			printf("Unchanged indicies size: %ld\n", unchangedIndicies.size());
 			y = Vold; 
 			QOld = Q;
 			for (auto unchanged_index : unchangedIndicies)
@@ -2032,11 +2023,17 @@ bool HJIPDE_impl::getNeighbors(
 		  }
 		  for (int index_delta = -num_neighbors; index_delta <= num_neighbors; index_delta++)
 		  {
-			    if (index_delta == 0) continue; // no change in dim_index
-				int new_dim_index = dim_index + index_delta;
+				int new_dim_index;
+				size_t new_index; 
 				if (dim == periodic_dim)
 				{
-					new_dim_index = (new_dim_index + Ns[dim]) % Ns[dim];
+					new_dim_index = (dim_index + index_delta + Ns[dim]) % Ns[dim];
+					new_index = original_index + (new_dim_index - dim_index) * stride_div;
+				}
+				else 
+				{
+					new_dim_index = dim_index + index_delta;
+					new_index = original_index + index_delta * stride_div;
 				}
 				if (new_dim_index < 0 || new_dim_index >= (int) Ns[dim])
 				{
@@ -2044,7 +2041,6 @@ bool HJIPDE_impl::getNeighbors(
 				}
 				else 
 				{
-					size_t new_index = original_index + index_delta * stride_div;
 					neighbors.insert(new_index); 
 				}
 		  }
