@@ -1651,7 +1651,7 @@ bool HJIPDE_impl::solve_local_q(
 			return false;
 		}
 		// Main integration loop to ge to the next tau(i)
-		while (tNow < (src_tau[i] - small) && valid_Q_values(Q, QOld))
+		while (tNow < (src_tau[i] - small) && valid_Q_values(Q, QOld, extraArgs.earlyStop))
 		{
 			extraOuts.Qsizes.push_back((size_t) Q.size());
 			beacls::FloatVec yLast;
@@ -1840,7 +1840,7 @@ bool HJIPDE_impl::solve_local_q(
 		if (&dst_tau != &src_tau)
 			dst_tau = src_tau;
 		// local Q set is empty
-		if (!valid_Q_values(Q, QOld))
+		if (!valid_Q_values(Q, QOld, extraArgs.earlyStop))
 		{
 			extraOuts.stoptau = src_tau[i];
 			if (!low_memory && !keepLast)
@@ -1986,8 +1986,15 @@ bool HJIPDE_impl::solve_local_q(
 	return true;
 }
 
-bool HJIPDE_impl::valid_Q_values(const std::set<size_t> &Q, const std::set<size_t> &Qold) {
-	return !Q.empty();
+bool HJIPDE_impl::valid_Q_values(const std::set<size_t> &Q, const std::set<size_t> &Qold, bool earlyStop) {
+	if (earlyStop)
+	{
+		return !Q.empty() && Q != Qold; 		
+	}
+	else 
+	{
+		return !Q.empty();
+	}
 }
 
 bool HJIPDE_impl::getNeighbors(

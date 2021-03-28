@@ -183,6 +183,7 @@ namespace helperOC {
 		size_t saveFrequency;	//!< file name under which temporary data is saved at some frequency in terms of the number of time steps
 		bool keepLast;	//!< Only keep data from latest time stamp and delete previous datas
 		beacls::IntegerVec projDim;	//!< set the dimensions that should be projected away when visualizing
+		bool earlyStop; //! apply early stopping criteria to the value function convergence
 		bool applyLight;
 		bool quiet;
 		bool low_memory;
@@ -222,6 +223,7 @@ namespace helperOC {
 			saveFrequency(1),
 			keepLast(false),
 			projDim(beacls::IntegerVec()),
+			earlyStop(false), 
 			applyLight(true),
 			quiet(false),
 			low_memory(false),

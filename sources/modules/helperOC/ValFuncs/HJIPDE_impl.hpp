@@ -66,7 +66,8 @@ namespace helperOC {
 		) const;
 		bool valid_Q_values(
 			const std::set<size_t> &Q, 
-			const std::set<size_t> &QOld
+			const std::set<size_t> &QOld, 
+			bool earlyStop
 		);
 		bool get_datas(
 			std::vector<beacls::FloatVec >& dst_datas,
