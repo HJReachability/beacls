@@ -203,13 +203,29 @@ static bool calcChange(
 	return true;
 }
 
+static bool calcUnconvergedIndicies(
+	std::vector<size_t> &unconvergedIndicies, 
+	const FLOAT_TYPE &convergenceThreshold,
+	const beacls::FloatVec &y,
+	const beacls::FloatVec &y0)
+{
+	for (size_t i = 0; i < y.size(); i++)
+	{
+		if (std::fabs(y[i] - y0[i]) > convergenceThreshold)
+		{
+			unconvergedIndicies.push_back(i); 
+		}
+	}
+	return true;
+}
+
 static int calcNumChange(
     FLOAT_TYPE changeThreshold, 
 	const beacls::FloatVec &y,
 	const beacls::FloatVec &y0)
 {   
     int count = 0;
-    for (int i = 0; i <  (int) y.size(); i++)
+    for (int i = 0; i < (int) y.size(); i++)
     {
         if (std::fabs(y[i] - y0[i]) > changeThreshold)
         {
@@ -1283,15 +1299,15 @@ bool HJIPDE_impl::TD2TTR(
 	return true;
 }
 bool HJIPDE_impl::solve_local_q(
-			beacls::FloatVec& dst_tau,
-			helperOC::HJIPDE_extraOuts& extraOuts,
-			const std::vector<beacls::FloatVec>& src_datas,
-			const beacls::IntegerVec& qIndexes,
-			const beacls::FloatVec& src_tau,
-			const FLOAT_TYPE updateEpsilon,
-			const DynSysSchemeData* schemeData,
-			const HJIPDE::MinWithType minWith,
-			const helperOC::HJIPDE_extraArgs& extraArgs)
+	beacls::FloatVec& dst_tau,
+	helperOC::HJIPDE_extraOuts& extraOuts,
+	const std::vector<beacls::FloatVec>& src_datas,
+	const beacls::IntegerVec& qIndexes,
+	const beacls::FloatVec& src_tau,
+	const FLOAT_TYPE updateEpsilon,
+	const DynSysSchemeData* schemeData,
+	const HJIPDE::MinWithType minWith,
+	const helperOC::HJIPDE_extraArgs& extraArgs)
 {
 
 	const bool quiet = extraArgs.quiet;
@@ -1717,7 +1733,7 @@ bool HJIPDE_impl::solve_local_q(
 			beacls::IntegerVec unchangedIndicies;
 			for (auto q_index : Q)
 			{
-				double q_state_change = std::abs(Vold[q_index] - y[q_index]);
+				double q_state_change = std::fabs(Vold[q_index] - y[q_index]);
 				VxError.push_back(q_state_change);
 				if (q_state_change < updateEpsilon)
 				{
@@ -1986,6 +2002,701 @@ bool HJIPDE_impl::solve_local_q(
 	return true;
 }
 
+bool HJIPDE_impl::solve_warm(
+	beacls::FloatVec& dst_tau,
+	helperOC::HJIPDE_extraOuts& extraOuts,
+	const std::vector<beacls::FloatVec>& src_datas,
+	const beacls::IntegerVec& qIndexes,
+	const beacls::FloatVec& src_tau,
+	const FLOAT_TYPE updateEpsilon,
+	const DynSysSchemeData* schemeData,
+	const HJIPDE::MinWithType minWith,
+	const helperOC::HJIPDE_extraArgs& extraArgs)
+{
+
+	const bool quiet = extraArgs.quiet;
+	const helperOC::ExecParameters execParameters = extraArgs.execParameters;
+	const beacls::UVecType execType = (execParameters.useCuda) ? beacls::UVecType_Cuda : beacls::UVecType_Vector;
+
+	const FLOAT_TYPE large = (FLOAT_TYPE)1e6;
+	const FLOAT_TYPE small = (FLOAT_TYPE)1e-4;
+	const levelset::HJI_Grid *grid = schemeData->get_grid();
+	const size_t num_of_dimensions = grid->get_num_of_dimensions();
+	// Extract the information from extraargs
+	if (quiet)
+	{
+		std::cout << "HJIPDE_solve running in quiet mode..." << std::endl;
+	}
+
+	//!< Low memory mode
+	if (extraArgs.low_memory)
+	{
+		std::cout << "HJIPDE_solve running in low memory mode..." << std::endl;
+	}
+	const bool low_memory = extraArgs.low_memory;
+	//!< Save the output in reverse order
+	const bool flip_output = extraArgs.low_memory && extraArgs.flip_output;
+
+	const bool keepLast = extraArgs.keepLast;
+
+	// intialize Q's for warm start convergence early stopping
+	std::set<size_t> QOld; 
+	std::set<size_t> Q; 
+	if (qIndexes.empty())
+	{
+		std::vector<size_t> allIndexes(grid->get_numel()); 
+		std::iota(allIndexes.begin(), allIndexes.end(), 0); 
+		Q = std::set<size_t>(allIndexes.begin(), allIndexes.end());
+	}
+	else 
+	{
+		Q = std::set<size_t>(qIndexes.begin(), qIndexes.end());
+	}
+
+	// Extract the information about obstacles_ptrs
+	HJIPDE::ObsModeType obsMode = HJIPDE::ObsModeType_None;
+	std::vector<const beacls::FloatVec *> modified_obstacles_ptrs;
+	std::vector<const std::vector<int8_t> *> modified_obstacles_s8_ptrs;
+	if (extraArgs.obstacles_ptrs.empty())
+	{
+		modified_obstacles_ptrs.resize(extraArgs.obstacles.size());
+		for (size_t i = 0; i < extraArgs.obstacles.size(); ++i)
+		{
+			modified_obstacles_ptrs[i] = &extraArgs.obstacles[i];
+		}
+	}
+	if (extraArgs.obstacles_s8_ptrs.empty())
+	{
+		modified_obstacles_s8_ptrs.resize(extraArgs.obstacles_s8.size());
+		for (size_t i = 0; i < extraArgs.obstacles_s8.size(); ++i)
+		{
+			modified_obstacles_s8_ptrs[i] = &extraArgs.obstacles_s8[i];
+		}
+	}
+	const std::vector<const beacls::FloatVec *> &obstacles_ptrs =
+		!extraArgs.obstacles_ptrs.empty() ? extraArgs.obstacles_ptrs : modified_obstacles_ptrs;
+
+	const std::vector<const std::vector<int8_t> *> &obstacles_s8_ptrs =
+		!extraArgs.obstacles_s8_ptrs.empty() ? extraArgs.obstacles_s8_ptrs : modified_obstacles_s8_ptrs;
+
+	const beacls::FloatVec *obstacle_i = NULL;
+	const std::vector<int8_t> *obstacle_s8_i = NULL;
+	if (!obstacles_ptrs.empty())
+	{
+		obstacle_i = obstacles_ptrs[0];
+		if (obstacles_ptrs.size() == 1)
+		{
+			obsMode = HJIPDE::ObsModeType_Static;
+		}
+		else if (obstacles_ptrs.size() > 1)
+		{
+			obsMode = HJIPDE::ObsModeType_TimeVarying;
+		}
+		else
+		{
+			std::cerr << "Inconsistent obstacle dimensions!" << std::endl;
+			return false;
+		}
+	}
+	if (!obstacles_s8_ptrs.empty())
+	{
+		obstacle_s8_i = obstacles_s8_ptrs[0];
+		if (obstacles_s8_ptrs.size() == 1)
+		{
+			obsMode = HJIPDE::ObsModeType_Static;
+		}
+		else if (obstacles_s8_ptrs.size() > 1)
+		{
+			obsMode = HJIPDE::ObsModeType_TimeVarying;
+		}
+		else
+		{
+			std::cerr << "Inconsistent obstacle dimensions!" << std::endl;
+			return false;
+		}
+	}
+	// Extract the information about targets
+	std::vector<const beacls::FloatVec *> modified_targets_ptrs;
+	std::vector<const std::vector<int8_t> *> modified_targets_s8_ptrs;
+	if (extraArgs.targets_ptrs.empty())
+	{
+		modified_targets_ptrs.resize(extraArgs.targets.size());
+		for (size_t i = 0; i < extraArgs.targets.size(); ++i)
+		{
+			modified_targets_ptrs[i] = &extraArgs.targets[i];
+		}
+	}
+	if (extraArgs.targets_s8_ptrs.empty())
+	{
+		modified_targets_s8_ptrs.resize(extraArgs.targets_s8.size());
+		for (size_t i = 0; i < extraArgs.targets_s8.size(); ++i)
+		{
+			modified_targets_s8_ptrs[i] = &extraArgs.targets_s8[i];
+		}
+	}
+	const std::vector<const beacls::FloatVec *> &targets_ptrs = !extraArgs.targets_ptrs.empty() ? extraArgs.targets_ptrs : modified_targets_ptrs;
+	const std::vector<const std::vector<int8_t> *> &targets_s8_ptrs = !extraArgs.targets_s8_ptrs.empty() ? extraArgs.targets_s8_ptrs : modified_targets_s8_ptrs;
+
+	// Check validity of stopInit if needed
+	if (!extraArgs.stopInit.empty())
+	{
+		if (extraArgs.stopInit.size() != num_of_dimensions)
+		{
+			std::cerr << "stopInit must be a vector of length g.dim!" << std::endl;
+			return false;
+		}
+	}
+
+	beacls::IntegerVec setInds;
+	beacls::FloatVec stopSet;
+	size_t stopLevel = 0;
+	// Check validity of stopSet if needed
+	if (!extraArgs.stopSetInclude.empty() || !extraArgs.stopSetIntersect.empty())
+	{
+		if (!extraArgs.stopSetInclude.empty())
+			stopSet = extraArgs.stopSetInclude;
+		else
+			stopSet = extraArgs.stopSetIntersect;
+
+		if (stopSet.size() != grid->get_sum_of_elems())
+		{
+			std::cerr << "Inconsistent stopSet dimensions!" << std::endl;
+			return false;
+		}
+		// Extract set of indices at which stopSet is negative
+		for (size_t index = 0; index < stopSet.size(); ++index)
+		{
+			if (stopSet[index] < 0)
+				setInds.push_back(index);
+		}
+
+		// Check validity of stopLevel if needed
+		if (extraArgs.stopLevel != 0)
+			stopLevel = extraArgs.stopLevel;
+	}
+
+	beacls::IntegerVec plotDims;
+	beacls::FloatVec projpt;
+	// Extract dynamical system if needed
+
+	bool stopConverge = extraArgs.stopConverge;
+	FLOAT_TYPE convergeThreshold = extraArgs.convergeThreshold;
+
+	//// SchemeFunc and SchemeData
+	levelset::Term *schemeFunc = new levelset::TermLaxFriedrichs(schemeData, execType);
+	// Extract accuracy parameter o/w set default accuracy
+	helperOC::ApproximationAccuracy_Type accuracy = helperOC::ApproximationAccuracy_veryHigh;
+	if (schemeData->accuracy != helperOC::ApproximationAccuracy_Invalid)
+	{
+		accuracy = schemeData->accuracy;
+	}
+
+	DynSysSchemeData *modified_schemeData = schemeData->clone();
+
+	// Time integration
+	FLOAT_TYPE factor_cfl = (FLOAT_TYPE)0.8;
+	bool single_step = true;
+	bool stats = false;
+
+	// Numerical approximation functions
+	helperOC::Dissipation_Type dissType = helperOC::Dissipation_global;
+	levelset::Dissipation *dissFunc;
+	levelset::Integrator *integratorFunc;
+	levelset::SpatialDerivative *derivFunc;
+	getNumericalFuncs(dissFunc, integratorFunc, derivFunc, grid, schemeFunc, dissType, accuracy, factor_cfl, stats, single_step, execType);
+	modified_schemeData->set_spatialDerivative(derivFunc);
+	modified_schemeData->set_dissipation(dissFunc);
+
+	auto startTime = std::chrono::system_clock::now();
+	// Initialize PDE solution
+	const size_t num_of_elements = grid->get_sum_of_elems();
+	size_t istart;
+	if (src_datas.size() == 1)
+	{
+		//!< New computation
+		istart = 1;
+	}
+	else
+	{
+		//!< Continue an old computation
+		istart = extraArgs.istart;
+	}
+	beacls::MatFStream *tmp_file_fs = NULL;
+	beacls::MatVariable *tmp_datas_variable = NULL;
+	beacls::IntegerVec Ns = grid->get_Ns();
+	datas.clear();
+	if (!tmp_filename.empty())
+	{
+		tmp_file_fs = beacls::openMatFStream(tmp_filename, beacls::MatOpenMode_WriteAppend);
+		tmp_datas_variable = beacls::createMatCell(std::string("tmp"), src_datas.size());
+		for (size_t i = 0; i < istart; ++i)
+		{
+			save_vector(src_datas[i], std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i);
+		}
+		beacls::closeMatVariable(tmp_datas_variable);
+	}
+	else if (!keepLast)
+	{
+		if (src_datas.size() >= istart)
+		{
+			datas.resize(istart);
+			std::copy(src_datas.cbegin(), src_datas.cbegin() + istart, datas.begin());
+		}
+	}
+
+	beacls::FloatVec y;
+	if (src_datas.size() != 1)
+	{
+		if (flip_output)
+		{
+			y = src_datas[0];
+		}
+		else
+		{
+			y = src_datas[istart - 1];
+		}
+	}
+	else if (!tmp_filename.empty())
+	{
+		load_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, istart - 1);
+	}
+	else if (!keepLast)
+	{
+		if (flip_output)
+		{
+			y = datas[0];
+		}
+		else
+		{
+			y = datas[istart - 1];
+		}
+	}
+	else
+	{
+		y = src_datas[0];
+	}
+#if !defined(FLOAT_TYPE_32F)
+	if (low_memory)
+	{
+		std::transform(y.cbegin(), y.cend(), y.begin(), [](const auto &rhs) {
+			return static_cast<FLOAT_TYPE>(static_cast<float>(rhs));
+		});
+	}
+#endif
+	if (!obstacles_ptrs.empty() && obstacle_i)
+	{
+		if (y.size() == obstacle_i->size())
+		{
+			std::transform(y.cbegin(), y.cend(), obstacle_i->cbegin(), y.begin(), ([](const auto &lhs, const auto &rhs) {
+							   return std::max<FLOAT_TYPE>(lhs, -rhs);
+						   }));
+		}
+	}
+	if (!obstacles_s8_ptrs.empty() && obstacle_s8_i)
+	{
+		if (y.size() == obstacle_s8_i->size())
+		{
+			std::transform(y.cbegin(), y.cend(), obstacle_s8_i->cbegin(), y.begin(), ([large](const auto &lhs, const auto &rhs) {
+							   return std::max<FLOAT_TYPE>(lhs, -rhs * fix_point_ratio_inv);
+						   }));
+		}
+	}
+
+	//!< Calculate TTR during solving
+	if (execParameters.calcTTR)
+	{
+		if (calculatedTTR.size() != num_of_elements)
+			calculatedTTR.resize(num_of_elements);
+		std::transform(y.cbegin(), y.cend(), calculatedTTR.begin(), ([large](const auto &rhs) {
+						   if (rhs <= 0)
+							   return (FLOAT_TYPE)0.;
+						   else
+							   return large;
+					   }));
+	}
+	for (size_t i = istart; i < src_tau.size(); ++i)
+	{
+		if (!quiet)
+		{
+			std::cout << "tau(i) = " << std::fixed << std::setprecision(6) << src_tau[i] << std::resetiosflags(std::ios_base::floatfield) << std::endl;
+		}
+		beacls::FloatVec yLastTau;
+		if (stopConverge &&
+			((src_datas.size() <= (i - 1)) &&
+			 tmp_filename.empty() &&
+			 keepLast))
+		{
+			yLastTau = y;
+		} 
+
+		// Variable SchemeData
+		if (extraArgs.sdModFunctor)
+		{
+			//!< Load dst_datas from file.
+			if (!tmp_filename.empty())
+			{
+				std::vector<beacls::FloatVec> datas_vec;
+				get_datas(datas_vec, src_tau, modified_schemeData);
+				if (!obstacles_s8_ptrs.empty())
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8_ptrs, extraArgs.sdModParams);
+				else
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_ptrs, extraArgs.sdModParams);
+				datas.resize(datas_vec.size());
+				std::copy(datas_vec.cbegin(), datas_vec.cend(), datas.begin());
+				//!< Put away dst_datas from file.
+				if (!tmp_filename.empty())
+				{
+					for_each(datas.begin(), datas.end(), ([num_of_elements](auto &rhs) {
+								 rhs.clear();
+								 beacls::FloatVec().swap(rhs);
+							 }));
+					datas.clear();
+					std::deque<beacls::FloatVec>().swap(datas);
+				}
+			}
+			else if (!keepLast)
+			{
+				std::vector<beacls::FloatVec> datas_vec(datas.size());
+				std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
+				if (!obstacles_s8_ptrs.empty())
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_s8_ptrs, extraArgs.sdModParams);
+				else
+					extraArgs.sdModFunctor->operator()(modified_schemeData, i, src_tau, datas_vec, obstacles_ptrs, extraArgs.sdModParams);
+			}
+			else
+			{
+				std::cerr << "error : " << __func__ << "SchemeData mod fucntor needs to keep time dependent values." << std::endl;
+				if (tmp_datas_variable)
+				{
+					beacls::closeMatVariable(tmp_datas_variable);
+					tmp_datas_variable = NULL;
+				}
+				if (tmp_file_fs)
+				{
+					beacls::closeMatFStream(tmp_file_fs);
+					tmp_file_fs = NULL;
+				}
+				return false;
+			}
+		}
+		
+		beacls::FloatVec y0;
+		if (keepLast)
+		{
+			y0 = datas.back(); 
+		}
+		else if (low_memory)
+		{
+			if (flip_output)
+			{
+				y0 = datas.front(); 
+			}
+			else
+			{
+				y0 = datas.back(); 
+			}
+		}
+		else 
+		{
+			y0 = datas[i - 1]; 
+		}
+		y = y0; 
+
+		FLOAT_TYPE tNow = src_tau[i - 1];
+		if (!obstacles_ptrs.empty())
+		{
+			obstacle_i = (obstacles_ptrs.size() == 1) ? obstacles_ptrs[0] : obstacles_ptrs[i];
+		}
+		if (!obstacles_s8_ptrs.empty())
+		{
+			obstacle_s8_i = (obstacles_s8_ptrs.size() == 1) ? obstacles_s8_ptrs[0] : obstacles_s8_ptrs[i];
+		}
+
+		// Main integration loop to ge to the next tau(i)
+		while (tNow < (src_tau[i] - small))
+		{
+			beacls::FloatVec yLast;
+			if (minWith == HJIPDE::MinWithType_Zero)
+			{
+				yLast = y;
+			}
+
+			if (!quiet)
+			{
+				std::cout << std::fixed << std::setprecision(6) << "  Computing [" << tNow << " " << src_tau[i] << "]..." << std::resetiosflags(std::ios_base::floatfield) << std::endl;
+			}
+
+			beacls::FloatVec tspan{tNow, src_tau[i]};
+			tNow = integratorFunc->execute(
+				y, tspan, y, modified_schemeData,
+				execParameters.line_length_of_chunk, execParameters.num_of_threads, execParameters.num_of_gpus,
+				execParameters.delayedDerivMinMax, execParameters.enable_user_defined_dynamics_on_gpu);
+
+			if (std::any_of(y.cbegin(), y.cend(), [](const auto &rhs) { return std::isnan(rhs); }))
+			{
+				char num;
+				std::cout << "Nan value found. Enter any key to continue." << std::endl;
+				std::cin.get(num);
+			}
+
+			// Min with zero
+			if (minWith == HJIPDE::MinWithType_Zero)
+			{
+				std::transform(y.cbegin(), y.cend(), yLast.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
+			}
+
+			// Min With Target
+			if (minWith == HJIPDE::MinWithType_Target)
+			{
+				//todo: change to pointers to make faster
+				beacls::FloatVec target = (extraArgs.targets.size() == 1) ? extraArgs.targets[0] : extraArgs.targets[i];
+				std::transform(y.cbegin(), y.cend(), target.cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
+			}
+
+			// Min with targets
+			if (!targets_ptrs.empty())
+			{
+				const beacls::FloatVec *target_i = (targets_ptrs.size() == 1) ? targets_ptrs[0] : targets_ptrs[i];
+				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), std::ptr_fun<const FLOAT_TYPE &, const FLOAT_TYPE &>(std::min<FLOAT_TYPE>));
+			}
+			if (!targets_s8_ptrs.empty())
+			{
+				const std::vector<int8_t> *target_i = (targets_s8_ptrs.size() == 1) ? targets_s8_ptrs[0] : targets_s8_ptrs[i];
+				std::transform(y.cbegin(), y.cend(), target_i->cbegin(), y.begin(), ([large](const auto &lhs, const auto &rhs) {
+								   return std::min<FLOAT_TYPE>(lhs, rhs * fix_point_ratio_inv);
+							   }));
+			}
+
+			// "Mask" using obstales
+			if (obstacle_i)
+			{
+				if (obstacle_i->size() == y.size())
+				{
+					std::transform(y.cbegin(), y.cend(), obstacle_i->cbegin(), y.begin(), ([](const auto &lhs, const auto &rhs) {
+									   return std::max<FLOAT_TYPE>(lhs, -rhs);
+								   }));
+				}
+			}
+			if (obstacle_s8_i)
+			{
+				if (obstacle_s8_i->size() == y.size())
+				{
+					std::transform(y.cbegin(), y.cend(), obstacle_s8_i->cbegin(), y.begin(), ([large](const auto &lhs, const auto &rhs) {
+									   return std::max<FLOAT_TYPE>(lhs, -rhs * fix_point_ratio_inv);
+								   }));
+				}
+			}
+		}
+		
+		FLOAT_TYPE change = 0;
+		if (stopConverge)
+		{
+			if (src_datas.size() > (i - 1))
+			{
+				calcChange(change, y, src_datas[i - 1]);
+			}
+			else if (!tmp_filename.empty())
+			{
+				load_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i - 1);
+				calcChange(change, y, y0);
+			}
+			else if (!keepLast)
+			{
+				calcChange(change, y, datas[i - 1]);
+			}
+			else
+			{
+				calcChange(change, y, yLastTau);
+			}
+			std::vector<size_t> unchangedIndicies; 
+			calcUnconvergedIndicies(unchangedIndicies, convergeThreshold, y, y0); 
+
+			QOld = Q; 
+			Q = std::set<size_t>(unchangedIndicies.begin(), unchangedIndicies.end()); 
+			if (!quiet)
+			{
+				std::cout << "Max change since last iteration: " << change << std::endl;
+				std::cout << "Number of Q values: " << Q.size() << std::endl; 
+			}
+		}
+
+		// Reshape value function
+		if (!tmp_filename.empty())
+		{
+			save_vector(y, std::string(), Ns, false, tmp_file_fs, tmp_datas_variable, i);
+		}
+		else if (keepLast)
+		{
+			if (datas.size() != 1)
+			{
+				datas.resize(1);
+			}
+			datas[0] = y;
+		}
+		else
+		{
+			if (flip_output)
+			{
+				datas.push_front(y);
+			}
+			else
+			{
+				datas.push_back(y);
+			}
+		}
+
+		//!< Calculate TTR during solving
+		if (extraArgs.execParameters.calcTTR)
+		{
+			if (calculatedTTR.size() != num_of_elements)
+				calculatedTTR.resize(num_of_elements);
+			const FLOAT_TYPE tau_i = src_tau[i];
+			std::transform(calculatedTTR.cbegin(), calculatedTTR.cend(), y.cbegin(), calculatedTTR.begin(), ([tau_i](const auto &lhs, const auto &rhs) {
+							   if (rhs <= 0)
+								   return std::min<FLOAT_TYPE>(tau_i, lhs);
+							   else
+								   return lhs;
+						   }));
+		}
+
+		if (&dst_tau != &src_tau)
+			dst_tau = src_tau;
+
+		// If commanded, stop the reachable set computation once it contains the initial state.
+		if (!extraArgs.stopInit.empty())
+		{
+			beacls::FloatVec initValue;
+			helperOC::eval_u(initValue, grid, y, std::vector<beacls::FloatVec>{extraArgs.stopInit});
+			if (initValue[0] != std::numeric_limits<FLOAT_TYPE>::signaling_NaN() && (initValue[0] <= 0))
+			{
+				extraOuts.stoptau = src_tau[i];
+				if (!low_memory && !keepLast)
+				{
+					datas.resize(i + 1);
+				}
+				dst_tau.resize(i + 1);
+				break;
+			}
+		}
+		if (!stopSet.empty())
+		{
+			beacls::FloatVec temp = y;
+			beacls::IntegerVec dataInds;
+			for (size_t index = 0; index < temp.size(); ++index)
+			{
+				if (temp[index] <= stopLevel)
+					dataInds.push_back(index);
+			}
+
+			bool stopSetResult = false;
+			if (!extraArgs.stopSetInclude.empty())
+			{
+				stopSetResult = std::all_of(setInds.cbegin(), setInds.cend(), [&dataInds](const auto &rhs) {
+					return (std::find(dataInds.cbegin(), dataInds.cend(), rhs) != dataInds.cend());
+				});
+			}
+			else
+			{
+				stopSetResult = std::any_of(setInds.cbegin(), setInds.cend(), [&dataInds](const auto &rhs) {
+					return (std::find(dataInds.cbegin(), dataInds.cend(), rhs) != dataInds.cend());
+				});
+			}
+			if (stopSetResult)
+			{
+				extraOuts.stoptau = src_tau[i];
+				if (!low_memory && !keepLast)
+				{
+					datas.resize(i + 1);
+				}
+				dst_tau.resize(i + 1);
+				break;
+			}
+		}
+
+		if (stopConverge && (change < convergeThreshold || (extraArgs.earlyStop && Q == QOld)))
+		{
+			extraOuts.stoptau = src_tau[i];
+			if (!low_memory && !keepLast)
+			{
+				datas.resize(i + 1);
+			}
+			dst_tau.resize(i + 1);
+			break;
+		}
+		if (!extraArgs.save_filename.empty())
+		{
+			if ((extraArgs.saveFrequency != 0) && ((i % extraArgs.saveFrequency) == 0))
+			{
+				size_t ilast = i;
+				//!< Load dst_datas from file.
+				beacls::MatFStream *save_filename_fs = beacls::openMatFStream(extraArgs.save_filename, beacls::MatOpenMode_Write);
+				if (!tmp_filename.empty())
+				{
+					std::vector<beacls::FloatVec> datas_vec(datas.size());
+					get_datas(datas_vec, src_tau, modified_schemeData);
+					save_vector_of_vectors(datas_vec, std::string("data"), Ns, false, save_filename_fs);
+					beacls::closeMatFStream(save_filename_fs);
+					std::copy(datas_vec.cbegin(), datas_vec.cend(), datas.begin());
+					//!< Put away dst_datas from file.
+					for_each(datas.begin(), datas.end(), ([num_of_elements](auto &rhs) {
+								 rhs.clear();
+								 beacls::FloatVec().swap(rhs);
+							 }));
+					datas.clear();
+					std::deque<beacls::FloatVec>().swap(datas);
+				}
+				else if (!keepLast)
+				{
+					std::vector<beacls::FloatVec> datas_vec(datas.size());
+					std::copy(datas.cbegin(), datas.cend(), datas_vec.begin());
+					save_vector_of_vectors(datas_vec, std::string("data"), Ns, false,
+										   save_filename_fs);
+				}
+				else
+				{
+					save_vector(y, std::string("y"), Ns, false, save_filename_fs);
+				}
+				save_vector(dst_tau, std::string("tau"), beacls::IntegerVec(), true,
+							save_filename_fs);
+				save_value(static_cast<FLOAT_TYPE>(ilast), std::string("ilast"), true,
+						   save_filename_fs);
+				beacls::closeMatFStream(save_filename_fs);
+			}
+		}
+	}
+	if (tmp_datas_variable)
+	{
+		beacls::closeMatVariable(tmp_datas_variable);
+		tmp_datas_variable = NULL;
+	}
+	if (tmp_file_fs)
+	{
+		beacls::closeMatFStream(tmp_file_fs);
+		tmp_file_fs = NULL;
+	}
+	y.swap(last_data);
+	y.clear();
+	//!< Load dst_datas from file.
+	if (derivFunc)
+		delete derivFunc;
+	if (integratorFunc)
+		delete integratorFunc;
+	if (dissFunc)
+		delete dissFunc;
+	if (modified_schemeData)
+		delete modified_schemeData;
+	if (schemeFunc)
+		delete schemeFunc;
+
+	auto endTime = std::chrono::system_clock::now();
+
+	auto diff = endTime - startTime;
+	std::cout << "Total execution time "
+				<< std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()
+				<< std::setprecision(5) << " miliseconds" << std::endl;
+	return true;
+}
+
 bool HJIPDE_impl::valid_Q_values(const std::set<size_t> &Q, const std::set<size_t> &Qold, bool earlyStop) {
 	if (earlyStop)
 	{
@@ -2122,6 +2833,28 @@ bool HJIPDE::solve_local_q(
 	{
 		std::vector<beacls::FloatVec> src_datas = {data0};
 		if (pimpl->solve_local_q(stoptau, extraOuts, src_datas, qIndexes, tau, updateEpsilon, schemeData, minWith, extraArgs))
+		{
+			return get_datas(dst_datas, tau, schemeData);
+		}
+	}
+	return false;
+}
+bool HJIPDE::solve_warm(
+	std::vector<beacls::FloatVec> &dst_datas,
+	beacls::FloatVec &stoptau,
+	helperOC::HJIPDE_extraOuts &extraOuts,
+	const beacls::FloatVec &data0,
+	const beacls::IntegerVec &qIndexes,
+	const beacls::FloatVec &tau,
+	const FLOAT_TYPE updateEpsilon,
+	const DynSysSchemeData *schemeData,
+	const HJIPDE::MinWithType minWith,
+	const helperOC::HJIPDE_extraArgs &extraArgs)
+{
+	if (pimpl)
+	{
+		std::vector<beacls::FloatVec> src_datas = {data0};
+		if (pimpl->solve_warm(stoptau, extraOuts, src_datas, qIndexes, tau, updateEpsilon, schemeData, minWith, extraArgs))
 		{
 			return get_datas(dst_datas, tau, schemeData);
 		}
