@@ -34,17 +34,6 @@ namespace levelset {
 				const bool stats = false,
 				const levelset::TerminalEvent_Exec_Type* terminalEvent = NULL
 			);
-		PREFIX_VC_DLL
-			OdeCFL3(
-				const bool execute_local_q,
-				const Term *schemeFunc,
-				const FLOAT_TYPE factor_cfl = 0.5,
-				const FLOAT_TYPE max_step = std::numeric_limits<FLOAT_TYPE>::max(),
-				const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps = std::vector<levelset::PostTimestep_Exec_Type*>(),
-				const bool single_step = false,
-				const bool stats = false,
-				const levelset::TerminalEvent_Exec_Type* terminalEvent = NULL
-			);
 		~OdeCFL3();
 		FLOAT_TYPE execute(
 			beacls::FloatVec& y,

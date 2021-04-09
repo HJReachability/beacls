@@ -201,15 +201,14 @@ bool helperOC::visSetIm_single(
 	const beacls::FloatVec& data,
 	const std::vector<float>& color,
 	const beacls::FloatVec& level,
-	const bool applyLight,
-	const size_t sliceDim,
+	const bool,
+	const size_t,
 	const cv::Size dsize,
 	const double fx,
 	const double fy
 ) {
 	//!<  Slice last dimension by default
 	const size_t gDim = g->get_num_of_dimensions();
-	size_t modifiedSliceDim = (sliceDim != std::numeric_limits<size_t>::max()) ? sliceDim : gDim - 1;
 	cv::Mat fliped_src;
 	if (!src_img.empty()) {
 		cv::flip(src_img, fliped_src, 0);

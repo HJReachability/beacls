@@ -20,27 +20,16 @@ bool PlaneSchemeDataLocalQ::operator==(const PlaneSchemeDataLocalQ& rhs) const {
 	else if (wMax_ != rhs.wMax_) return false;
 	else return true;
 }
+
 bool PlaneSchemeDataLocalQ::operator==(const SchemeData& rhs) const {
 	if (this == &rhs) return true;
 	else if (typeid(*this) != typeid(rhs)) return false;
 	else return operator==(dynamic_cast<const PlaneSchemeDataLocalQ&>(rhs));
 }
-bool PlaneSchemeDataLocalQ::initializeLocalQ(
-	const beacls::FloatVec &vRange, 
-	const beacls::FloatVec &dMax,
-	const FLOAT_TYPE wMaximum
-) {
-	vMin_ = vRange[0];
-	vMax_ = vRange[1];
-	dMax_x_ = dMax[0];
-	dMax_y_ = dMax[1];
-	dMax_theta_ = dMax[2];
-	wMax_ = wMaximum; 
-}
 
 bool PlaneSchemeDataLocalQ::hamFunc(
 	beacls::UVec& hamValue_uvec,
-	const FLOAT_TYPE t,
+	const FLOAT_TYPE,
 	const beacls::UVec&,
 	const std::vector<beacls::UVec>& derivs,
 	const size_t begin_index,
@@ -101,10 +90,10 @@ bool PlaneSchemeDataLocalQ::hamFunc(
 
 bool PlaneSchemeDataLocalQ::partialFunc(
 	beacls::UVec& alphas_uvec,
-	const FLOAT_TYPE t,
-	const beacls::UVec& data,
-	const std::vector<beacls::UVec>& derivMins,
-	const std::vector<beacls::UVec>& derivMaxs,
+	const FLOAT_TYPE,
+	const beacls::UVec&,
+	const std::vector<beacls::UVec>&,
+	const std::vector<beacls::UVec>&,
 	const size_t dim,
 	const size_t begin_index,
 	const size_t length
@@ -149,8 +138,8 @@ bool PlaneSchemeDataLocalQ::partialFunc(
 
 bool PlaneSchemeDataLocalQ::hamFuncLocalQ(
 	beacls::UVec& hamValue_uvec,
-	const FLOAT_TYPE t,
-	const beacls::UVec& data,
+	const FLOAT_TYPE,
+	const beacls::UVec&,
 	const std::vector<beacls::UVec>& derivs,
 	const size_t begin_index,
 	const size_t length, 
@@ -218,10 +207,10 @@ bool PlaneSchemeDataLocalQ::hamFuncLocalQ(
 }
 bool PlaneSchemeDataLocalQ::partialFuncLocalQ(
 	beacls::UVec& alphas_uvec,
-	const FLOAT_TYPE t,
-	const beacls::UVec& data,
-	const std::vector<beacls::UVec>& derivMins,
-	const std::vector<beacls::UVec>& derivMaxs,
+	const FLOAT_TYPE,
+	const beacls::UVec&,
+	const std::vector<beacls::UVec>&,
+	const std::vector<beacls::UVec>&,
 	const size_t dim,
 	const size_t begin_index,
 	const size_t length, 

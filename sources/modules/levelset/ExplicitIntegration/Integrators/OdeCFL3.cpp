@@ -40,27 +40,6 @@ OdeCFL3_impl::OdeCFL3_impl(
   workers.push_back(worker);
   worker->run();
 }
-
-OdeCFL3_impl::OdeCFL3_impl(
-  const Term *schemeFunc,
-  const FLOAT_TYPE factor_cfl,
-  const FLOAT_TYPE max_step,
-  const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
-  const bool single_step,
-  const bool stats,
-  const levelset::TerminalEvent_Exec_Type* terminalEvent, 
-  const bool execute_local_q) :
-  term(schemeFunc->clone()),
-  factor_cfl(factor_cfl),
-  max_step(max_step),
-  post_time_steps(post_time_steps),
-  single_step(single_step),
-  stats(stats),
-  terminalEvent(terminalEvent) {
-  levelset::OdeCFL_CommandQueue* commandQueue = new levelset::OdeCFL_CommandQueue;
-  commandQueues.push_back(commandQueue);
-}
-
 OdeCFL3_impl::~OdeCFL3_impl() {
   std::for_each(workers.begin(), workers.end(), [](auto& rhs) {
     if (rhs) {
@@ -474,7 +453,6 @@ FLOAT_TYPE OdeCFL3_impl::execute(
   }
   return t;
 }
-
 FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     beacls::FloatVec& y,
     const beacls::FloatVec& tspan,
@@ -623,7 +601,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     }
     // -----------------------------------------------------------
     // First substep: Forward Euler from t_n to t_{n+1}.
-    levelset::odeCFL_LocalQ_SubStep(
+    levelset::odeCFL_SubStep(
       commandQueues,
       t,
       step_bound_invss,
@@ -648,8 +626,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
       num_of_parallel_loop_lines,
       actual_num_of_threads, 
       delayedDerivMinMax,
-      enable_user_defined_dynamics_on_gpu, 
-      Q);
+      enable_user_defined_dynamics_on_gpu);
 
     step_bound_invs.assign(num_of_dimensions, 0.);
     std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), [this](const auto& rhs) {
@@ -688,7 +665,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     // -----------------------------------------------------------
     // Second substep: Forward Euler from t_{n+1} to t_{n+2}.
     // Approximate the derivative.
-    levelset::odeCFL_LocalQ_SubStep(
+    levelset::odeCFL_SubStep(
       commandQueues,
       t1,
       step_bound_invss,
@@ -713,8 +690,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
       num_of_parallel_loop_lines,
       actual_num_of_threads,
       delayedDerivMinMax,
-      enable_user_defined_dynamics_on_gpu, 
-      Q 
+      enable_user_defined_dynamics_on_gpu
     );
     step_bound_invs.assign(num_of_dimensions, 0.);
     std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), 
@@ -768,7 +744,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
     // -----------------------------------------------------------
     // Third substep: Forward Euler from t_{n+1/2} to t_{n+3/2}.
     // Approximate the derivative.
-    levelset::odeCFL_LocalQ_SubStep(
+    levelset::odeCFL_SubStep(
         commandQueues,
         tHalf,
         step_bound_invss,
@@ -793,8 +769,7 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
         num_of_parallel_loop_lines,
         actual_num_of_threads,
         delayedDerivMinMax,
-        enable_user_defined_dynamics_on_gpu, 
-        Q);
+        enable_user_defined_dynamics_on_gpu);
     step_bound_invs.assign(num_of_dimensions, 0.);
     std::for_each(step_bound_invss.cbegin(), step_bound_invss.cend(), [this](const auto& rhs) {
       std::transform(rhs.cbegin(), rhs.cend(), step_bound_invs.cbegin(), step_bound_invs.begin(), std::ptr_fun<const FLOAT_TYPE&, const FLOAT_TYPE&>(std::max<FLOAT_TYPE>));
@@ -871,8 +846,6 @@ FLOAT_TYPE OdeCFL3_impl::execute_local_q(
   }
   return t;
 }
-
-
 OdeCFL3::OdeCFL3(
   const Term *schemeFunc,
   const FLOAT_TYPE factor_cfl,
@@ -882,17 +855,6 @@ OdeCFL3::OdeCFL3(
   const bool stats,
   const levelset::TerminalEvent_Exec_Type* terminalEvent) {
   pimpl = new OdeCFL3_impl(schemeFunc, factor_cfl, max_step, post_time_steps, single_step, stats, terminalEvent);
-}
-OdeCFL3::OdeCFL3(
-  const bool execute_local_q,
-  const Term *schemeFunc,
-  const FLOAT_TYPE factor_cfl,
-  const FLOAT_TYPE max_step,
-  const std::vector<levelset::PostTimestep_Exec_Type*> &post_time_steps,
-  const bool single_step,
-  const bool stats,
-  const levelset::TerminalEvent_Exec_Type* terminalEvent) {
-  pimpl = new OdeCFL3_impl(schemeFunc, factor_cfl, max_step, post_time_steps, single_step, stats, terminalEvent, execute_local_q);
 }
 OdeCFL3::~OdeCFL3() {
   if (pimpl) delete pimpl;
@@ -925,10 +887,8 @@ FLOAT_TYPE OdeCFL3::execute_local_q(
   else return 0;
 }
 OdeCFL3::OdeCFL3(const OdeCFL3& rhs) :
-  pimpl(rhs.pimpl->clone())
-{
+  pimpl(rhs.pimpl->clone()) {
 }
-
 OdeCFL3* OdeCFL3::clone() const {
   return new OdeCFL3(*this);
 }

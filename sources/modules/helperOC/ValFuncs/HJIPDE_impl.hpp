@@ -39,7 +39,6 @@ namespace helperOC {
 			const std::vector<beacls::FloatVec>& src_datas,
 			const beacls::IntegerVec& qIndexes,
 			const beacls::FloatVec& src_tau,
-			const FLOAT_TYPE updateEpsilon,
 			const DynSysSchemeData* schemeData,
 			const HJIPDE::MinWithType minWith,
 			const helperOC::HJIPDE_extraArgs& extraArgs
@@ -50,7 +49,6 @@ namespace helperOC {
 			const std::vector<beacls::FloatVec>& src_datas,
 			const beacls::IntegerVec& qIndexes,
 			const beacls::FloatVec& src_tau,
-			const FLOAT_TYPE updateEpsilon,
 			const DynSysSchemeData* schemeData,
 			const HJIPDE::MinWithType minWith,
 			const helperOC::HJIPDE_extraArgs& extraArgs

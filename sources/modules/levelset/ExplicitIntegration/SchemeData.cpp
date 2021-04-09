@@ -101,13 +101,6 @@ bool SchemeData::partialFunc(
 ) const {
 	return true;
 }; 
-bool SchemeData::initializeLocalQ(
-	const beacls::FloatVec &vRange, 
-	const beacls::FloatVec &dMax,
-	const FLOAT_TYPE wMax 
-) {
-	return true; 
-};
 bool SchemeData::hamFuncLocalQ(
 	beacls::UVec&,
 	const FLOAT_TYPE,

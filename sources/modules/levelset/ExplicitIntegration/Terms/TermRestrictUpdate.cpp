@@ -74,7 +74,7 @@ bool TermRestrictUpdate_impl::execute_local_q(
 	const size_t num_of_slices,
 	const bool enable_user_defined_dynamics_on_gpu,
 	const bool updateDerivMinMax,
-	const std::set<size_t> &Q 
+	const std::set<size_t> & 
 ) const {
 	const HJI_Grid* grid = schemeData->get_grid();
 	if (!grid) return false;

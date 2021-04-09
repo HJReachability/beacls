@@ -24,6 +24,9 @@ namespace helperOC {
 	public:
 		PlaneSchemeDataLocalQ() : DynSysSchemeData(), vMin_(0), vMax_(1.0), dMax_x_(0), 
 			dMax_y_(0), dMax_theta_(0), wMax_(0) {}
+		PlaneSchemeDataLocalQ(FLOAT_TYPE vMin_, FLOAT_TYPE vMax_, FLOAT_TYPE dMax_x_, 
+			FLOAT_TYPE dMax_y_, FLOAT_TYPE dMax_theta_, FLOAT_TYPE wMax_) : vMin_(vMin_), 
+			vMax_(vMax_), dMax_x_(dMax_x_), dMax_y_(dMax_y_), dMax_theta_(dMax_theta_), wMax_(wMax_) {}
 		~PlaneSchemeDataLocalQ() {}
 		bool operator==(const PlaneSchemeDataLocalQ& rhs) const;
 		bool operator==(const SchemeData& rhs) const;
@@ -49,11 +52,6 @@ namespace helperOC {
 			const size_t begin_index,
 			const size_t length
 		) const;
-		bool initializeLocalQ(
-			const beacls::FloatVec &vRange, 
-			const beacls::FloatVec &dMax,
-			const FLOAT_TYPE wMax 
-		); 
 		bool hamFuncLocalQ(
 			beacls::UVec& hamValue_uvec,
 			const FLOAT_TYPE t,

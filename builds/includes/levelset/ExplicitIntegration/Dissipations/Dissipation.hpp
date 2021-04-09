@@ -57,7 +57,7 @@ namespace levelset {
 				const std::set<size_t> &Q,
 				const bool enable_user_defined_dynamics_on_gpu = true,
 				const bool updateDerivMinMax = true 
-			) { return true; };
+			) = 0;
 		PREFIX_VC_DLL
 			virtual bool operator==(const Dissipation& rhs) const = 0;
 		PREFIX_VC_DLL

@@ -123,7 +123,6 @@ namespace helperOC {
 		@param	[in]	data0		Iniital condition data0 from lx, lxOld, and local Q
 		@param  [in]    qIndexes    Indexes that are newly sensed as free
 		@param	[in]	src_tau			list of computation times
-		@param  [in]    updateEpsilon   convergence threshold for local Q Update
 		@param	[in]	SchemeData	problem parameters passed into the Hamiltonian function
 		grid: grid (required!)
 		@param	[in]	minWith
@@ -144,7 +143,6 @@ namespace helperOC {
 				const beacls::FloatVec &data0,
 				const beacls::IntegerVec &qIndexes,
 				const beacls::FloatVec &tau,
-				const FLOAT_TYPE updateEpsilon,
 				const DynSysSchemeData *schemeData,
 				const HJIPDE::MinWithType minWith,
 				const helperOC::HJIPDE_extraArgs &extraArgs
@@ -186,7 +184,6 @@ namespace helperOC {
 		@param	[in]	data0		Iniital condition data0 from lx, lxOld, and local Q
 		@param  [in]    qIndexes    Indexes that are newly sensed as free
 		@param	[in]	src_tau			list of computation times
-		@param  [in]    updateEpsilon   convergence threshold for local Q Update
 		@param	[in]	SchemeData	problem parameters passed into the Hamiltonian function
 		grid: grid (required!)
 		@param	[in]	minWith
@@ -207,7 +204,6 @@ namespace helperOC {
 				const beacls::FloatVec &data0,
 				const beacls::IntegerVec &qIndexes,
 				const beacls::FloatVec &tau,
-				const FLOAT_TYPE updateEpsilon,
 				const DynSysSchemeData *schemeData,
 				const HJIPDE::MinWithType minWith,
 				const helperOC::HJIPDE_extraArgs &extraArgs

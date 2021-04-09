@@ -177,7 +177,6 @@ bool helperOC::ComputeOptTraj_impl::operator()(
 				size = cv::Size((int)std::ceil(org_width * actual_fx), (int)std::ceil(org_height * actual_fy));
 			}
 
-			const int width = size.width;
 			const int height = size.height;
 			const FLOAT_TYPE left_offset = x0MinMax.first;
 			const FLOAT_TYPE top_offset = x1MinMax.first;

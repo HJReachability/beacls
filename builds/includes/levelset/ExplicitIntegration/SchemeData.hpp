@@ -89,12 +89,6 @@ namespace levelset {
 				const size_t length
 			) const;
 		PREFIX_VC_DLL
-			virtual bool initializeLocalQ(
-				const beacls::FloatVec &vRange, 
-				const beacls::FloatVec &dMax,
-				const FLOAT_TYPE wMax 
-			);
-		PREFIX_VC_DLL
 			virtual bool hamFuncLocalQ(
 				beacls::UVec& hamValue,
 				const FLOAT_TYPE t,
