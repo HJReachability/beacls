@@ -112,7 +112,7 @@ endif
 ifeq ($(PROFILE_ON), Y)
 ifeq ($(GPU_ON), N)
 	CFLAGS += -pg
-	LDFLAGS += -pg 
+	LDFLAGS += -pg
 endif
 endif
 ifeq ($(OPTIMIZE), 0)
@@ -139,9 +139,10 @@ ifeq ($(GUI_ON), Y)
 	CFLAGS	+= -DVISUALIZE_WITH_GUI
 endif
 	CFLAGS	+= -DVISUALIZE_BY_OPENCV
-	CFLAGS 	+= $(shell pkg-config --cflags opencv)
-	LDFLAGS += $(shell pkg-config --libs opencv)
-	OPENCV_LIB_DIR  += $(shell pkg-config --libs opencv | sed s/"-lopencv_.*"/""/g | sed s/"libopencv.*"/""/g | sed s/"-L"/""/g | sed s/" "/""/g)
+	CFLAGS	+= -DOPENCV_GENERATE_PKGCONFIG=ON
+	CFLAGS 	+= $(shell pkg-config --cflags opencv4)
+	LDFLAGS += $(shell pkg-config --libs opencv4)
+	OPENCV_LIB_DIR  += $(shell pkg-config --libs opencv4 | sed s/"-lopencv_.*"/""/g | sed s/"libopencv.*"/""/g | sed s/"-L"/""/g | sed s/" "/""/g)
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)

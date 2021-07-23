@@ -45,7 +45,7 @@ ifeq ($(GPU_ON), Y)
 	NVCCFLAGS += -D_FORCE_INLINES
 	NVCCFLAGS += -D_MWAITXINTRIN_H_INCLUDED
 	ifeq ($(VERBOSE_ON), Y)
-		NVCCFLAGS += --ptxas-options=-v 
+		NVCCFLAGS += --ptxas-options=-v
 	endif
 else
 	CPP = $(HOSTCC)
@@ -90,7 +90,7 @@ endif
 ifeq ($(PROFILE_ON), Y)
 ifeq ($(GPU_ON), N)
 	CFLAGS += -pg
-	LDFLAGS += -pg 
+	LDFLAGS += -pg
 endif
 endif
 ifeq ($(OPTIMIZE), 0)
@@ -117,8 +117,9 @@ ifeq ($(GUI_ON), Y)
 	CFLAGS	+= -DVISUALIZE_WITH_GUI
 endif
 	CFLAGS	+= -DVISUALIZE_BY_OPENCV
-	CFLAGS 	+= $(shell pkg-config --cflags opencv)
-	LDFLAGS += $(shell pkg-config --libs opencv)
+	CFLAGS	+= -DOPENCV_GENERATE_PKGCONFIG=ON
+	CFLAGS 	+= $(shell pkg-config --cflags opencv4)
+	LDFLAGS += $(shell pkg-config --libs opencv4)
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)
@@ -154,7 +155,7 @@ endif
 vpath %.cpp .:DnSys:Grids:Hamiltonians:ValFuncs:DynSys:DynSys/Air3D:DynSys/DubinsCar:DynSys/DubinsCarCAvoid:DynSys/DynSys:DynSys/KinVehicleND:DynSys/Plane:DynSys/PlaneCAvoid:DynSys/Plane4D:DynSys/Quad4D:DynSys/P5D_Dubins:Legacy
 vpath %.cu .:DnSys:Grids:Hamiltonians:ValFuncs:DynSys:DynSys/Air3D:DynSys/DubinsCar:DynSys/DubinsCarCAvoid:DynSys/DynSys:DynSys/KinVehicleND:DynSys/Plane:DynSys/PlaneCAvoid:DynSys/Plane4D:DynSys/Quad4D:DynSys/P5D_Dubins:Legacy
 
-LIBS     = 
+LIBS     =
 INCLUDE  = -I$(INSTALL_DIR)/includes
 TARGET   = libhelperOC.so
 STATIC_TARGET = libhelperOC.a

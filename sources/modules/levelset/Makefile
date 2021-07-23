@@ -43,7 +43,7 @@ ifeq ($(GPU_ON), Y)
 	NVCCFLAGS += -D_FORCE_INLINES
 	NVCCFLAGS += -D_MWAITXINTRIN_H_INCLUDED
 	ifeq ($(VERBOSE_ON), Y)
-		NVCCFLAGS += --ptxas-options=-v 
+		NVCCFLAGS += --ptxas-options=-v
 	endif
 else
 	CPP = $(HOSTCC)
@@ -88,7 +88,7 @@ endif
 ifeq ($(PROFILE_ON), Y)
 ifeq ($(GPU_ON), N)
 	CFLAGS += -pg
-	LDFLAGS += -pg 
+	LDFLAGS += -pg
 endif
 endif
 ifeq ($(OPTIMIZE), 0)
@@ -113,10 +113,11 @@ endif
 ifeq ($(VISUALIZE_ON), Y)
 ifeq ($(GUI_ON), Y)
 	CFLAGS	+= -DVISUALIZE_WITH_GUI
+	CFLAGS	+= -DOPENCV_GENERATE_PKGCONFIG=ON
 endif
 	CFLAGS	+= -DVISUALIZE_BY_OPENCV
-	CFLAGS 	+= $(shell pkg-config --cflags opencv)
-	LDFLAGS += $(shell pkg-config --libs opencv)
+	CFLAGS 	+= $(shell pkg-config --cflags opencv4)
+	LDFLAGS += $(shell pkg-config --libs opencv4)
 endif
 ifeq ($(OPENMP_ON), Y)
 ifeq ($(UNAME),Darwin)
@@ -152,7 +153,7 @@ endif
 vpath %.cpp .:BoundaryCondition:Core:ExplicitIntegration:ExplicitIntegration/Dissipations:ExplicitIntegration/Integrators:ExplicitIntegration/Terms:Grids:InitialConditions:InitialConditions/BasicShapes:SpatialDerivative:SpatialDerivative/UpwindFirst
 vpath %.cu  .:BoundaryCondition:Core:ExplicitIntegration:ExplicitIntegration/Dissipations:ExplicitIntegration/Integrators:ExplicitIntegration/Terms:Grids:InitialConditions:InitialConditions/BasicShapes:SpatialDerivative:SpatialDerivative/UpwindFirst
 
-LIBS     = 
+LIBS     =
 INCLUDE  = -I$(INSTALL_DIR)/includes
 TARGET   = liblevelset.so
 STATIC_TARGET = liblevelset.a
