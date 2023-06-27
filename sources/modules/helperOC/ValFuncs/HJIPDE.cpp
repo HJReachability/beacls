@@ -271,7 +271,6 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 	beacls::IntegerVec plotDims;
 	beacls::FloatVec projpt;
 	bool deleteLastPlot = false;
-	bool need_light = false;
 #if defined(VISUALIZE_BY_OPENCV)
 	cv::Mat HJIPDE_img;
 	cv::Mat HJIPDE_initial_img;
@@ -302,7 +301,6 @@ bool HJIPDE_impl::solve(beacls::FloatVec& dst_tau,
 		windowName = std::string("HJIPDE");
 		cv::namedWindow(windowName.c_str(), 0);
 #endif
-		need_light = true;
 		if (obsMode == HJIPDE::ObsModeType_Static) {
 			beacls::FloatVec tmp_obstacle;
 			if (obstacle_s8_i) {

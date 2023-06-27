@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <numeric>
+#include <limits>
 #include <typedef.hpp>
 
 #if defined(WIN32)	// Windows

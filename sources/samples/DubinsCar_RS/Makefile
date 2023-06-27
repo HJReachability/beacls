@@ -103,7 +103,7 @@ ifeq ($(UNAME),Darwin)
 	LDFLAGS += -L$(MATIO_LIB_DIR) -lmatio -lz -lhdf5
 endif
 ifeq ($(UNAME),Linux)
-	LDFLAGS += -L$(MATIO_LIB_DIR) -lmatio -lz -lhdf5_cpp
+	LDFLAGS += -L$(MATIO_LIB_DIR) -lmatio -lz $(shell pkg-config --libs hdf5)
 endif
 CFLAGS += -I$(MATIO_INC_DIR)
 
@@ -145,8 +145,14 @@ ifeq ($(GUI_ON), Y)
 	CFLAGS	+= -DVISUALIZE_WITH_GUI
 endif
 	CFLAGS	+= -DVISUALIZE_BY_OPENCV
-	CFLAGS 	+= $(shell pkg-config --cflags opencv)
-	LDFLAGS += $(shell pkg-config --libs opencv)
+	OPENCV4 = $(shell pkg-config --cflags opencv4)
+	ifeq ($(OPENCV4)N, N)
+		CFLAGS 	+= $(shell pkg-config --cflags opencv)
+		LDFLAGS += $(shell pkg-config --libs opencv)
+	else
+		CFLAGS 	+= $(shell pkg-config --cflags opencv4)
+		LDFLAGS += $(shell pkg-config --libs opencv4)
+	endif
 	OPENCV_LIB_DIR  += $(shell pkg-config --libs opencv | sed s/"-lopencv_.*"/""/g | sed s/"libopencv.*"/""/g | sed s/"-L"/""/g | sed s/" "/""/g)
 endif
 ifeq ($(OPENMP_ON), Y)

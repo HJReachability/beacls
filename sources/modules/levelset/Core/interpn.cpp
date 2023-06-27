@@ -7,6 +7,7 @@
 #include <numeric>
 #include <iterator>
 #include <cmath>
+#include <limits>
 
 namespace beacls {
 	static bool convertv(
