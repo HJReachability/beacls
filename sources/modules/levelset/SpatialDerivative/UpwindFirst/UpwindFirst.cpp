@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cmath>
 #include <numeric>
+#include <cstdio>
 #include <macro.hpp>
 
 bool levelset::checkEquivalentApprox(

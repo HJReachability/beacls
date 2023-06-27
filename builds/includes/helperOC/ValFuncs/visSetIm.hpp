@@ -17,9 +17,9 @@
 
 #if defined(VISUALIZE_BY_OPENCV)
 #include <opencv2/opencv.hpp>
-#if !defined(CV_VERSION_EPOCH) && (CV_VERSION_MAJOR == 3)	/* OpenCV 3.0 */
+#if !defined(CV_VERSION_EPOCH) && (CV_VERSION_MAJOR >= 3)	/* OpenCV 3.0 or later*/
 #define HELPEROC_OPNECV_3_X
-#endif /* OpenCV 3.0 */
+#endif /* OpenCV 3.0 or later */
 #if !defined(HELPEROC_OPNECV_3_X)
 namespace cv {
 	static const int LINE_AA = CV_AA;
