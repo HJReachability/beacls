@@ -132,14 +132,14 @@ levelset::HJI_Grid* helperOC::projSingle(
 				const size_t inner_dim_size = std::inner_product(Ns.cbegin(), Ns.cbegin() + dim, dims.cbegin(), (size_t)1,
 					std::multiplies<size_t>(),
 					[](const auto& lhs, const auto& rhs) {
-					return (rhs != 0) ? 1 : lhs;
-				});
+						return (rhs != 0) ? 1 : lhs;
+					});
 				const size_t target_dim_size = Ns[dim];
 				const size_t currente_data_size = dataOut.size();
-				const size_t next_data_size = currente_data_size / target_dim_size;
-				beacls::FloatVec next_data(next_data_size);
 				const size_t outer_dim_step = inner_dim_size * target_dim_size;
 				const size_t outer_dim_size = currente_data_size / outer_dim_step;
+				const size_t next_data_size = outer_dim_step * outer_dim_size;
+				beacls::FloatVec next_data(next_data_size);
 				const size_t target_dim_step = inner_dim_size;
 				switch (x_types[dim]) {
 				case Projection_Min:
